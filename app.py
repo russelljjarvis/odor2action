@@ -202,6 +202,9 @@ def get_frame():
 
 
 def main():
+	st.markdown("""I talk or directly email with this person (for any reason)...\n""")
+
+	st.markdown("""Graphs loading first plottin spread sheets...\n""")
 
 
 	df,df2,names,ratercodes,legend = get_frame()
@@ -238,7 +241,6 @@ def main():
 	del edges_df_full["1"]
 	edges_df_full.drop("0",inplace=True)
 	edges_df_full.drop("1",inplace=True)
-	st.markdown("""I talk or directly email with this person (for any reason)...\n""")
 	plot_stuff(df2,edges_df_full,first)
 
 if __name__ == "__main__":

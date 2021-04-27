@@ -39,6 +39,7 @@ import numpy as np
 import networkx as nx
 
 import xlrd
+import matplotlib.pyplot as plt
 
 
 def disable_logo(plot, element):
@@ -58,12 +59,12 @@ pd.set_option('display.max_colwidth', -1)
 def plot_stuff(df2,edges_df_full,first):
 	with shelve.open("fast_graphs_splash.p") as db:
 		flag = 'chord' in db
-		if flag:
+		if False:
 			graph = db['graph']
 			graph.opts(
 				color_index="circle",
-				width=250,
-				height=250,
+				width=350,
+				height=350,
 				show_frame=False,
 				xaxis=None,
 				yaxis=None,
@@ -83,8 +84,8 @@ def plot_stuff(df2,edges_df_full,first):
 			)
 			graph.opts(
 				color_index="circle",
-				width=250,
-				height=250,
+				width=350,
+				height=350,
 				show_frame=False,
 				xaxis=None,
 				yaxis=None,
@@ -128,7 +129,7 @@ def get_frame():
 			row_names = df.T[0].values
 			row_names = row_names[2:-1]
 			names = [ rn.split("- ") for rn in row_names ]
-			names2 = []#[i[1]
+			names2 = []
 			for i in names :
 				if len(i)==2:
 					names2.append(i[1])
@@ -142,7 +143,7 @@ def get_frame():
 
 			r_names = df.index.values[1:-1]
 			to_rename_ind = {v:k for k,v in zip(df2[0][1:-1],r_names)}
-			to_rename_ind;
+			#to_rename_ind;
 
 
 			del df2[0]
@@ -210,7 +211,8 @@ def main():
 	first = nx.DiGraph()
 	for i,row in enumerate(allcodes):
 		if i!=0:
-			first.add_node(row[0],name=row)
+			if row[0]!=1 and row[0]!=0:
+				first.add_node(row[0],name=row)
 
 
 	for idx in df2.index:
@@ -223,13 +225,32 @@ def main():
 
 				first.add_edge(idx,col,weight=weight)
 
-
-
+	first.remove_nodes_from(list(nx.isolates(first)))
+	#first = nx.remove_isolated(first)
 	edges_df_full = networkx.to_pandas_adjacency(first)
-	del edges_df_full["0"]
-	del edges_df_full["1"]
-	edges_df_full.drop("0",inplace=True)
-	edges_df_full.drop("1",inplace=True)
+	try:
+		del edges_df_full["0"]
+		del edges_df_full["1"]
+	except:
+		pass
+	try:
+		edges_df_full.drop("0",inplace=True)
+		edges_df_full.drop("1",inplace=True)
+	except:
+		pass
+	pos = nx.get_node_attributes(first,'pos')
+	#assert len(gro_pos)==len(micro_gro.nodes)
+	fig = plt.figure()
+
+	d = nx.degree(first)
+	d = [((d[node]+1) * 2) for node in first.nodes()]
+	#nx.draw(first,node_size=d)
+	pos = nx.spring_layout(first)
+	ax1 = nx.draw_networkx_nodes(first,pos,node_size=d, node_shape='o', alpha=0.35, width=0.1, label=None)
+	#ax0 = nx.draw_networkx_nodes(micro_gro, gro_pos,node_size=5, node_color='grey', node_shape='o', alpha=0.35, width=0.1, label=None)
+	ax01 = nx.draw_networkx_edges(first,pos, width=0.25, edge_color='blue', style='solid', alpha=0.35,arrows=False, label=None)
+	st.pyplot(fig)
+	#st.write(edges_df_full)
 	plot_stuff(df2,edges_df_full,first)
 
 if __name__ == "__main__":

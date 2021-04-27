@@ -160,51 +160,55 @@ del edges_df_full["0"]
 del edges_df_full["1"]
 edges_df_full.drop("0",inplace=True)
 edges_df_full.drop("1",inplace=True)
-
-
-graph = hv.Graph.from_networkx(
-	first, networkx.layout.fruchterman_reingold_layout
-)
-graph.opts(
-	color_index="circle",
-	width=250,
-	height=250,
-	show_frame=False,
-	xaxis=None,
-	yaxis=None,
-	tools=["hover", "tap"],
-	node_size=10,
-	cmap=["blue", "orange"],
-)
-st.write(hv.render(graph, backend="bokeh"))
-
-#node_labels = ['Output']+['Input']*(N-1)
-#np.random.seed(7)
-#edge_labels = np.random.rand(8)
-
-graph2 = hv.Graph.from_networkx(
-	first, networkx.layout.fruchterman_reingold_layout
-)
-
-#nodes = hv.Nodes((x, y, node_indices, node_labels), vdims='Type')
-#graph = hv.Graph(((source, target, edge_labels), nodes, paths), vdims='Weight')
-
-(graph2 + graph2.opts(inspection_policy='edges', clone=True)).opts(
-    opts.Graph(node_color='Type', edge_color='Weight', cmap='Set1',
-               edge_cmap='viridis', edge_line_width=hv.dim('Weight')*10))
-
-st.write(hv.render(graph2, backend="bokeh"))
-
-#st.write(edges_df_full)
-
-#st.write(edges_df_full.shape)
-#st.markdown("""## ----------------- """)#.format(author_name))
-
-
-
-
 st.write(df)
 st.write(legend)
 st.write(df2)
-fig = chord2.make_filled_chord(edges_df_full)
-st.write(fig)
+
+with shelve.open("fast_graphs_splash.p") as db:
+	#if 'chord' in db.keys():
+	flag = 'chord' in db
+	if flag:
+		graph = db['graph']
+		graph2 = db['graph2']
+		chord = db['chord']
+
+	else:
+		graph = hv.Graph.from_networkx(
+			first, networkx.layout.fruchterman_reingold_layout
+		)
+		graph.opts(
+			color_index="circle",
+			width=250,
+			height=250,
+			show_frame=False,
+			xaxis=None,
+			yaxis=None,
+			tools=["hover", "tap"],
+			node_size=10,
+			cmap=["blue", "orange"],
+		)
+		st.write(hv.render(graph, backend="bokeh"))
+		db['graph'] = graph
+
+		#node_labels = ['Output']+['Input']*(N-1)
+		#np.random.seed(7)
+		#edge_labels = np.random.rand(8)
+
+		graph2 = hv.Graph.from_networkx(
+			first, networkx.layout.fruchterman_reingold_layout
+		)
+
+		#nodes = hv.Nodes((x, y, node_indices, node_labels), vdims='Type')
+		#graph = hv.Graph(((source, target, edge_labels), nodes, paths), vdims='Weight')
+
+		(graph2 + graph2.opts(inspection_policy='edges', clone=True)).opts(
+		    opts.Graph(node_color='Type', edge_color='Weight', cmap='Set1',
+		               edge_cmap='viridis', edge_line_width=hv.dim('Weight')*10))
+
+		st.write(hv.render(graph2, backend="bokeh"))
+		db['graph2'] = graph2
+
+		chord = chord2.make_filled_chord(edges_df_full)
+		st.write(chord)
+		db['chord'] = chord
+	db.close()

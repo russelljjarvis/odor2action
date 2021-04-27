@@ -53,7 +53,7 @@ pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', -1)
-
+@st.cache()
 def main():
 	xlsx_file = Path('o2anetmap.xlsx')
 	wb_obj = openpyxl.load_workbook(xlsx_file)
@@ -165,8 +165,13 @@ def main():
 		flag = 'chord' in db
 		if flag:
 			graph = db['graph']
+			st.write(hv.render(graph, backend="bokeh"))
+
 			graph2 = db['graph2']
+			st.write(hv.render(graph2, backend="bokeh"))
+
 			chord = db['chord']
+			st.write(chord)
 
 		else:
 			graph = hv.Graph.from_networkx(

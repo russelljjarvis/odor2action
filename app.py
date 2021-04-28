@@ -30,6 +30,7 @@ import streamlit as st
 import numpy as np
 import pickle
 
+import plotly.graph_objects as go
 
 
 import pandas as pd
@@ -59,6 +60,51 @@ from auxillary_methods import plotly_sized#, data_shade#, draw_wstate_tree
 #@st.cache(suppress_st_warning=True)
 
 from datashader.bundling import hammer_bundle
+
+from typing import List
+
+#@staticmethod
+def generate_sankey_figure(nodes_list: List, edges_df: pd.DataFrame,
+							   title: str = 'Sankey Diagram'):
+
+
+
+	# Create the node indices
+	#nodes_list = nodes_df['Node'].tolist()
+	edges_df['src'] = edges_df['src'].apply(lambda x:
+													nodes_list.index(x))
+	edges_df['tgt'] = edges_df['tgt'].apply(lambda x:
+													nodes_list.index(x))
+	# creating the sankey diagram
+	data = dict(
+		type='sankey',
+		node=dict(
+			hoverinfo="all",
+			pad=15,
+			thickness=20,
+				line=dict(
+				color="black",
+				width=0.5
+			),
+			label=nodes_list,
+		),
+		link=dict(
+			source=edges_df['src'],
+			target=edges_df['tgt'],
+			value=edges_df['weight']
+		)
+	)
+
+	layout = dict(
+		title=title,
+		font=dict(
+			size=10
+		)
+	)
+
+	fig = dict(data=[data], layout=layout)
+	st.write(fig)
+	#return fig
 def data_shade(graph):
 
 	nodes = graph.nodes
@@ -67,7 +113,7 @@ def data_shade(graph):
 	nodes_ind = [i for i in range(0,len(graph.nodes()))]
 	redo  = {k:v for k,v in zip(graph.nodes,nodes_ind)}
 
-	pos_= nx.spring_layout(graph,scale=0.125)
+	pos_= nx.spring_layout(graph,scale=125)
 	coords = []
 	for node in graph.nodes:
 		 x, y = pos_[node]
@@ -317,16 +363,15 @@ def main():
 	#fig0 = plotly_sized(first)
 	#st.write(fig0)
 
-	import plotly.graph_objects as go
-
+	generate_sankey_figure(list(first.nodes), edges_df,title = 'Sankey Diagram')
 	fig = go.Figure(data=[go.Sankey(
-	    node = dict(
-	      pad = 15,
-	      thickness = 20,
-	      line = dict(color = "black", width = 0.5),
-	      label = list(first.nodes()),#["A1", "A2", "B1", "B2", "C1", "C2"],
-	      color = "blue"
-	    ),
+		node = dict(
+		  pad = 15,
+		  thickness = 20,
+		  line = dict(color = "black", width = 0.5),
+		  label = list(first.nodes()),#["A1", "A2", "B1", "B2", "C1", "C2"],
+		  color = "blue"
+		),
 		link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]]))])
 
 	fig.update_layout(title_text="Basic Sankey Diagram", font_size=10)

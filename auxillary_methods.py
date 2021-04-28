@@ -80,9 +80,9 @@ def plotly_sized(g):
 	https://towardsdatascience.com/tutorial-network-visualization-basics-with-networkx-and-plotly-and-a-little-nlp-57c9bbb55bb9
 	"""
 	try:
-		pos_ = nx.fruchterman_reingold_layout(g, scale=4.5))
+		pos_ = nx.fruchterman_reingold_layout(g, scale=4.5)
 	except:
-		pos_ = nx.spring_layout(g, scale=4.5))
+		pos_ = nx.spring_layout(g, scale=4.5)
 
 	#    x, y = pos_[node]
 

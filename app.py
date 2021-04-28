@@ -363,7 +363,7 @@ def main():
 	#fig0 = plotly_sized(first)
 	#st.write(fig0)
 
-	generate_sankey_figure(list(first.nodes), edges_df,title = 'Sankey Diagram')
+	generate_sankey_figure(list(first.nodes), adj_mat,title = 'Sankey Diagram')
 	fig = go.Figure(data=[go.Sankey(
 		node = dict(
 		  pad = 15,

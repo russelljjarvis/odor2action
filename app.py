@@ -148,8 +148,11 @@ def data_shade(graph):
 
 	return fig
 # data_shade(second,world,colors)
-
+from pyvis import network as net
+from pyvis.network import Network
+import seaborn as sns;
 def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
+
 	with shelve.open("fast_graphs_splash.p") as db:
 		flag = 'chord' in db
 		if False:#flag:
@@ -213,9 +216,10 @@ def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 			#to_pandas_adjacency
 			edge_list = nx.to_edgelist(first)
 			#hv.Chord(edge_list,label=labels)
-			import seaborn as sns;
 			g = sns.clustermap(df2)
 			st.pyplot(g)
+			plot_imshow_plotly(df2)
+
 			#chord3 = chord2.make_filled_chord(adj_mat)
 			#st.write(chord3)
 			#db['chord3'] = chord3
@@ -310,6 +314,52 @@ def get_frame():
 #import networkx as nx
 import networkx
 
+sns_colorscale = [[0.0, '#3f7f93'], #cmap = sns.diverging_palette(220, 10, as_cmap = True)
+	[0.071, '#5890a1'],
+	[0.143, '#72a1b0'],
+	[0.214, '#8cb3bf'],
+	[0.286, '#a7c5cf'],
+	[0.357, '#c0d6dd'],
+	[0.429, '#dae8ec'],
+	[0.5, '#f2f2f2'],
+	[0.571, '#f7d7d9'],
+	[0.643, '#f2bcc0'],
+	[0.714, '#eda3a9'],
+	[0.786, '#e8888f'],
+	[0.857, '#e36e76'],
+	[0.929, '#de535e'],
+	[1.0, '#d93a46']]
+
+
+def df_to_plotly(df,log=False):
+    return {'z': df.values.tolist(),
+            'x': df.columns.tolist(),
+            'y': df.index.tolist()}
+
+
+def plot_df_plotly(sleep_df):
+    fig = go.Figure(data=go.Heatmap(df_to_plotly(sleep_df,log=True)))
+    st.write(fig)
+
+def plot_imshow_plotly(sleep_df):
+
+    heat = go.Heatmap(df_to_plotly(sleep_df),colorscale=sns_colorscale)
+    #fig = go.Figure(data=
+
+    title = 'Adjacency Matrix'
+
+    layout = go.Layout(title_text=title, title_x=0.5,
+                    width=600, height=600,
+                    xaxis_showgrid=False,
+                    yaxis_showgrid=False,
+                    yaxis_autorange='reversed')
+
+    fig=go.Figure(data=[heat], layout=layout)
+
+    st.write(fig)
+
+
+
 def main():
 	#st.text(dir(nx))
 	st.markdown("""I talk or directly email with this person (for any reason)...\n""")
@@ -348,6 +398,27 @@ def main():
 				#adj_mat_dicts.append({"src":idx,"tgt":col,"weight":weight})
 
 				first.add_edge(idx,col,weight=weight)
+
+	nt = Network("500px", "500px",notebook=True,heading='')
+	nt.from_nx(first)
+	#st.text(dir(nt))
+	#nt.show()
+	#nt.write_html()
+
+	#import streamlit
+	#from streamlit_agraph import agraph, Node, Edge, Config
+	#config = Config(width=500,
+	#          height=500,
+	#           directed=True,
+	#            nodeHighlightBehavior=True,
+	#             highlightColor="#F7A7A6", # or "blue"
+	#              collapsible=True,
+	# coming soon (set for all): node_size=1000, node_color="blue"
+	#               )
+
+	#return_value = agraph(nodes=first.nodes,
+	#                      edges=first.edges,
+	#                      config=config)
 
 	matrix = df2.to_numpy()
 	names = list(first.nodes())

@@ -2,13 +2,16 @@ sudo apt-get update
 sudo python3 -m pip install -r requirements.txt
 sudo python3 -m pip install seaborn
 sudo python3 -m pip install bs4
-sudo python3 -m pip install natsort dask plotly tabulate
+sudo python3 -m pip install natsort dask plotly tabulate streamlit-agraph
+
+
 sudo python3 -m conda install -c pyviz holoviews bokeh
 sudo conda install -c pyviz holoviews bokeh graphviz_layout
 sudo python3 -m pip install git+https://github.com/pyviz/holoviews.git
 git clone https://github.com/pyviz/holoviews.git
 cd holoviews; sudo pip install -e .; cd ..;
-
+sudo apt-get install graphviz graphviz-dev
+sudo python3 -m pip install pygraphviz
 mkdir -p ~/.streamlit/
 echo "\
 [general]\n\

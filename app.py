@@ -67,7 +67,7 @@ def data_shade(graph):
 	nodes_ind = [i for i in range(0,len(graph.nodes()))]
 	redo  = {k:v for k,v in zip(graph.nodes,nodes_ind)}
 
-	pos_= nx.spring_layout(graph)
+	pos_= nx.spring_layout(graph,scale=0.125)
 	coords = []
 	for node in graph.nodes:
 		 x, y = pos_[node]
@@ -89,12 +89,12 @@ def data_shade(graph):
 		 start = stop
 
 
-	fig, ax = plt.subplots(figsize=(20,20))
+	fig, ax = plt.subplots(figsize=(30,30))
 
-	for seg in segments[::100]:
+	for seg in segments:
 		 ax.plot(seg[:,0], seg[:,1])
 
-	ax3 = nx.draw_networkx_nodes(graph, orig_pos, node_size=15, node_shape='o', alpha=1.0, vmin=None, vmax=None, linewidths=None, label=None)#, **kwds)
+	ax3 = nx.draw_networkx_nodes(graph, pos_, node_size=25, node_shape='o', alpha=0.5, vmin=None, vmax=None, linewidths=1.0, label=None,ax=ax)#, **kwds)
 
 	return fig
 # data_shade(second,world,colors)
@@ -137,6 +137,12 @@ def plot_stuff(df2,edges_df_full,first):
 				cmap=["blue", "orange"],
 			)
 			st.write(hv.render(graph, backend="bokeh"))
+
+			#nodes = hv.Dataset(enumerate(nodes), 'index', 'label')
+			#edges = [
+			#    (0, 1, 53), (0, 2, 47), (2, 6, 17), (2, 3, 30), (3, 1, 22.5), (3, 4, 3.5), (3, 6, 4.), (4, 5, 0.45)
+			#]
+
 			db['graph'] = graph
 
 			chord = chord2.make_filled_chord(edges_df_full)
@@ -267,6 +273,8 @@ def main():
 				except:
 					weight = df2.loc[idx, col]
 				adj_mat_dicts.append({"src":idx,"tgt":col,"weight":weight})
+				print(adj_mat_dicts[-1])
+				#adj_mat_dicts.append({"src":idx,"tgt":col,"weight":weight})
 
 				first.add_edge(idx,col,weight=weight)
 	adj_mat = pd.DataFrame(adj_mat_dicts)
@@ -283,6 +291,9 @@ def main():
 		edges_df_full.drop("1",inplace=True)
 	except:
 		pass
+	fig4 = data_shade(first)
+	st.pyplot(fig4)
+
 	pos = nx.get_node_attributes(first,'pos')
 	#assert len(gro_pos)==len(micro_gro.nodes)
 	fig = plt.figure()
@@ -298,20 +309,62 @@ def main():
 	#st.write(edges_df_full)
 	plot_stuff(df2,edges_df_full,first)
 
-	adj_mat_dicts.append({"src":idx,"tgt":col,"weight":weight})
 	adj_mat = pd.DataFrame(adj_mat_dicts)
 	link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = adj_mat["weight"])
 
-	fig0 = plotly_sized(first)
-	st.write(fig0)
+
+
+	#fig0 = plotly_sized(first)
+	#st.write(fig0)
+
+	import plotly.graph_objects as go
+
+	fig = go.Figure(data=[go.Sankey(
+	    node = dict(
+	      pad = 15,
+	      thickness = 20,
+	      line = dict(color = "black", width = 0.5),
+	      label = list(first.nodes()),#["A1", "A2", "B1", "B2", "C1", "C2"],
+	      color = "blue"
+	    ),
+		link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]]))])
+
+	fig.update_layout(title_text="Basic Sankey Diagram", font_size=10)
+	#fig.show()
+
+	st.write(fig)
+	link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]])
 
 	data = go.Sankey(link = link)
 
-	fig3 = go.Figure(data)
+	#fig3 = go.Figure(data)
+	layout = go.Layout(
+		paper_bgcolor="rgba(0,0,0,0)",  # transparent background
+		plot_bgcolor="rgba(0,0,0,0)",  # transparent 2nd background
+		xaxis={"showgrid": False, "zeroline": False},  # no gridlines
+		yaxis={"showgrid": False, "zeroline": False},  # no gridlines
+	)  # Create figure
+	layout["width"] = 925
+	layout["height"] = 925
+
+	fig3 = go.Figure(data,layout=layout)  # Add all edge traces
 	st.write(fig3)
+
+	#nodes = first.nodes
+	#edges = first.edges
+	#value_dim = [i*10 for i in adj_mat["weight"]]
+	#careers = hv.Sankey((edges, nodes), ['From', 'To'])#, vdims=value_dim)
+
+	#careers.opts(
+	#    opts.Sankey(labels='label', label_position='right', width=900, height=300, cmap='Set1',
+	#                edge_color=dim('To').str(), node_color=dim('index').str()))
+	#careers.write(hv.render(graph, backend="bokeh"))
+
+	#for trace in edge_trace:
+	#	fig.add_trace(trace)  # Add node trace
+	#fig.add_trace(node_trace)  # Remove legend
+
 	#fig.show()
-	fig4 = data_shade(first)
-	st.pyplot(fig4)
 if __name__ == "__main__":
 
 	main()

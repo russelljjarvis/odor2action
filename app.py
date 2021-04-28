@@ -399,8 +399,8 @@ def main():
 
 				first.add_edge(idx,col,weight=weight)
 
-	nt = Network("500px", "500px",notebook=True,heading='')
-	nt.from_nx(first)
+	#nt = Network("500px", "500px",notebook=True,heading='')
+	#nt.from_nx(first)
 	#st.text(dir(nt))
 	#nt.show()
 	#nt.write_html()

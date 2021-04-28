@@ -320,7 +320,7 @@ def main():
 				except:
 					weight = df2.loc[idx, col]
 				adj_mat_dicts.append({"src":idx,"tgt":col,"weight":weight})
-				print(adj_mat_dicts[-1])
+				#print(adj_mat_dicts[-1])
 				#adj_mat_dicts.append({"src":idx,"tgt":col,"weight":weight})
 
 				first.add_edge(idx,col,weight=weight)

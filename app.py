@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+	#!/usr/bin/env python
 # coding: utf-8
 
 
@@ -54,12 +54,54 @@ pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', -1)
-
+import plotly.graph_objects as go
+from auxillary_methods import plotly_sized#, data_shade#, draw_wstate_tree
 #@st.cache(suppress_st_warning=True)
+
+from datashader.bundling import hammer_bundle
+def data_shade(graph):
+	nodes = graph.nodes
+	orig_pos=nx.get_node_attributes(graph,'pos')
+
+	nodes_ind = [i for i in range(0,len(graph.nodes()))]
+	redo  = {k:v for k,v in zip(graph.nodes,nodes_ind)}
+
+	pos_= nx.get_node_attributes(graph,'pos')
+	coords = []
+	for node in graph.nodes:
+		 x, y = pos_[node]
+		 coords.append((x, y))
+	nodes_py = [[new_name, pos[0], pos[1]] for name, pos,new_name in zip(nodes, coords,nodes_ind)]
+	ds_nodes = pd.DataFrame(nodes_py, columns=["name", "x", "y"])
+	ds_edges_py = []
+	for (n0, n1) in graph.edges:
+		ds_edges_py.append([redo[n0], redo[n1]])
+	ds_edges = pd.DataFrame(ds_edges_py, columns=["source", "target"])
+	hb = hammer_bundle(ds_nodes, ds_edges)
+	hbnp = hb.to_numpy()
+	splits = (np.isnan(hbnp[:,0])).nonzero()[0]
+	start = 0
+	segments = []
+	for stop in splits:
+		 seg = hbnp[start:stop, :]
+		 segments.append(seg)
+		 start = stop
+
+
+	fig, ax = plt.subplots(figsize=(20,20))
+
+	for seg in segments[::100]:
+		 ax.plot(seg[:,0], seg[:,1])
+
+	ax3 = nx.draw_networkx_nodes(graph, orig_pos, node_size=15, node_shape='o', alpha=1.0, vmin=None, vmax=None, linewidths=None, label=None)#, **kwds)
+
+	return fig
+# data_shade(second,world,colors)
+
 def plot_stuff(df2,edges_df_full,first):
 	with shelve.open("fast_graphs_splash.p") as db:
 		flag = 'chord' in db
-		if False:
+		if False:#flag:
 			graph = db['graph']
 			graph.opts(
 				color_index="circle",
@@ -99,6 +141,11 @@ def plot_stuff(df2,edges_df_full,first):
 			chord = chord2.make_filled_chord(edges_df_full)
 			st.write(chord)
 			db['chord'] = chord
+
+			#chord3 = chord2.make_filled_chord(adj_mat)
+			#st.write(chord3)
+			#db['chord3'] = chord3
+
 		db.close()
 
 def get_frame():
@@ -143,17 +190,13 @@ def get_frame():
 
 			r_names = df.index.values[1:-1]
 			to_rename_ind = {v:k for k,v in zip(df2[0][1:-1],r_names)}
-			#to_rename_ind;
-
-
 			del df2[0]
 			del df2[1]
-
 			del df2[112]
 			del df2[113]
 			del df2[42]
-
 			df2.drop(0,inplace=True)
+			df2.drop(1,inplace=True)
 			df2.drop(42,inplace=True)
 
 			df2.rename(columns=to_rename,inplace=True)
@@ -212,9 +255,9 @@ def main():
 	for i,row in enumerate(allcodes):
 		if i!=0:
 			if row[0]!=1 and row[0]!=0:
-				first.add_node(row[0],name=row)
+				first.add_node(row[0],name=row)#,size=20)
 
-
+	adj_mat_dicts = []
 	for idx in df2.index:
 		for col in df2.columns:
 			if idx != col:
@@ -222,9 +265,10 @@ def main():
 					weight = df2.loc[idx, col][0]
 				except:
 					weight = df2.loc[idx, col]
+				adj_mat_dicts.append({"src":idx,"tgt":col,"weight":weight})
 
 				first.add_edge(idx,col,weight=weight)
-
+	adj_mat = pd.DataFrame(adj_mat_dicts)
 	first.remove_nodes_from(list(nx.isolates(first)))
 	#first = nx.remove_isolated(first)
 	edges_df_full = networkx.to_pandas_adjacency(first)
@@ -243,9 +287,9 @@ def main():
 	fig = plt.figure()
 
 	d = nx.degree(first)
-	d = [((d[node]+1) * 2) for node in first.nodes()]
+	d = [((d[node]+1) * 1.25) for node in first.nodes()]
 	#nx.draw(first,node_size=d)
-	pos = nx.spring_layout(first)
+	pos = nx.spring_layout(first, scale=4.5)
 	ax1 = nx.draw_networkx_nodes(first,pos,node_size=d, node_shape='o', alpha=0.35, width=0.1, label=None)
 	#ax0 = nx.draw_networkx_nodes(micro_gro, gro_pos,node_size=5, node_color='grey', node_shape='o', alpha=0.35, width=0.1, label=None)
 	ax01 = nx.draw_networkx_edges(first,pos, width=0.25, edge_color='blue', style='solid', alpha=0.35,arrows=False, label=None)
@@ -253,6 +297,20 @@ def main():
 	#st.write(edges_df_full)
 	plot_stuff(df2,edges_df_full,first)
 
+	adj_mat_dicts.append({"src":idx,"tgt":col,"weight":weight})
+	adj_mat = pd.DataFrame(adj_mat_dicts)
+	link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = adj_mat["weight"])
+
+	fig0 = plotly_sized(first)
+	st.write(fig0)
+
+	data = go.Sankey(link = link)
+
+	fig3 = go.Figure(data)
+	st.write(fig3)
+	#fig.show()
+	fig4 = data_shade(first)
+	st.pyplot(fig4)
 if __name__ == "__main__":
 
-    main()
+	main()

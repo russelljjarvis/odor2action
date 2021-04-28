@@ -56,7 +56,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', -1)
 import plotly.graph_objects as go
-from auxillary_methods import plotly_sized#, data_shade#, draw_wstate_tree
+#from auxillary_methods import plotly_sized#, data_shade#, draw_wstate_tree
 #@st.cache(suppress_st_warning=True)
 
 from datashader.bundling import hammer_bundle
@@ -102,8 +102,9 @@ def generate_sankey_figure(nodes_list: List, edges_df: pd.DataFrame,
 		)
 	)
 
-	fig = dict(data=[data], layout=layout)
+	fig = go.Figure(data=[data], layout=layout)
 	st.write(fig)
+
 	#return fig
 def data_shade(graph):
 

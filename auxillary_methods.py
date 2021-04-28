@@ -136,11 +136,11 @@ def plotly_sized(g):
 		# print(x,tuple(x),node_trace["x"])
 		node_trace["x"] += tuple([x])
 		node_trace["y"] += tuple([y])
-		# node_trace["marker"]["color"] += tuple(["cornflowerblue"])
+		node_trace["marker"]["color"] += tuple(["cornflowerblue"])
 		# node_trace['marker']['size'] += tuple([5*g.nodes()[node]['size']])
 
 
-		node_trace["marker"]["size"] += tuple([0.45 * g.nodes()[node]["size"]])
+		node_trace["marker"]["size"] += tuple([5.45 * g.nodes()[node]["size"]])
 		node_trace["text"] += tuple(["<b>" + str(node) + "</b>"])
 	# Customize layout
 	layout = go.Layout(
@@ -149,16 +149,16 @@ def plotly_sized(g):
 		xaxis={"showgrid": False, "zeroline": False},  # no gridlines
 		yaxis={"showgrid": False, "zeroline": False},  # no gridlines
 	)  # Create figure
-	layout["width"] = 725
-	layout["height"] = 725
+	layout["width"] = 925
+	layout["height"] = 925
 
 	fig = go.Figure(layout=layout)  # Add all edge traces
 	for trace in edge_trace:
 		fig.add_trace(trace)  # Add node trace
 	fig.add_trace(node_trace)  # Remove legend
-	fig.update_layout(showlegend=False)  # Remove tick labels
-	fig.update_xaxes(showticklabels=False)
-	fig.update_yaxes(showticklabels=False)  # Show figure
+	#fig.update_layout(showlegend=False)  # Remove tick labels
+	#fig.update_xaxes(showticklabels=False)
+	#fig.update_yaxes(showticklabels=False)  # Show figure
 	return fig
 	# fig.show()
 '''

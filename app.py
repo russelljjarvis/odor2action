@@ -60,13 +60,14 @@ from auxillary_methods import plotly_sized#, data_shade#, draw_wstate_tree
 
 from datashader.bundling import hammer_bundle
 def data_shade(graph):
+
 	nodes = graph.nodes
-	orig_pos=nx.get_node_attributes(graph,'pos')
+	#orig_pos=nx.get_node_attributes(graph,'pos')
 
 	nodes_ind = [i for i in range(0,len(graph.nodes()))]
 	redo  = {k:v for k,v in zip(graph.nodes,nodes_ind)}
 
-	pos_= nx.get_node_attributes(graph,'pos')
+	pos_= nx.spring_layout(graph)
 	coords = []
 	for node in graph.nodes:
 		 x, y = pos_[node]

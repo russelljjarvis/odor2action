@@ -338,8 +338,6 @@ def main():
 		edges_df_full.drop("1",inplace=True)
 	except:
 		pass
-	fig4 = data_shade(first)
-	st.pyplot(fig4)
 
 	pos = nx.get_node_attributes(first,'pos')
 	#assert len(gro_pos)==len(micro_gro.nodes)
@@ -355,6 +353,8 @@ def main():
 	st.pyplot(fig)
 	#st.write(edges_df_full)
 	plot_stuff(df2,edges_df_full,first)
+	fig4 = data_shade(first)
+	st.pyplot(fig4)
 
 	adj_mat = pd.DataFrame(adj_mat_dicts)
 	link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = adj_mat["weight"])
@@ -365,36 +365,37 @@ def main():
 	#st.write(fig0)
 
 	generate_sankey_figure(list(first.nodes), adj_mat,title = 'Sankey Diagram')
-	fig = go.Figure(data=[go.Sankey(
-		node = dict(
-		  pad = 15,
-		  thickness = 20,
-		  line = dict(color = "black", width = 0.5),
-		  label = list(first.nodes()),#["A1", "A2", "B1", "B2", "C1", "C2"],
-		  color = "blue"
-		),
-		link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]]))])
+	def dontdo():
+		fig = go.Figure(data=[go.Sankey(
+			node = dict(
+			  pad = 15,
+			  thickness = 20,
+			  line = dict(color = "black", width = 0.5),
+			  label = list(first.nodes()),#["A1", "A2", "B1", "B2", "C1", "C2"],
+			  color = "blue"
+			),
+			link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]]))])
 
-	fig.update_layout(title_text="Basic Sankey Diagram", font_size=10)
-	#fig.show()
+		fig.update_layout(title_text="Basic Sankey Diagram", font_size=10)
+		#fig.show()
 
-	st.write(fig)
-	link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]])
+		st.write(fig)
+		link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]])
 
-	data = go.Sankey(link = link)
+		data = go.Sankey(link = link)
 
-	#fig3 = go.Figure(data)
-	layout = go.Layout(
-		paper_bgcolor="rgba(0,0,0,0)",  # transparent background
-		plot_bgcolor="rgba(0,0,0,0)",  # transparent 2nd background
-		xaxis={"showgrid": False, "zeroline": False},  # no gridlines
-		yaxis={"showgrid": False, "zeroline": False},  # no gridlines
-	)  # Create figure
-	layout["width"] = 925
-	layout["height"] = 925
+		#fig3 = go.Figure(data)
+		layout = go.Layout(
+			paper_bgcolor="rgba(0,0,0,0)",  # transparent background
+			plot_bgcolor="rgba(0,0,0,0)",  # transparent 2nd background
+			xaxis={"showgrid": False, "zeroline": False},  # no gridlines
+			yaxis={"showgrid": False, "zeroline": False},  # no gridlines
+		)  # Create figure
+		layout["width"] = 925
+		layout["height"] = 925
 
-	fig3 = go.Figure(data,layout=layout)  # Add all edge traces
-	st.write(fig3)
+		fig3 = go.Figure(data,layout=layout)  # Add all edge traces
+		st.write(fig3)
 
 	#nodes = first.nodes
 	#edges = first.edges

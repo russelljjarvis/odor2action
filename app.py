@@ -48,7 +48,7 @@ def disable_logo(plot, element):
 
 
 hv.extension("bokeh", logo=False)
-hv.output(size=350)
+hv.output(size=150)
 hv.plotting.bokeh.ElementPlot.finalize_hooks.append(disable_logo)
 
 pd.set_option('display.max_rows', None)
@@ -136,7 +136,7 @@ def data_shade(graph):
 		 start = stop
 
 
-	fig, ax = plt.subplots(figsize=(30,30))
+	fig, ax = plt.subplots(figsize=(15,15))
 
 	for seg in segments:
 		 ax.plot(seg[:,0], seg[:,1])
@@ -153,8 +153,8 @@ def plot_stuff(df2,edges_df_full,first):
 			graph = db['graph']
 			graph.opts(
 				color_index="circle",
-				width=350,
-				height=350,
+				width=150,
+				height=150,
 				show_frame=False,
 				xaxis=None,
 				yaxis=None,
@@ -353,19 +353,21 @@ def main():
 	st.pyplot(fig)
 	#st.write(edges_df_full)
 	plot_stuff(df2,edges_df_full,first)
-	fig4 = data_shade(first)
-	st.pyplot(fig4)
 
-	adj_mat = pd.DataFrame(adj_mat_dicts)
-	link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = adj_mat["weight"])
-
-
-
-	#fig0 = plotly_sized(first)
-	#st.write(fig0)
-
-	generate_sankey_figure(list(first.nodes), adj_mat,title = 'Sankey Diagram')
 	def dontdo():
+		fig4 = data_shade(first)
+		st.pyplot(fig4)
+
+		adj_mat = pd.DataFrame(adj_mat_dicts)
+		link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = adj_mat["weight"])
+
+
+
+		#fig0 = plotly_sized(first)
+		#st.write(fig0)
+
+		generate_sankey_figure(list(first.nodes), adj_mat,title = 'Sankey Diagram')
+
 		fig = go.Figure(data=[go.Sankey(
 			node = dict(
 			  pad = 15,

@@ -74,11 +74,12 @@ def make_edge(x, y, text, width):
 		text=([text]),
 		mode="lines",
 	)
-from networkx.drawing.nx_agraph import graphviz_layout
 #import plotly.plotly as py
 from plotly.graph_objs import *
 
 def plotly_sized2(K):
+	from networkx.drawing.nx_agraph import graphviz_layout
+
 	# https://nbviewer.jupyter.org/github/ykhorram/nips2015_topic_network_analysis/blob/master/nips_collaboration_network.ipynb
 	pos = graphviz_layout(K)
 	labels=[]

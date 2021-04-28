@@ -15,6 +15,7 @@ holoviews
 bokeh
 sankeyview
 chord
+seaborn
 js2py
 xarray
 datashader

@@ -5,7 +5,7 @@ sudo python3 -m pip install bs4
 sudo python3 -m pip install natsort dask plotly tabulate streamlit-agraph
 
 
-sudo python3 -m conda install -c pyviz holoviews bokeh
+sudo python3 -m conda install -c pyviz holoviews bokeh seaborn
 sudo conda install -c pyviz holoviews bokeh graphviz_layout
 sudo python3 -m pip install git+https://github.com/pyviz/holoviews.git
 git clone https://github.com/pyviz/holoviews.git

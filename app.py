@@ -148,8 +148,8 @@ def data_shade(graph):
 
 	return fig
 # data_shade(second,world,colors)
-from pyvis import network as net
-from pyvis.network import Network
+#from pyvis import network as net
+#from pyvis.network import Network
 import seaborn as sns;
 def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 

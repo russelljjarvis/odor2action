@@ -349,7 +349,7 @@ def main():
 	d = [((d[node]+1) * 1.25) for node in first.nodes()]
 	#nx.draw(first,node_size=d)
 	pos = nx.spring_layout(first, scale=4.5)
-	ax1 = nx.draw_networkx_nodes(first,pos,node_size=d, node_shape='o', alpha=0.35, width=0.1, label=None)
+	ax1 = nx.draw_networkx_nodes(first,pos,node_size=d, node_shape='o', alpha=0.35, label=None)
 	#ax0 = nx.draw_networkx_nodes(micro_gro, gro_pos,node_size=5, node_color='grey', node_shape='o', alpha=0.35, width=0.1, label=None)
 	ax01 = nx.draw_networkx_edges(first,pos, width=0.25, edge_color='blue', style='solid', alpha=0.35,arrows=False, label=None)
 	st.pyplot(fig)

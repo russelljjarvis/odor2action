@@ -1,4 +1,5 @@
-import semanticscholar as sch
+
+#import semanticscholar as sch
 import pprint
 pprint = pprint.pprint
 
@@ -73,7 +74,86 @@ def make_edge(x, y, text, width):
 		text=([text]),
 		mode="lines",
 	)
+from networkx.drawing.nx_agraph import graphviz_layout
+#import plotly.plotly as py
+from plotly.graph_objs import *
 
+def plotly_sized2(K):
+	# https://nbviewer.jupyter.org/github/ykhorram/nips2015_topic_network_analysis/blob/master/nips_collaboration_network.ipynb
+	pos = graphviz_layout(K)
+	labels=[]
+	group=[]
+	for node in K.nodes():
+		labels.append(str(node))
+	st.text(labels)
+
+	x=[]
+	y=[]
+	for edge in K.edges(data=True):
+
+		x0, y0 = pos[edge[0]]
+		x1, y1 = pos[edge[1]]
+		x.extend([x0, x1, None])
+		y.extend([y0, y1, None])
+	edge_trace = Scatter(
+		x=x,
+		y=y,
+		line=Line(width=1.5,color='#888'),
+		hoverinfo='none',
+		mode='lines')
+
+	node_trace = Scatter(
+		x=[],
+		y=[],
+		text=[],
+		mode='markers',
+		hoverinfo='text',
+		marker=Marker(
+			showscale=True,
+			colorscale='Jet',
+			color=group,
+			size=[],
+			colorbar=dict(
+				title='Class',
+				ticks = 'outside'
+			),
+			line=dict(width=1)))
+	xx = []
+	yy = []
+	for node in K.nodes():
+		x, y = pos[node]#G.node[node]['pos']
+		xx.append(x)
+		yy.append(y)
+	node_deg = K.degree()
+	node_trace['marker']['size'] =[]
+	node_trace['marker']['color'] =[]
+	node_trace['text'] =[]
+	node_trace['y'] = yy
+	node_trace['x'] = xx
+	sizes = []
+	texts = []
+	for node in K.nodes():
+		#sizes.append(node_deg[node])
+		sizes.append(10)
+
+		name = node#aid_name.get(int_aid[node])
+		node_info = '# of connections: %s <br />AuthorID: %s'%(str(node_deg[node]), str(name))
+		texts.append(node_info)
+	#node_trace['text'] = texts
+		#node_trace['marker']['color'].append(author_cls[int_aid[node]])
+	node_trace['marker']['size'] = sizes
+	fig = Figure(data=Data([edge_trace, node_trace]),
+				 layout=Layout(
+					title='<br>Collaboration Network',
+					titlefont=dict(size=16),
+					showlegend=False,
+					hovermode='closest',
+					margin=dict(b=10,l=15,r=5,t=40),
+					annotations=dict(text=labels,showarrow=False)))
+	#xaxis=XAxis(showgrid=False, zeroline=False, showticklabels=False),
+	#yaxis=YAxis(showgrid=False, zeroline=False, showticklabels=False)))
+	#st.write(fig)
+	return fig
 
 def plotly_sized(g):
 	"""

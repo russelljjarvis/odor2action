@@ -17,15 +17,12 @@ from holoviews import opts, dim
 from collections import Iterable
 import networkx
 
-#from auxillary_methods import author_to_coauthor_network, network#,try_again
 import holoviews as hv
-#from auxillary_methods import push_frame_to_screen, plotly_sized#, data_shade, draw_wstate_tree
 import chord2
 import shelve
 
 import plotly.graph_objects as go
 import pandas as pd
-#import geopandas
 import streamlit as st
 import numpy as np
 import pickle
@@ -42,6 +39,8 @@ import networkx as nx
 import xlrd
 import matplotlib.pyplot as plt
 
+from chord import Chord
+from streamlit import components
 
 def disable_logo(plot, element):
 	plot.state.toolbar.logo = None
@@ -56,12 +55,16 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', -1)
 import plotly.graph_objects as go
-#from auxillary_methods import plotly_sized#, data_shade#, draw_wstate_tree
+from auxillary_methods import plotly_sized2#, data_shade#, draw_wstate_tree
 #@st.cache(suppress_st_warning=True)
 
 from datashader.bundling import hammer_bundle
 
 from typing import List
+import pandas as pd
+import holoviews as hv
+from holoviews import opts, dim
+from bokeh.sampledata.les_mis import data
 
 #@staticmethod
 def generate_sankey_figure(nodes_list: List, edges_df: pd.DataFrame,
@@ -146,7 +149,7 @@ def data_shade(graph):
 	return fig
 # data_shade(second,world,colors)
 
-def plot_stuff(df2,edges_df_full,first):
+def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 	with shelve.open("fast_graphs_splash.p") as db:
 		flag = 'chord' in db
 		if False:#flag:
@@ -195,7 +198,24 @@ def plot_stuff(df2,edges_df_full,first):
 			chord = chord2.make_filled_chord(edges_df_full)
 			st.write(chord)
 			db['chord'] = chord
-
+			adj_mat = pd.DataFrame(adj_mat_dicts)
+			encoded = {v:k for k,v in enumerate(first.nodes())}
+			link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)][0:30], target =[encoded[i] for i in list(adj_mat["tgt"].values)][0:30], value =[i*3 for i in list(adj_mat["weight"].values)][0:30])
+			data = go.Sankey(link = link)
+			#fig = go.Figure(data)
+			#st.write(fig)
+			#fig.show(renderer="svg", width=1000, height=500)
+			#fig.savefig('blah.svg')
+			#db['sankey'] = data
+			edge_list = networkx.to_edgelist(first)
+			labels = list(first.nodes)
+			#adjdf = nx.to_pandas_adjacency(first)
+			#to_pandas_adjacency
+			edge_list = nx.to_edgelist(first)
+			#hv.Chord(edge_list,label=labels)
+			import seaborn as sns;
+			g = sns.clustermap(df2)
+			st.pyplot(g)
 			#chord3 = chord2.make_filled_chord(adj_mat)
 			#st.write(chord3)
 			#db['chord3'] = chord3
@@ -283,11 +303,15 @@ def get_frame():
 			store['names'] = names  # save it
 			store['ratercodes'] = ratercodes  # save it
 			store['legend'] = legend  # save it
+			#fig = go.Figure(data)
+			#st.write(fig)
 
 	return df,df2,names,ratercodes,legend
-
+#import networkx as nx
+import networkx
 
 def main():
+	#st.text(dir(nx))
 	st.markdown("""I talk or directly email with this person (for any reason)...\n""")
 
 	st.markdown("""Graphs loading first plottin spread sheets...\n""")
@@ -324,10 +348,16 @@ def main():
 				#adj_mat_dicts.append({"src":idx,"tgt":col,"weight":weight})
 
 				first.add_edge(idx,col,weight=weight)
-	adj_mat = pd.DataFrame(adj_mat_dicts)
+
+	matrix = df2.to_numpy()
+	names = list(first.nodes())
 	first.remove_nodes_from(list(nx.isolates(first)))
-	#first = nx.remove_isolated(first)
-	edges_df_full = networkx.to_pandas_adjacency(first)
+	st.text(type(first))
+	try:
+		edges_df_full = nx.to_pandas_adjacency(first)
+	except:
+		edges_df_full = nx.to_pandas_dataframe(first)
+	st.write(edges_df_full)
 	try:
 		del edges_df_full["0"]
 		del edges_df_full["1"]
@@ -351,8 +381,11 @@ def main():
 	#ax0 = nx.draw_networkx_nodes(micro_gro, gro_pos,node_size=5, node_color='grey', node_shape='o', alpha=0.35, width=0.1, label=None)
 	ax01 = nx.draw_networkx_edges(first,pos, width=0.25, edge_color='blue', style='solid', alpha=0.35,arrows=False, label=None)
 	st.pyplot(fig)
+	#fig0 = plotly_sized2(first)
+	#st.write(fig0)
+
 	#st.write(edges_df_full)
-	plot_stuff(df2,edges_df_full,first)
+	plot_stuff(df2,edges_df_full,first,adj_mat_dicts)
 
 	def dontdo():
 		fig4 = data_shade(first)
@@ -363,10 +396,8 @@ def main():
 
 
 
-		#fig0 = plotly_sized(first)
-		#st.write(fig0)
 
-		generate_sankey_figure(list(first.nodes), adj_mat,title = 'Sankey Diagram')
+		#generate_sankey_figure(list(first.nodes), adj_mat,title = 'Sankey Diagram')
 
 		fig = go.Figure(data=[go.Sankey(
 			node = dict(

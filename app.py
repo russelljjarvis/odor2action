@@ -10,6 +10,7 @@ import networkx as nx
 from node2vec import node2vec
 from gensim.models import Word2Vec
 from node2vec.edges import HadamardEmbedder
+import dash_bio as dashbio
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -396,8 +397,7 @@ def learn_embeddings(walks):
 	model.save_word2vec_format(args.output)
 
 	return
-import dash_bio as dashbio
-from streamlit import components
+#from streamlit import components
 
 def main():
 	st.title('NeuroScience Collaboration Survey Data')
@@ -516,7 +516,7 @@ def main():
 		components.v1.html(source_code, height = 1100,width=1100)
 	except:
 		components.html(source_code, height = 1100,width=1100)
-
+	st.text("keep scrolling down...")
 	# Precompute probabilities and generate walks - **ON WINDOWS ONLY WORKS WITH workers=1**
 	#n2vec = node2vec.Node2Vec(nx_G, dimensions=64, walk_length=30, num_walks=200, workers=4)  # Use temp_folder for big graphs
 	# Embed nodes

@@ -53,8 +53,8 @@ import xlrd
 import matplotlib.pyplot as plt
 
 from chord import Chord
-from streamlit import components
 
+import dash_bio
 def disable_logo(plot, element):
 	plot.state.toolbar.logo = None
 
@@ -228,6 +228,21 @@ def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 			#adjdf = nx.to_pandas_adjacency(first)
 			#to_pandas_adjacency
 			edge_list = nx.to_edgelist(first)
+			columns = list(df2.columns.values)
+			rows = list(df2.index)
+			figure=dashbio.Clustergram(
+			        data=df2.loc[rows].values,
+			        column_labels=columns,
+			        row_labels=rows,
+			        color_threshold={
+			            'row': 250,
+			            'col': 700
+			        },
+			        hidden_labels='row',
+			        height=800,
+			        width=700
+			    )
+			st.write(figure)
 			#hv.Chord(edge_list,label=labels)
 			g = sns.clustermap(df2)
 			st.pyplot(g)
@@ -381,6 +396,9 @@ def learn_embeddings(walks):
 	model.save_word2vec_format(args.output)
 
 	return
+import dash_bio as dashbio
+from streamlit import components
+
 def main():
 	st.title('NeuroScience Collaboration Survey Data')
 
@@ -451,7 +469,7 @@ def main():
 		edges_df_full = nx.to_pandas_adjacency(first)
 	except:
 		edges_df_full = nx.to_pandas_dataframe(first)
-	st.write(edges_df_full)
+	#st.write(edges_df_full)
 	try:
 		del edges_df_full["0"]
 		del edges_df_full["1"]
@@ -474,14 +492,16 @@ def main():
 	nt = Network("500px", "500px",notebook=True,heading='Elastic Physics Network Survey Data')
 	nt.barnes_hut()
 	nt.from_nx(G)
-	#if physics:
 	nt.show_buttons(filter_=['physics'])
 	nt.show('test.html')
-	#nt.show('test.html')
 
 	HtmlFile = open("test.html", 'r', encoding='utf-8')
 	source_code = HtmlFile.read()
-	components.html(source_code, height = 1100,width=1100)
+	try:
+		components.v1.html(source_code, height = 1100,width=1100)
+	except:
+		components.html(source_code, height = 1100,width=1100)
+
 	# Precompute probabilities and generate walks - **ON WINDOWS ONLY WORKS WITH workers=1**
 	#n2vec = node2vec.Node2Vec(nx_G, dimensions=64, walk_length=30, num_walks=200, workers=4)  # Use temp_folder for big graphs
 	# Embed nodes

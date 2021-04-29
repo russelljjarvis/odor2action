@@ -11,7 +11,8 @@ tqdm
 pipenv
 bokeh
 networkx
-pyviz
+pyvis
+dash_bio
 holoviews
 bokeh
 sankeyview

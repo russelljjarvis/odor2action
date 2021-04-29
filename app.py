@@ -447,14 +447,14 @@ def main():
 	d = nx.degree(first)
 	d = [((d[node]+1) * 1.25) for node in first.nodes()]
 	#nx.draw(first,node_size=d)
-	try:
-		from networkx.drawing.nx_agraph import graphviz_layout
+	#try:
+	#	from networkx.drawing.nx_agraph import graphviz_layout
 
 		# https://nbviewer.jupyter.org/github/ykhorram/nips2015_topic_network_analysis/blob/master/nips_collaboration_network.ipynb
-	except:
-		pos = nx.spring_layout(first, scale=4.5)
-	if 'graphviz_layout' in locals():
-		pos = graphviz_layout(first)
+	#except:
+	pos = nx.spring_layout(first, scale=4.5)
+	#if 'graphviz_layout' in locals():
+	#	pos = graphviz_layout(first)
 
 
 	ax1 = nx.draw_networkx_nodes(first,pos,node_size=d, node_shape='o', alpha=0.35, label=None)

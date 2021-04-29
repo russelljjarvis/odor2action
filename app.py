@@ -537,6 +537,7 @@ def main():
 	#st.pyplot(fig)
 	H = first.to_undirected()
 	centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+	#centrality = nx.betweenness_centrality(H), endpoints=True)
 
 	# compute community structure
 	lpc = nx.community.label_propagation_communities(H)
@@ -561,16 +562,16 @@ def main():
 	font = {"color": "k", "fontweight": "bold", "fontsize": 20}
 	ax.set_title("network", font)
 	# Change font color for legend
-	font["color"] = "r"
+	font["color"] = "b"
 
-	ax.text(
-	    0.80,
-	    0.10,
-	    "node color = community structure",
-	    horizontalalignment="center",
-	    transform=ax.transAxes,
-	    fontdict=font,
-	)
+	#ax.text(
+	#    0.80,
+	#    0.10,
+	#    "node color = community structure",
+	#    horizontalalignment="center",
+	#    transform=ax.transAxes,
+	#    fontdict=font,
+	#)
 	ax.text(
 	    0.80,
 	    0.06,

@@ -229,7 +229,7 @@ def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 			#to_pandas_adjacency
 			edge_list = nx.to_edgelist(first)
 			columns = list(df2.columns.values)
-			rows = list(df2.index)
+			rows = list(df2.index[1:-1])
 			figure=dashbio.Clustergram(
 			        data=df2.loc[rows].values,
 			        column_labels=columns,

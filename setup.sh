@@ -1,6 +1,6 @@
 
 sudo apt-get update
-sudo apt-get install graphviz graphviz-dev
+#sudo apt-get install graphviz graphviz-dev
 sudo python3 -m pip install -r requirements.txt
 sudo python3 -m pip install seaborn
 sudo python3 -m pip install bs4

@@ -17,7 +17,6 @@ bokeh
 sankeyview
 chord
 seaborn
-pygraphviz
 js2py
 xarray
 datashader

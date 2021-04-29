@@ -77,17 +77,14 @@ from datashader.bundling import hammer_bundle
 from typing import List
 import pandas as pd
 import holoviews as hv
-from holoviews import opts, dim
-from bokeh.sampledata.les_mis import data
+#from holoviews import opts, dim
+#from bokeh.sampledata.les_mis import data
 
-#@staticmethod
 def generate_sankey_figure(nodes_list: List, edges_df: pd.DataFrame,
 							   title: str = 'Sankey Diagram'):
 
 
 
-	# Create the node indices
-	#nodes_list = nodes_df['Node'].tolist()
 	edges_df['src'] = edges_df['src'].apply(lambda x:
 													nodes_list.index(x))
 	edges_df['tgt'] = edges_df['tgt'].apply(lambda x:
@@ -131,7 +128,12 @@ def data_shade(graph):
 	nodes_ind = [i for i in range(0,len(graph.nodes()))]
 	redo  = {k:v for k,v in zip(graph.nodes,nodes_ind)}
 
-	pos_= nx.spring_layout(graph,scale=125)
+	pos_= nx.spring_layout(graph,scale=125, k=0.15, seed=4572321))
+	#node_color = [community_index[n] for n in graph]
+	H = graph.to_undirected()
+	centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+	node_size = [v * 20000 for v in centrality.values()]
+
 	coords = []
 	for node in graph.nodes:
 		 x, y = pos_[node]
@@ -158,15 +160,11 @@ def data_shade(graph):
 	for seg in segments:
 		 ax.plot(seg[:,0], seg[:,1])
 
-	ax3 = nx.draw_networkx_nodes(graph, pos_, node_size=25, node_shape='o', alpha=0.5, vmin=None, vmax=None, linewidths=1.0, label=None,ax=ax)#, **kwds)
+	ax3 = nx.draw_networkx_nodes(graph, pos_, node_size=node_size, node_shape='o', alpha=0.5, vmin=None, vmax=None, linewidths=1.0, label=None,ax=ax)#, **kwds)
 
 	return fig
-# data_shade(second,world,colors)
-#from pyvis import network as net
-#from pyvis.network import Network
 import seaborn as sns;
 def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
-
 	with shelve.open("fast_graphs_splash.p") as db:
 		flag = 'chord' in db
 		if False:#flag:
@@ -255,11 +253,11 @@ def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 
 		db.close()
 
-def get_frame():
+def get_frame(new = True):
 
 	with shelve.open("fast_graphs_splash.p") as store:
 		flag = 'df' in store
-		if flag:
+		if False:
 			df = store['df']  # load it
 
 			df2 = store['df2']  # load it
@@ -268,7 +266,10 @@ def get_frame():
 			legend = store['legend']# = legend  # save it
 
 		else:
-			xlsx_file = Path('o2anetmap.xlsx')
+			if new:
+				xlsx_file = Path('o2anetmap2021.xlsx')
+			else:
+				xlsx_file = Path('o2anetmap.xlsx')
 			wb_obj = openpyxl.load_workbook(xlsx_file)
 
 			# Read the active sheet:
@@ -407,8 +408,13 @@ def main():
 
 	st.markdown("""Graphs loading first plotting spread sheets...\n""")
 
+	option = st.checkbox('Last year?')
+	if option:
+		df,df2,names,ratercodes,legend = get_frame(new=False)
+	else:
+		df,df2,names,ratercodes,legend = get_frame(new=True)
 
-	df,df2,names,ratercodes,legend = get_frame()
+	# https://coderzcolumn.com/tutorials/data-science/how-to-plot-chord-diagram-in-python-holoviews
 
 	#st.sidebar.title('Choose your favorite Graph')
 	#option=st.selectbox('select graph',('Simple','Karate', 'GOT'))
@@ -588,6 +594,8 @@ def main():
 	st.pyplot(fig)
 
 	plot_stuff(df2,edges_df_full,first,adj_mat_dicts)
+	fig4 = data_shade(first)
+	st.pyplot(fig4)
 
 	def dontdo():
 		fig4 = data_shade(first)

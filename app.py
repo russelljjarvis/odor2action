@@ -1,10 +1,23 @@
-	#!/usr/bin/env python
-# coding: utf-8
-
 
 """
 Author: [Russell Jarvis](https://github.com/russelljjarvis)
 """
+
+import argparse
+import numpy as np
+import networkx as nx
+#import node2vec
+from node2vec import node2vec
+from gensim.models import Word2Vec
+from node2vec.edges import HadamardEmbedder
+
+import streamlit as st
+import streamlit.components.v1 as components
+import networkx as nx
+import matplotlib.pyplot as plt
+from pyvis.network import Network
+
+
 
 import shelve
 import streamlit as st
@@ -332,39 +345,49 @@ sns_colorscale = [[0.0, '#3f7f93'], #cmap = sns.diverging_palette(220, 10, as_cm
 
 
 def df_to_plotly(df,log=False):
-    return {'z': df.values.tolist(),
-            'x': df.columns.tolist(),
-            'y': df.index.tolist()}
+	return {'z': df.values.tolist(),
+			'x': df.columns.tolist(),
+			'y': df.index.tolist()}
 
 
 def plot_df_plotly(sleep_df):
-    fig = go.Figure(data=go.Heatmap(df_to_plotly(sleep_df,log=True)))
-    st.write(fig)
+	fig = go.Figure(data=go.Heatmap(df_to_plotly(sleep_df,log=True)))
+	st.write(fig)
 
 def plot_imshow_plotly(sleep_df):
 
-    heat = go.Heatmap(df_to_plotly(sleep_df),colorscale=sns_colorscale)
-    #fig = go.Figure(data=
+	heat = go.Heatmap(df_to_plotly(sleep_df),colorscale=sns_colorscale)
+	#fig = go.Figure(data=
 
-    title = 'Adjacency Matrix'
+	title = 'Adjacency Matrix'
 
-    layout = go.Layout(title_text=title, title_x=0.5,
-                    width=600, height=600,
-                    xaxis_showgrid=False,
-                    yaxis_showgrid=False,
-                    yaxis_autorange='reversed')
+	layout = go.Layout(title_text=title, title_x=0.5,
+					width=600, height=600,
+					xaxis_showgrid=False,
+					yaxis_showgrid=False,
+					yaxis_autorange='reversed')
 
-    fig=go.Figure(data=[heat], layout=layout)
+	fig=go.Figure(data=[heat], layout=layout)
 
-    st.write(fig)
+	st.write(fig)
 
 
+def learn_embeddings(walks):
+	'''
+	Learn embeddings by optimizing the Skipgram objective using SGD.
+	'''
+	walks = [map(str, walk) for walk in walks]
+	model = Word2Vec(walks, size=args.dimensions, window=args.window_size, min_count=0, sg=1, workers=args.workers, iter=args.iter)
+	model.save_word2vec_format(args.output)
 
+	return
 def main():
+	st.title('NeuroScience Collaboration Survey Data')
+
 	#st.text(dir(nx))
 	st.markdown("""I talk or directly email with this person (for any reason)...\n""")
 
-	st.markdown("""Graphs loading first plottin spread sheets...\n""")
+	st.markdown("""Graphs loading first plotting spread sheets...\n""")
 
 
 	df,df2,names,ratercodes,legend = get_frame()
@@ -446,25 +469,37 @@ def main():
 
 	d = nx.degree(first)
 	d = [((d[node]+1) * 1.25) for node in first.nodes()]
-	#nx.draw(first,node_size=d)
-	#try:
-	#	from networkx.drawing.nx_agraph import graphviz_layout
+	G = nx_G = first#ead_graph()
+
+	nt = Network("500px", "500px",notebook=True,heading='Elastic Physics Network Survey Data')
+	nt.barnes_hut()
+	nt.from_nx(G)
+	#if physics:
+	nt.show_buttons(filter_=['physics'])
+	nt.show('test.html')
+	#nt.show('test.html')
+
+	HtmlFile = open("test.html", 'r', encoding='utf-8')
+	source_code = HtmlFile.read()
+	components.html(source_code, height = 1100,width=1100)
+	# Precompute probabilities and generate walks - **ON WINDOWS ONLY WORKS WITH workers=1**
+	#n2vec = node2vec.Node2Vec(nx_G, dimensions=64, walk_length=30, num_walks=200, workers=4)  # Use temp_folder for big graphs
+	# Embed nodes
+	#model = n2vec.fit(window=10, min_count=1, batch_words=4)  # Any keywords acceptable by gensim.Word2Vec can be passed, `dimensions` and `workers` are automatically passed (from the Node2Vec constructor)
+	# Look for most similar nodes
+	#model.wv.most_similar(list(nx_G.nodes)[0])  # Output node names are always strings
+	#edges_embs = HadamardEmbedder(keyed_vectors=model.wv)
 
 		# https://nbviewer.jupyter.org/github/ykhorram/nips2015_topic_network_analysis/blob/master/nips_collaboration_network.ipynb
 	#except:
-	pos = nx.spring_layout(first, scale=4.5)
+	#pos = nx.spring_layout(first, scale=4.5)
 	#if 'graphviz_layout' in locals():
 	#	pos = graphviz_layout(first)
 
 
-	ax1 = nx.draw_networkx_nodes(first,pos,node_size=d, node_shape='o', alpha=0.35, label=None)
-	#ax0 = nx.draw_networkx_nodes(micro_gro, gro_pos,node_size=5, node_color='grey', node_shape='o', alpha=0.35, width=0.1, label=None)
-	ax01 = nx.draw_networkx_edges(first,pos, width=0.25, edge_color='blue', style='solid', alpha=0.35,arrows=False, label=None)
-	st.pyplot(fig)
-	#fig0 = plotly_sized2(first)
-	#st.write(fig0)
-
-	#st.write(edges_df_full)
+	#ax1 = nx.draw_networkx_nodes(first,pos,node_size=d, node_shape='o', alpha=0.35, label=None)
+	#ax01 = nx.draw_networkx_edges(first,pos, width=0.25, edge_color='blue', style='solid', alpha=0.35,arrows=False, label=None)
+	#st.pyplot(fig)
 	plot_stuff(df2,edges_df_full,first,adj_mat_dicts)
 
 	def dontdo():
@@ -490,7 +525,6 @@ def main():
 			link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]]))])
 
 		fig.update_layout(title_text="Basic Sankey Diagram", font_size=10)
-		#fig.show()
 
 		st.write(fig)
 		link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]])

@@ -240,7 +240,7 @@ def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 			        },
 			        hidden_labels='row',
 			        height=800,
-			        width=700
+			        width=800
 			    )
 			st.write(figure)
 			#hv.Chord(edge_list,label=labels)
@@ -495,6 +495,12 @@ def main():
 	fig = plt.figure()
 
 	d = nx.degree(first)
+
+	temp = first.to_undirected()
+	cen = nx.betweenness_centrality(temp)
+	#st.text("who are the research hubs?")
+	#for k,v in zip(list(first.nodes),list(cen.values())):
+	#	st.text(str(k)+" degree"+str(v))
 	d = [((d[node]+1) * 1.25) for node in first.nodes()]
 	G = nx_G = first#ead_graph()
 
@@ -529,6 +535,57 @@ def main():
 	#ax1 = nx.draw_networkx_nodes(first,pos,node_size=d, node_shape='o', alpha=0.35, label=None)
 	#ax01 = nx.draw_networkx_edges(first,pos, width=0.25, edge_color='blue', style='solid', alpha=0.35,arrows=False, label=None)
 	#st.pyplot(fig)
+	H = first.to_undirected()
+	centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+
+	# compute community structure
+	lpc = nx.community.label_propagation_communities(H)
+	community_index = {n: i for i, com in enumerate(lpc) for n in com}
+
+	#### draw graph ####
+	fig, ax = plt.subplots(figsize=(20, 15))
+	pos = nx.spring_layout(H, k=0.15, seed=4572321)
+	node_color = [community_index[n] for n in H]
+	node_size = [v * 20000 for v in centrality.values()]
+	nx.draw_networkx(
+	    H,
+	    pos=pos,
+	    with_labels=False,
+	    node_color=node_color,
+	    node_size=node_size,
+	    edge_color="gainsboro",
+	    alpha=0.4,
+	)
+
+	# Title/legend
+	font = {"color": "k", "fontweight": "bold", "fontsize": 20}
+	ax.set_title("network", font)
+	# Change font color for legend
+	font["color"] = "r"
+
+	ax.text(
+	    0.80,
+	    0.10,
+	    "node color = community structure",
+	    horizontalalignment="center",
+	    transform=ax.transAxes,
+	    fontdict=font,
+	)
+	ax.text(
+	    0.80,
+	    0.06,
+	    "node size = betweeness centrality",
+	    horizontalalignment="center",
+	    transform=ax.transAxes,
+	    fontdict=font,
+	)
+
+	# Resize figure for label readibility
+	ax.margins(0.1, 0.05)
+	fig.tight_layout()
+	plt.axis("off")
+	st.pyplot(fig)
+
 	plot_stuff(df2,edges_df_full,first,adj_mat_dicts)
 
 	def dontdo():

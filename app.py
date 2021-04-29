@@ -55,13 +55,13 @@ import matplotlib.pyplot as plt
 from chord import Chord
 
 import dash_bio
-def disable_logo(plot, element):
-	plot.state.toolbar.logo = None
+#def disable_logo(plot, element):
+#	plot.state.toolbar.logo = None
 
 
-hv.extension("bokeh", logo=False)
-hv.output(size=150)
-hv.plotting.bokeh.ElementPlot.finalize_hooks.append(disable_logo)
+#hv.extension("bokeh", logo=False)
+#hv.output(size=150)
+#hv.plotting.bokeh.ElementPlot.finalize_hooks.append(disable_logo)
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -170,46 +170,46 @@ def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 		flag = 'chord' in db
 		if False:#flag:
 			graph = db['graph']
-			graph.opts(
-				color_index="circle",
-				width=150,
-				height=150,
-				show_frame=False,
-				xaxis=None,
-				yaxis=None,
-				tools=["hover", "tap"],
-				node_size=10,
-				cmap=["blue", "orange"],
-			)
-			st.write(hv.render(graph, backend="bokeh"))
+			#graph.opts(
+			#	color_index="circle",
+			#	width=150,
+			#	height=150,
+			#	show_frame=False,
+			#	xaxis=None,
+			#	yaxis=None,
+			#	tools=["hover", "tap"],
+			#	node_size=10,
+			#	cmap=["blue", "orange"],
+			#)
+			#st.write(hv.render(graph, backend="bokeh"))
 
 
 			chord = db['chord']
 			st.write(chord)
 
 		else:
-			graph = hv.Graph.from_networkx(
-				first, networkx.layout.fruchterman_reingold_layout
-			)
-			graph.opts(
-				color_index="circle",
-				width=350,
-				height=350,
-				show_frame=False,
-				xaxis=None,
-				yaxis=None,
-				tools=["hover", "tap"],
-				node_size=10,
-				cmap=["blue", "orange"],
-			)
-			st.write(hv.render(graph, backend="bokeh"))
+			#graph = hv.Graph.from_networkx(
+			#	first, networkx.layout.fruchterman_reingold_layout
+			#)
+			#graph.opts(
+			#	color_index="circle",
+			#	width=350,
+			#	height=350,
+			#	show_frame=False,
+			#	xaxis=None,
+			#	yaxis=None,
+			#	tools=["hover", "tap"],
+			#	node_size=10,
+			#	cmap=["blue", "orange"],
+			#)
+			#st.write(hv.render(graph, backend="bokeh"))
 
 			#nodes = hv.Dataset(enumerate(nodes), 'index', 'label')
 			#edges = [
 			#    (0, 1, 53), (0, 2, 47), (2, 6, 17), (2, 3, 30), (3, 1, 22.5), (3, 4, 3.5), (3, 6, 4.), (4, 5, 0.45)
 			#]
 
-			db['graph'] = graph
+			#db['graph'] = graph
 
 			chord = chord2.make_filled_chord(edges_df_full)
 			st.write(chord)
@@ -409,9 +409,18 @@ def main():
 
 
 	df,df2,names,ratercodes,legend = get_frame()
-	st.write(df)
-	st.write(legend)
-	st.write(df2)
+
+	#st.sidebar.title('Choose your favorite Graph')
+	#option=st.selectbox('select graph',('Simple','Karate', 'GOT'))
+	option = st.checkbox('consult spread sheet?')
+	"""
+	Note clicking yes wont result in instaneous results
+	please scroll down to explore putative network visualizations
+	"""
+	if option:
+		st.write(df)
+		st.write(legend)
+		st.write(df2)
 	st.markdown("""Still loading Graphs please wait...\n""")
 
 	inboth = set(names) & set(ratercodes)
@@ -464,7 +473,7 @@ def main():
 	matrix = df2.to_numpy()
 	names = list(first.nodes())
 	first.remove_nodes_from(list(nx.isolates(first)))
-	st.text(type(first))
+	#st.text(type(first))
 	try:
 		edges_df_full = nx.to_pandas_adjacency(first)
 	except:

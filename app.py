@@ -52,7 +52,6 @@ import networkx as nx
 import xlrd
 import matplotlib.pyplot as plt
 
-from chord import Chord
 
 import dash_bio
 

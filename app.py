@@ -244,9 +244,15 @@ def get_frame():
 
             df3 = pd.DataFrame(worksheet0.values)
             df2 = pd.DataFrame(worksheet1.values)
+
             # st.write(len(df2))
 
             df2 = pd.concat([df3, df2])
+            #df2.rename(columns={112:'xyz'}, inplace=True)
+            #df2.rename(columns={'112':'xyz'}, inplace=True)
+            #df2.rename(index={42:'wxy'}, inplace=True)
+            #df2.rename(index={'42':'wxy'}, inplace=True)
+
             color_code_0 = {
                 k: v for k, v in zip(df2[0], df2[1]) if k not in "Rater Code"
             }
@@ -341,9 +347,9 @@ def get_frame():
                     df4[col] = df2[col]
             # st.write(df4)
             df2 = df4
-            df2.drop(42, inplace=True)
-            del df2[112]
-
+            #df2.drop('xyz', inplace=True)
+            #del df2[112]
+            #st.write(df2)
             store["df2"] = df2  # save it
             # store['df'] = df  # save it
             # st.write(df2)
@@ -676,7 +682,6 @@ def main():
         )
     )
     st.markdown("Chord layout democratic")
-
     st.write(hv.render((chord), backend="bokeh"))
     # st.text(dir(chord))
     # st.text(type(chord))

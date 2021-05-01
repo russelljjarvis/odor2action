@@ -131,7 +131,7 @@ def data_shade(graph,color_code,adj_mat,color_dict):
 	#node_color = [community_index[n] for n in graph]
 	H = graph.to_undirected()
 	centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
-	node_size = [v * 20000 for v in centrality.values()]
+	node_size = [v * 40000 for v in centrality.values()]
 
 	coords = []
 	for node in graph.nodes:
@@ -165,7 +165,7 @@ def data_shade(graph,color_code,adj_mat,color_dict):
 
 
 	for ind,seg in enumerate(segments):
-		 ax.plot(seg[:,0], seg[:,1],c=color_code[srcs[ind]],alpha=0.77,linewidth=widths[ind])
+		 ax.plot(seg[:,0], seg[:,1],c=color_code[srcs[ind]],alpha=0.67,linewidth=0.25*widths[ind])
 	node_color = [color_code[n] for n in graph]
 
 	ax3 = nx.draw_networkx_nodes(graph, pos_,node_color=node_color, node_size=node_size, node_shape='o', alpha=1, vmin=None, vmax=None, linewidths=1.0, label=None,ax=ax)#, **kwds)
@@ -294,30 +294,20 @@ def get_frame():
 			to_rename_ind = {v:k for k,v in zip(df2[0][1:-1],r_names)}
 			del df2[0]
 			del df2[1]
-			del df2[112]
-			del df2[113]
+			#del df2[112]
+			#del df2[113]
 			df2.drop(0,inplace=True)
 			df2.drop(1,inplace=True)
-			try:
-				df2.drop(42,inplace=True)
-				del df2[42]
+			#try:
 
-			except:
-				pass
+			#except:
+			#	pass
 			df2.rename(columns=to_rename,inplace=True)
 			df2.rename(index=to_rename_ind,inplace=True)
 
 			uniq_col = {k:k for k in list(set(df2.columns))}
-			comm = False
-			if comm:
-				df2 = df2[df2.columns[0:57]]
-				#research = df2[df2.columns[58:-1]]
-				#st.text(len(collaborate),len(research))
-				#df2 = communicate
-			else:
-				#st.write(df2)
-				df2 = df2[df2.columns[58:-1]]
-
+			#comm = False
+			#if comm:
 			legend = {}
 
 			legend.update({'Never':0.0})
@@ -345,8 +335,25 @@ def get_frame():
 			df2.replace({'Often':7},inplace=True)
 			df2.replace({'Much or all of the time':8},inplace=True)
 			df2.replace({'1-2 times a week':9.0},inplace=True)
+			df3 = df2[df2.columns[0:int(len(df2.columns)/2)]]
+			df2 = df2[df2.columns[int(len(df2.columns)/2)+1:-1]]
+			import copy
+			df4 = copy.copy(df2)
+			for col in df2.columns:
+				if col in df3.columns and col in df2.columns:
+					df4[col] = df2[col] + df3[col]
+				else:
+					#st.text(col)
+					df4[col] = df2[col]
+			#st.write(df4)
+			df2 = df4
+			df2.drop(42,inplace=True)
+			del df2[112]
+
+
 			store['df2'] = df2  # save it
 			#store['df'] = df  # save it
+			#st.write(df2)
 
 			store['names'] = names  # save it
 			store['ratercodes'] = ratercodes  # save it

@@ -1,5 +1,3 @@
-cython
-pandas
 openpyxl==3.0.0
 networkx==2.5
 numpy==1.16.6

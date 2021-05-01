@@ -1,6 +1,8 @@
 
 sudo apt-get update
 #sudo apt-get install graphviz graphviz-dev
+sudo conda install -c cython# bokeh graphviz_layout
+
 sudo python3 -m pip install -r requirements.txt
 sudo python3 -m pip install seaborn holoviews bokeh
 sudo python3 -m pip install pyvis dash_bio cython

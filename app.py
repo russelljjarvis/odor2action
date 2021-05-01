@@ -595,7 +595,7 @@ def main():
     fig4 = data_shade(first, color_code, adj_mat, color_dict)
     st.pyplot(fig4)
 
-    st.markdown("for contrast see hair ball below...")
+    st.markdown("for contrast see hair ball below (wiring length is not reduced)...")
     H = first.to_undirected()
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
 

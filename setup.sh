@@ -7,12 +7,15 @@ sudo python -m pip install -U pip
 sudo python3 -m pip install numpy --upgrade --ignore-installed
 sudo python3 -m pip install cython --upgrade --ignore-installed
 
+
 sudo python3 -m pip install -r requirements.txt
 sudo conda install -c pyviz scikit-image# bokeh graphviz_layout
 sudo python3 -m conda install -c pyvis bokeh seaborn dash_bio scikit-image
 sudo python3 -m pip install seaborn bokeh# holoviews==1.14.1
 sudo python3 -m pip install pyvis dash_bio cython scikit-image
-sudo python3 -m pip install dask plotly tabulate bokeh==2.2.2 
+sudo python3 -m pip install dask plotly tabulate bokeh==2.2.2
+sudo python3 -m pip install streamlit --upgrade --ignore-installed
+
 # streamlit-agraph
 python3 -c "from holoviews.operation.datashader import datashade"
 #git clone https://github.com/pygraphviz/pygraphviz; cd pygraphviz; sudo python3 setup.py install; cd -

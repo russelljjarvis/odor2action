@@ -139,7 +139,7 @@ def data_shade(graph, color_code, adj_mat, color_dict):
         "Think of it conceptually like Ramon Y Cajal principle of wiring cost optimization."
     )
     st.markdown(
-        "Neurons processes projecting to very close places shouldnt travel down indipendant dedicated lines, there is less metabolic cost involved in \n channeling parallel fibres in the same myline sheath."
+        "Neurons processes projecting to very close places shouldnt travel down indipendant dedicated lines, there is less metabolic cost involved in \n channeling parallel fibres in the same myline sheath through a backbone like the corpus callosum."
     )
 
     for stop in splits:

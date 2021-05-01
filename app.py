@@ -269,10 +269,13 @@ def get_frame():
                 color_code_1[k] = color_dict[v]
             # st.text(color_code_1)
             col_to_rename = df2.columns
-
-            ratercodes = df2[0][1:-1]
-            row_names = df2.T[0].values
-            row_names = row_names[2:-1]
+            #st.write(df2)
+            ratercodes = df2[0][1::]
+            row_names = list(df2.T[0].values)
+            #st.text(row_names)
+            #st.text(list(df2.T[0].values)[-1])
+            row_names.append(list(df2.T[0].values)[-1])
+            row_names = row_names[2::]
             # st.text(row_names)
             names = [rn[0].split("- ") for rn in row_names]
             names2 = []
@@ -282,15 +285,16 @@ def get_frame():
                 else:
                     names2.append(i)
             names = names2
+            st.text(names)
             for nm in names:
                 if nm not in color_code_1.keys():
                     color_code_1[nm] = "black"
 
-            row_names = range(1, 114, 1)
+            row_names = range(0, len(df2.columns)+1, 1)
             to_rename = {k: v for k, v in zip(row_names, names)}
 
-            r_names = df2.index.values[1:-1]
-            to_rename_ind = {v: k for k, v in zip(df2[0][1:-1], r_names)}
+            r_names = df2.index.values
+            to_rename_ind = {v: k for k, v in zip(df2[0], r_names)}
             del df2[0]
             del df2[1]
             # del df2[112]
@@ -304,7 +308,7 @@ def get_frame():
             df2.rename(columns=to_rename, inplace=True)
             df2.rename(index=to_rename_ind, inplace=True)
 
-            uniq_col = {k: k for k in list(set(df2.columns))}
+            #uniq_col = {k: k for k in list(set(df2.columns))}
             # comm = False
             # if comm:
             legend = {}
@@ -351,6 +355,9 @@ def get_frame():
             #del df2[112]
             #st.write(df2)
             store["df2"] = df2  # save it
+
+            st.write(df2)
+
             # store['df'] = df  # save it
             # st.write(df2)
 

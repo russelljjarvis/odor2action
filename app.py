@@ -56,13 +56,13 @@ import matplotlib.pyplot as plt
 from chord import Chord
 
 import dash_bio
-#def disable_logo(plot, element):
-#	plot.state.toolbar.logo = None
+def disable_logo(plot, element):
+	plot.state.toolbar.logo = None
 
 
-#hv.extension("bokeh", logo=False)
-#hv.output(size=150)
-#hv.plotting.bokeh.ElementPlot.finalize_hooks.append(disable_logo)
+hv.extension("bokeh", logo=False)
+hv.output(size=150)
+hv.plotting.bokeh.ElementPlot.finalize_hooks.append(disable_logo)
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -77,6 +77,8 @@ from datashader.bundling import hammer_bundle
 from typing import List
 import pandas as pd
 import holoviews as hv
+import seaborn as sns;
+
 #from holoviews import opts, dim
 #from bokeh.sampledata.les_mis import data
 
@@ -120,7 +122,7 @@ def generate_sankey_figure(nodes_list: List, edges_df: pd.DataFrame,
 	st.write(fig)
 
 	#return fig
-def data_shade(graph):
+def data_shade(graph,color_code):
 
 	nodes = graph.nodes
 	#orig_pos=nx.get_node_attributes(graph,'pos')
@@ -128,7 +130,7 @@ def data_shade(graph):
 	nodes_ind = [i for i in range(0,len(graph.nodes()))]
 	redo  = {k:v for k,v in zip(graph.nodes,nodes_ind)}
 
-	pos_= nx.spring_layout(graph,scale=125, k=0.15, seed=4572321))
+	pos_= nx.spring_layout(graph,scale=125, k=0.15, seed=4572321)
 	#node_color = [community_index[n] for n in graph]
 	H = graph.to_undirected()
 	centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
@@ -149,6 +151,7 @@ def data_shade(graph):
 	splits = (np.isnan(hbnp[:,0])).nonzero()[0]
 	start = 0
 	segments = []
+	st.markdown('this is called edge bundling, it gets rid of "hair ball effect"')
 	for stop in splits:
 		 seg = hbnp[start:stop, :]
 		 segments.append(seg)
@@ -158,12 +161,12 @@ def data_shade(graph):
 	fig, ax = plt.subplots(figsize=(15,15))
 
 	for seg in segments:
-		 ax.plot(seg[:,0], seg[:,1])
+		 ax.plot(seg[:,0], seg[:,1],c='grey')
+	node_color = [color_code[n] for n in graph]
 
-	ax3 = nx.draw_networkx_nodes(graph, pos_, node_size=node_size, node_shape='o', alpha=0.5, vmin=None, vmax=None, linewidths=1.0, label=None,ax=ax)#, **kwds)
+	ax3 = nx.draw_networkx_nodes(graph, pos_,node_color=node_color, node_size=node_size, node_shape='o', alpha=0.5, vmin=None, vmax=None, linewidths=1.0, label=None,ax=ax)#, **kwds)
 
 	return fig
-import seaborn as sns;
 def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 	with shelve.open("fast_graphs_splash.p") as db:
 		flag = 'chord' in db
@@ -183,69 +186,40 @@ def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 			#st.write(hv.render(graph, backend="bokeh"))
 
 
-			chord = db['chord']
-			st.write(chord)
+			#chord = db['chord']
+			#st.write(chord)
 
 		else:
-			#graph = hv.Graph.from_networkx(
-			#	first, networkx.layout.fruchterman_reingold_layout
-			#)
-			#graph.opts(
-			#	color_index="circle",
-			#	width=350,
-			#	height=350,
-			#	show_frame=False,
-			#	xaxis=None,
-			#	yaxis=None,
-			#	tools=["hover", "tap"],
-			#	node_size=10,
-			#	cmap=["blue", "orange"],
-			#)
-			#st.write(hv.render(graph, backend="bokeh"))
-
-			#nodes = hv.Dataset(enumerate(nodes), 'index', 'label')
-			#edges = [
-			#    (0, 1, 53), (0, 2, 47), (2, 6, 17), (2, 3, 30), (3, 1, 22.5), (3, 4, 3.5), (3, 6, 4.), (4, 5, 0.45)
-			#]
-
-			#db['graph'] = graph
-
-			chord = chord2.make_filled_chord(edges_df_full)
-			st.write(chord)
-			db['chord'] = chord
+			#st.write(edges_df_full)
+			'''
 			adj_mat = pd.DataFrame(adj_mat_dicts)
 			encoded = {v:k for k,v in enumerate(first.nodes())}
 			link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)][0:30], target =[encoded[i] for i in list(adj_mat["tgt"].values)][0:30], value =[i*3 for i in list(adj_mat["weight"].values)][0:30])
-			data = go.Sankey(link = link)
-			#fig = go.Figure(data)
-			#st.write(fig)
-			#fig.show(renderer="svg", width=1000, height=500)
-			#fig.savefig('blah.svg')
-			#db['sankey'] = data
-			edge_list = networkx.to_edgelist(first)
 			labels = list(first.nodes)
-			#adjdf = nx.to_pandas_adjacency(first)
-			#to_pandas_adjacency
 			edge_list = nx.to_edgelist(first)
 			columns = list(df2.columns.values)
 			rows = list(df2.index[1:-1])
+			st.text(rows)
+			st.text(columns)
+			st.write(df2)
 			figure=dashbio.Clustergram(
-			        data=df2.loc[rows].values,
-			        column_labels=columns,
-			        row_labels=rows,
-			        color_threshold={
-			            'row': 250,
-			            'col': 700
-			        },
-			        hidden_labels='row',
-			        height=800,
-			        width=800
-			    )
+					data=df2.loc[rows].values,
+					column_labels=columns,
+					row_labels=rows,
+					color_threshold={
+						'row': 250,
+						'col': 700
+					},
+					hidden_labels='row',
+					height=800,
+					width=800
+				)
 			st.write(figure)
-			#hv.Chord(edge_list,label=labels)
+			hv.Chord(edge_list,label=labels)
 			g = sns.clustermap(df2)
 			st.pyplot(g)
-			plot_imshow_plotly(df2)
+			'''
+			#plot_imshow_plotly(df2)
 
 			#chord3 = chord2.make_filled_chord(adj_mat)
 			#st.write(chord3)
@@ -253,7 +227,7 @@ def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 
 		db.close()
 
-def get_frame(new = True):
+def get_frame():
 
 	with shelve.open("fast_graphs_splash.p") as store:
 		flag = 'df' in store
@@ -266,24 +240,40 @@ def get_frame(new = True):
 			legend = store['legend']# = legend  # save it
 
 		else:
-			if new:
-				xlsx_file = Path('o2anetmap2021.xlsx')
-			else:
-				xlsx_file = Path('o2anetmap.xlsx')
-			wb_obj = openpyxl.load_workbook(xlsx_file)
+			xlsx_file0 = Path('o2anetmap2021.xlsx')
+			xlsx_file1 = Path('o2anetmap.xlsx')
+			wb_obj0 = openpyxl.load_workbook(xlsx_file0)
+			wb_obj1 = openpyxl.load_workbook(xlsx_file1)
 
 			# Read the active sheet:
-			worksheet = wb_obj.active
-			df2 = pd.DataFrame(worksheet.values)
-			df = pd.DataFrame(worksheet.values)
+			worksheet0 = wb_obj0.active
+			worksheet1 = wb_obj1.active
 
+			df3 = pd.DataFrame(worksheet0.values)
+			df2 = pd.DataFrame(worksheet1.values)
+			#st.write(len(df2))
+
+			df2 = pd.concat([df3,df2])
+			#st.write(len(df2))
+			#st.text(df2.index.values)
+			#st.text(df2.T[0].values)
+			#st.write(df3)
+			#st.write(df2.values[:]==None)
+			color_code_0 = {k:v for k,v in zip(df2[0],df2[1]) if k not in "Rater Code"}
+
+			color_dict = {'IRG 3':'green','IRG 1':'blue','IRG 2':'yellow','DCMT':'orange'}
+			color_code_1 = {}
+			for k,v in color_code_0.items():
+				color_code_1[k] = color_dict[v]
+			#st.text(color_code_1)
 			col_to_rename = df2.columns
 
 
-			ratercodes = df[0][1:-1]
-			row_names = df.T[0].values
+			ratercodes = df2[0][1:-1]
+			row_names = df2.T[0].values
 			row_names = row_names[2:-1]
-			names = [ rn.split("- ") for rn in row_names ]
+			#st.text(row_names)
+			names = [ rn[0].split("- ") for rn in row_names ]
 			names2 = []
 			for i in names :
 				if len(i)==2:
@@ -291,25 +281,44 @@ def get_frame(new = True):
 				else:
 					names2.append(i)
 			names = names2
+			for nm in names:
+				if nm not in color_code_1.keys():
+					color_code_1[nm] = 'black'
 
 			row_names = range(1, 114, 1)
 			to_rename = {k:v for k,v in zip(row_names,names)}
 
 
-			r_names = df.index.values[1:-1]
+			r_names = df2.index.values[1:-1]
 			to_rename_ind = {v:k for k,v in zip(df2[0][1:-1],r_names)}
 			del df2[0]
 			del df2[1]
 			del df2[112]
 			del df2[113]
-			del df2[42]
 			df2.drop(0,inplace=True)
 			df2.drop(1,inplace=True)
-			df2.drop(42,inplace=True)
+			try:
+				df2.drop(42,inplace=True)
+				del df2[42]
 
+			except:
+				pass
 			df2.rename(columns=to_rename,inplace=True)
 			df2.rename(index=to_rename_ind,inplace=True)
+
+			uniq_col = {k:k for k in list(set(df2.columns))}
+			comm = False
+			if comm:
+				df2 = df2[df2.columns[0:57]]
+				#research = df2[df2.columns[58:-1]]
+				#st.text(len(collaborate),len(research))
+				#df2 = communicate
+			else:
+				#st.write(df2)
+				df2 = df2[df2.columns[58:-1]]
+
 			legend = {}
+
 			legend.update({'Never':0.0})
 			legend.update({'Barely or never':1})
 			legend.update({'Occasionally in a minor way':2})
@@ -320,6 +329,10 @@ def get_frame(new = True):
 			legend.update({'Often':7})
 			legend.update({'Much or all of the time':8})
 			legend.update({'1-2 times a week':9.0})
+			df2.replace({'':0.0},inplace=True)
+			df2.replace({' ':0.0},inplace=True)
+			df2.replace({'\t':0.0},inplace=True)
+			df2.replace({'\n':0.0},inplace=True)
 
 			df2.replace({'Never':0.0},inplace=True)
 			df2.replace({'Barely or never':1},inplace=True)
@@ -332,7 +345,7 @@ def get_frame(new = True):
 			df2.replace({'Much or all of the time':8},inplace=True)
 			df2.replace({'1-2 times a week':9.0},inplace=True)
 			store['df2'] = df2  # save it
-			store['df'] = df  # save it
+			#store['df'] = df  # save it
 
 			store['names'] = names  # save it
 			store['ratercodes'] = ratercodes  # save it
@@ -340,9 +353,7 @@ def get_frame(new = True):
 			#fig = go.Figure(data)
 			#st.write(fig)
 
-	return df,df2,names,ratercodes,legend
-#import networkx as nx
-import networkx
+	return df2,names,ratercodes,legend,color_code_1
 
 sns_colorscale = [[0.0, '#3f7f93'], #cmap = sns.diverging_palette(220, 10, as_cmap = True)
 	[0.071, '#5890a1'],
@@ -374,8 +385,6 @@ def plot_df_plotly(sleep_df):
 def plot_imshow_plotly(sleep_df):
 
 	heat = go.Heatmap(df_to_plotly(sleep_df),colorscale=sns_colorscale)
-	#fig = go.Figure(data=
-
 	title = 'Adjacency Matrix'
 
 	layout = go.Layout(title_text=title, title_x=0.5,
@@ -384,7 +393,7 @@ def plot_imshow_plotly(sleep_df):
 					yaxis_showgrid=False,
 					yaxis_autorange='reversed')
 
-	fig=go.Figure(data=[heat], layout=layout)
+	fig = go.Figure(data=[heat], layout=layout)
 
 	st.write(fig)
 
@@ -398,33 +407,21 @@ def learn_embeddings(walks):
 	model.save_word2vec_format(args.output)
 
 	return
-#from streamlit import components
 
 def main():
 	st.title('NeuroScience Collaboration Survey Data')
 
-	#st.text(dir(nx))
 	st.markdown("""I talk or directly email with this person (for any reason)...\n""")
 
 	st.markdown("""Graphs loading first plotting spread sheets...\n""")
 
-	option = st.checkbox('Last year?')
-	if option:
-		df,df2,names,ratercodes,legend = get_frame(new=False)
-	else:
-		df,df2,names,ratercodes,legend = get_frame(new=True)
-
-	# https://coderzcolumn.com/tutorials/data-science/how-to-plot-chord-diagram-in-python-holoviews
-
-	#st.sidebar.title('Choose your favorite Graph')
-	#option=st.selectbox('select graph',('Simple','Karate', 'GOT'))
+	df2,names,ratercodes,legend,color_code = get_frame()
 	option = st.checkbox('consult spread sheet?')
 	"""
 	Note clicking yes wont result in instaneous results
 	please scroll down to explore putative network visualizations
 	"""
 	if option:
-		st.write(df)
 		st.write(legend)
 		st.write(df2)
 	st.markdown("""Still loading Graphs please wait...\n""")
@@ -442,49 +439,14 @@ def main():
 				first.add_node(row[0],name=row)#,size=20)
 
 	adj_mat_dicts = []
-	for idx in df2.index:
-		for col in df2.columns:
+	for i,idx in enumerate(df2.index):
+		for j,col in enumerate(df2.columns):
 			if idx != col:
-				try:
-					weight = df2.loc[idx, col][0]
-				except:
-					weight = df2.loc[idx, col]
+				weight = df2.iloc[i,j]#df2.loc[idx, col]
 				adj_mat_dicts.append({"src":idx,"tgt":col,"weight":weight})
-				#print(adj_mat_dicts[-1])
-				#adj_mat_dicts.append({"src":idx,"tgt":col,"weight":weight})
-
 				first.add_edge(idx,col,weight=weight)
-
-	#nt = Network("500px", "500px",notebook=True,heading='')
-	#nt.from_nx(first)
-	#st.text(dir(nt))
-	#nt.show()
-	#nt.write_html()
-
-	#import streamlit
-	#from streamlit_agraph import agraph, Node, Edge, Config
-	#config = Config(width=500,
-	#          height=500,
-	#           directed=True,
-	#            nodeHighlightBehavior=True,
-	#             highlightColor="#F7A7A6", # or "blue"
-	#              collapsible=True,
-	# coming soon (set for all): node_size=1000, node_color="blue"
-	#               )
-
-	#return_value = agraph(nodes=first.nodes,
-	#                      edges=first.edges,
-	#                      config=config)
-
-	matrix = df2.to_numpy()
-	names = list(first.nodes())
 	first.remove_nodes_from(list(nx.isolates(first)))
-	#st.text(type(first))
-	try:
-		edges_df_full = nx.to_pandas_adjacency(first)
-	except:
-		edges_df_full = nx.to_pandas_dataframe(first)
-	#st.write(edges_df_full)
+	edges_df_full = nx.to_pandas_adjacency(first)
 	try:
 		del edges_df_full["0"]
 		del edges_df_full["1"]
@@ -495,26 +457,64 @@ def main():
 		edges_df_full.drop("1",inplace=True)
 	except:
 		pass
+	adj_mat = pd.DataFrame(adj_mat_dicts)
+	#st.write(adj_mat)
+	encoded = {v:k for k,v in enumerate(first.nodes())}
+	link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)], target =[encoded[i] for i in list(adj_mat["tgt"].values)], value =[i*3 for i in list(adj_mat["weight"].values)])
+	adj_mat2 = pd.DataFrame(link)
+	#st.write(adj_mat2)
+	#for s,t,w in zip(link["src"],link["tgt"],link["weight"]):
+
+	#for k,v in link.items():
+
+
+
+
 
 	pos = nx.get_node_attributes(first,'pos')
-	#assert len(gro_pos)==len(micro_gro.nodes)
 	fig = plt.figure()
-
 	d = nx.degree(first)
-
 	temp = first.to_undirected()
 	cen = nx.betweenness_centrality(temp)
-	#st.text("who are the research hubs?")
-	#for k,v in zip(list(first.nodes),list(cen.values())):
-	#	st.text(str(k)+" degree"+str(v))
 	d = [((d[node]+1) * 1.25) for node in first.nodes()]
 	G = nx_G = first#ead_graph()
 
 	nt = Network("500px", "500px",notebook=True,heading='Elastic Physics Network Survey Data')
 	nt.barnes_hut()
 	nt.from_nx(G)
-	nt.show_buttons(filter_=['physics'])
+		#nt.nodes[3]['group'] = 10
+	adj_mat = pd.DataFrame(adj_mat_dicts)
+
+	edge_data = zip(list(adj_mat["src"].values), list(adj_mat["tgt"].values), list(adj_mat["weight"].values))
+
+
+	for e in edge_data:
+		src = e[0]
+		dst = e[1]
+		w = e[2]
+
+		#nt.add_node(src, src, title=src,group=color_code[src])
+		#nt.add_node(dst, dst, title=dst,group=color_code[src])
+		nt.add_edge(src, dst, value=w)
+
+	neighbor_map = nt.get_adj_list()
+
+	# add neighbor data to node hover data
+	for node in nt.nodes:
+		if 'title' not in node.keys():
+			node['title'] = ' Neighbors:<br>' + '<br>'.join(neighbor_map[node['id']])
+
+		#node['title'] += ' Neighbors:<br>' + '<br>'.join(neighbor_map[node['id']])
+		node['value'] = len(neighbor_map[node['id']])
+		node['group'] = color_code[node['id']]
+
+	if False:
+		nt.show_buttons(filter_=['physics'])
+	st.markdown("Keep scrolling down...")
+
 	nt.show('test.html')
+
+
 
 	HtmlFile = open("test.html", 'r', encoding='utf-8')
 	source_code = HtmlFile.read()
@@ -522,28 +522,23 @@ def main():
 		components.v1.html(source_code, height = 1100,width=1100)
 	except:
 		components.html(source_code, height = 1100,width=1100)
-	st.text("keep scrolling down...")
-	# Precompute probabilities and generate walks - **ON WINDOWS ONLY WORKS WITH workers=1**
-	#n2vec = node2vec.Node2Vec(nx_G, dimensions=64, walk_length=30, num_walks=200, workers=4)  # Use temp_folder for big graphs
-	# Embed nodes
-	#model = n2vec.fit(window=10, min_count=1, batch_words=4)  # Any keywords acceptable by gensim.Word2Vec can be passed, `dimensions` and `workers` are automatically passed (from the Node2Vec constructor)
-	# Look for most similar nodes
-	#model.wv.most_similar(list(nx_G.nodes)[0])  # Output node names are always strings
-	#edges_embs = HadamardEmbedder(keyed_vectors=model.wv)
 
-		# https://nbviewer.jupyter.org/github/ykhorram/nips2015_topic_network_analysis/blob/master/nips_collaboration_network.ipynb
-	#except:
-	#pos = nx.spring_layout(first, scale=4.5)
-	#if 'graphviz_layout' in locals():
-	#	pos = graphviz_layout(first)
+	#%%opts Chord [height=700 width=700 title="Traffic Movement Between Cities" labels="City"]
 
 
-	#ax1 = nx.draw_networkx_nodes(first,pos,node_size=d, node_shape='o', alpha=0.35, label=None)
-	#ax01 = nx.draw_networkx_edges(first,pos, width=0.25, edge_color='blue', style='solid', alpha=0.35,arrows=False, label=None)
-	#st.pyplot(fig)
+	#careers.opts(
+	#    opts.Sankey(labels='label', label_position='right', width=900, height=300, cmap='Set1',
+	#               edge_color=dim('To').str(), node_color=dim('index').str()))
+	#adj_mat = pd.DataFrame(adj_mat_dicts)
+
+	st.markdown("Graphs below can be made to be interactive...")
+
+	fig4 = data_shade(first,color_code)
+	st.pyplot(fig4)
+
+	st.markdown("for contrast see hair ball below...")
 	H = first.to_undirected()
 	centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
-	#centrality = nx.betweenness_centrality(H), endpoints=True)
 
 	# compute community structure
 	lpc = nx.community.label_propagation_communities(H)
@@ -552,16 +547,21 @@ def main():
 	#### draw graph ####
 	fig, ax = plt.subplots(figsize=(20, 15))
 	pos = nx.spring_layout(H, k=0.15, seed=4572321)
-	node_color = [community_index[n] for n in H]
+	#for k in color_code.keys():
+	#	st.text((k,k in H))
+	#for n in H:
+	#	st.text((n,n in color_code.keys()))
+
+	node_color = [color_code[n] for n in H]
 	node_size = [v * 20000 for v in centrality.values()]
 	nx.draw_networkx(
-	    H,
-	    pos=pos,
-	    with_labels=False,
-	    node_color=node_color,
-	    node_size=node_size,
-	    edge_color="gainsboro",
-	    alpha=0.4,
+		H,
+		pos=pos,
+		with_labels=False,
+		node_color=node_color,
+		node_size=node_size,
+		edge_color="gainsboro",
+		alpha=0.4,
 	)
 
 	# Title/legend
@@ -579,12 +579,12 @@ def main():
 	#    fontdict=font,
 	#)
 	ax.text(
-	    0.80,
-	    0.06,
-	    "node size = betweeness centrality",
-	    horizontalalignment="center",
-	    transform=ax.transAxes,
-	    fontdict=font,
+		0.80,
+		0.06,
+		"node size = betweeness centrality",
+		horizontalalignment="center",
+		transform=ax.transAxes,
+		fontdict=font,
 	)
 
 	# Resize figure for label readibility
@@ -594,50 +594,10 @@ def main():
 	st.pyplot(fig)
 
 	plot_stuff(df2,edges_df_full,first,adj_mat_dicts)
-	fig4 = data_shade(first)
-	st.pyplot(fig4)
-
-	def dontdo():
-		fig4 = data_shade(first)
-		st.pyplot(fig4)
-
-		adj_mat = pd.DataFrame(adj_mat_dicts)
-		link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = adj_mat["weight"])
-
-
-
-
-		#generate_sankey_figure(list(first.nodes), adj_mat,title = 'Sankey Diagram')
-
-		fig = go.Figure(data=[go.Sankey(
-			node = dict(
-			  pad = 15,
-			  thickness = 20,
-			  line = dict(color = "black", width = 0.5),
-			  label = list(first.nodes()),#["A1", "A2", "B1", "B2", "C1", "C2"],
-			  color = "blue"
-			),
-			link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]]))])
-
-		fig.update_layout(title_text="Basic Sankey Diagram", font_size=10)
-
-		st.write(fig)
-		link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]])
-
-		data = go.Sankey(link = link)
-
-		#fig3 = go.Figure(data)
-		layout = go.Layout(
-			paper_bgcolor="rgba(0,0,0,0)",  # transparent background
-			plot_bgcolor="rgba(0,0,0,0)",  # transparent 2nd background
-			xaxis={"showgrid": False, "zeroline": False},  # no gridlines
-			yaxis={"showgrid": False, "zeroline": False},  # no gridlines
-		)  # Create figure
-		layout["width"] = 925
-		layout["height"] = 925
-
-		fig3 = go.Figure(data,layout=layout)  # Add all edge traces
-		st.write(fig3)
+	chord = hv.Chord(adj_mat[:90])
+	#graph = chord.opts(node_color='tgt', edge_color='src',\
+	#label_index='tgt',cmap='Category10', edge_cmap='Category10',height=700, width=700 )
+	st.write(hv.render(chord, backend="bokeh"))
 
 	#nodes = first.nodes
 	#edges = first.edges
@@ -657,3 +617,45 @@ def main():
 if __name__ == "__main__":
 
 	main()
+
+def dontdo():
+	fig4 = data_shade(first)
+	st.pyplot(fig4)
+
+	adj_mat = pd.DataFrame(adj_mat_dicts)
+	link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = adj_mat["weight"])
+
+
+
+
+	#generate_sankey_figure(list(first.nodes), adj_mat,title = 'Sankey Diagram')
+
+	fig = go.Figure(data=[go.Sankey(
+		node = dict(
+		  pad = 15,
+		  thickness = 20,
+		  line = dict(color = "black", width = 0.5),
+		  label = list(first.nodes()),#["A1", "A2", "B1", "B2", "C1", "C2"],
+		  color = "blue"
+		),
+		link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]]))])
+
+	fig.update_layout(title_text="Basic Sankey Diagram", font_size=10)
+
+	st.write(fig)
+	link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = [i*10 for i in adj_mat["weight"]])
+
+	data = go.Sankey(link = link)
+
+	#fig3 = go.Figure(data)
+	layout = go.Layout(
+		paper_bgcolor="rgba(0,0,0,0)",  # transparent background
+		plot_bgcolor="rgba(0,0,0,0)",  # transparent 2nd background
+		xaxis={"showgrid": False, "zeroline": False},  # no gridlines
+		yaxis={"showgrid": False, "zeroline": False},  # no gridlines
+	)  # Create figure
+	layout["width"] = 925
+	layout["height"] = 925
+
+	fig3 = go.Figure(data,layout=layout)  # Add all edge traces
+	st.write(fig3)

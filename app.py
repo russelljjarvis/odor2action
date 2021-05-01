@@ -162,7 +162,7 @@ def data_shade(graph,color_code,adj_mat,color_dict):
 
 
 	for ind,seg in enumerate(segments):
-		 ax.plot(seg[:,0], seg[:,1],c=color_code[srcs[ind]],alpha=1,linewidth=1*widths[ind])
+		 ax.plot(seg[:,0], seg[:,1],c=color_code[srcs[ind]],alpha=0.77,linewidth=widths[ind])
 	node_color = [color_code[n] for n in graph]
 
 	ax3 = nx.draw_networkx_nodes(graph, pos_,node_color=node_color, node_size=node_size, node_shape='o', alpha=1, vmin=None, vmax=None, linewidths=1.0, label=None,ax=ax)#, **kwds)
@@ -223,8 +223,8 @@ def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 			#	)
 			#st.write(figure)
 			#hv.Chord(edge_list,label=labels)
-			#g = sns.clustermap(df2)
-			#st.pyplot(g)
+			g = sns.clustermap(df2)
+			st.pyplot(g)
 			#'''
 			#plot_imshow_plotly(df2)
 
@@ -419,12 +419,13 @@ def main():
 	Note clicking yes wont result in instaneous results
 	please scroll down to explore putative network visualizations
 	"""
-	if option:
-		st.write(legend)
-		st.write(df2)
 	st.markdown("""Still loading Graphs please wait...\n""")
 
 	df2,names,ratercodes,legend,color_code,color_dict = get_frame()
+	if option:
+		st.write(legend)
+		st.write(df2)
+
 	fig = plt.figure()
 	for k,v in color_dict.items():
 	    plt.scatter([],[], c=v, label=k)
@@ -471,6 +472,18 @@ def main():
 	link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)], target =[encoded[i] for i in list(adj_mat["tgt"].values)], value =[i*3 for i in list(adj_mat["weight"].values)])
 	adj_mat2 = pd.DataFrame(link)
 	adj_mat3= adj_mat[adj_mat['weight'] != 0]
+	#ch = Chord(adj_mat3.values[:],names=names)
+	#st.text(dir(ch))
+	#st.write(ch.render_html())
+
+	#ch.to_html("chord.html")
+	#HtmlFile = open("chord.html", 'r', encoding='utf-8')
+	#source_code = HtmlFile.read()
+	#try:
+	#	components.v1.html(source_code, height = 1100,width=1100)
+	#except:
+	#	components.html(source_code, height = 1100,width=1100)
+
 	pos = nx.get_node_attributes(first,'pos')
 	fig = plt.figure()
 	d = nx.degree(first)
@@ -602,8 +615,9 @@ def main():
 	chord = hv.Chord(adj_mat3)
 	#graph = chord.opts(node_color='tgt', edge_color='src',\
 	#label_index='tgt',cmap='Category10', edge_cmap='Category10',height=700, width=700 )
+	#st.write(hv.render((chord), backend="bokeh"))
+	#st.hvplot(chord)
 	st.write(hv.render(chord, backend="bokeh"))
-	#st.write(hv.render(graph, backend="bokeh"))
 
 	#st.write(adj_mat3)
 	#chord3 = chord2.make_filled_chord(adj_mat3)

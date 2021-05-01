@@ -12,3 +12,4 @@ pyvis==0.1.9
 matplotlib==2.2.5
 seaborn==0.9.1
 scikit-image
+bokeh==2.2.2 

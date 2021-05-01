@@ -106,8 +106,9 @@ def data_shade(graph, color_code, adj_mat, color_dict):
 
     nodes_ind = [i for i in range(0, len(graph.nodes()))]
     redo = {k: v for k, v in zip(graph.nodes, nodes_ind)}
+    #pos = nx.spring_layout(H, k=0.05, seed=4572321, scale=1)
 
-    pos_ = nx.spring_layout(graph, scale=125, k=0.05, seed=4572321)
+    pos_ = nx.spring_layout(graph, scale=1, k=0.05, seed=4572321)
     # node_color = [community_index[n] for n in graph]
     H = graph.to_undirected()
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
@@ -173,9 +174,15 @@ def data_shade(graph, color_code, adj_mat, color_dict):
         label=None,
         ax=ax,
     )  # , **kwds)
+
     axx = plt.gca()  # to get the current axis
 
     axx.collections[0].set_edgecolor("#FF0000")
+    labels = {}
+    for node in graph.nodes():
+        #set the node name as the key and the label as its value
+        labels[node] = node
+    nx.draw_networkx_labels(graph,pos_,labels,font_size=16,font_color='r')
 
     # ax3.margins(0.1, 0.05)
     fig.tight_layout()
@@ -426,6 +433,9 @@ def learn_embeddings(walks):
 
 
 def main():
+    import holoviews
+    st.text(holoviews.__version__)
+
     st.title("Odor 2 Action Collaboration Survey Data")
 
     st.markdown("""I talk or directly email with this person (for any reason)...\n""")
@@ -586,7 +596,7 @@ def main():
     fig, ax = plt.subplots(figsize=(20, 15))
     # fig, ax = plt.subplots(figsize=(15,15))
 
-    pos = nx.spring_layout(H, k=0.75, seed=4572321, scale=10)
+    pos = nx.spring_layout(H, k=0.05, seed=4572321, scale=1)
 
     node_color = [color_code[n] for n in H]
     srcs = list(adj_mat["src"].values)

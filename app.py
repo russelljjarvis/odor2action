@@ -148,7 +148,10 @@ def data_shade(graph,color_code,adj_mat,color_dict):
 	splits = (np.isnan(hbnp[:,0])).nonzero()[0]
 	start = 0
 	segments = []
-	st.markdown('this is called edge bundling, it gets rid of "hair ball effect"')
+	st.markdown('The graph type below is called edge bundling, it gets rid of "hair ball effect"')
+	st.markdown('Think of it conceptually like Ramon Y Cajal principle of wiring cost optimization.')
+	st.markdown('Neurons going to a similar place shouldnt travel down different dedicated lines, there is less metabolic cost involved in \n channeling parallel routes down the same myline sheath.')
+
 	for stop in splits:
 		 seg = hbnp[start:stop, :]
 		 segments.append(seg)
@@ -223,8 +226,6 @@ def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 			#	)
 			#st.write(figure)
 			#hv.Chord(edge_list,label=labels)
-			g = sns.clustermap(df2)
-			st.pyplot(g)
 			#'''
 			#plot_imshow_plotly(df2)
 
@@ -353,7 +354,7 @@ def get_frame():
 			#fig = go.Figure(data)
 			#st.write(fig)
 
-	return df2,names,ratercodes,legend,color_code_1,color_dict
+	return df2,names,ratercodes,legend,color_code_1,color_dict,color_code_0
 
 sns_colorscale = [[0.0, '#3f7f93'], #cmap = sns.diverging_palette(220, 10, as_cmap = True)
 	[0.071, '#5890a1'],
@@ -421,7 +422,7 @@ def main():
 	"""
 	st.markdown("""Still loading Graphs please wait...\n""")
 
-	df2,names,ratercodes,legend,color_code,color_dict = get_frame()
+	df2,names,ratercodes,legend,color_code,color_dict,color_code_0 = get_frame()
 	if option:
 		st.write(legend)
 		st.write(df2)
@@ -521,7 +522,7 @@ def main():
 		node['value'] = len(neighbor_map[node['id']])
 		node['color'] = color_code[node['id']]
 
-	if True:
+	if False:
 		nt.show_buttons(filter_=['physics'])
 	st.markdown("Keep scrolling a fair way down...")
 
@@ -612,12 +613,72 @@ def main():
 	st.pyplot(fig)
 
 	plot_stuff(df2,edges_df_full,first,adj_mat_dicts)
-	chord = hv.Chord(adj_mat3)
-	#graph = chord.opts(node_color='tgt', edge_color='src',\
-	#label_index='tgt',cmap='Category10', edge_cmap='Category10',height=700, width=700 )
+	#chord = hv.Chord(adj_mat3)
+	#st.write(pd.DataFrame(first.nodes))
+	temp = pd.DataFrame(first.nodes)
+	nodes = hv.Dataset(temp[0])
+	#links = pd.DataFrame(data['links'])
+	import copy
+	links = copy.copy(adj_mat)
+	links.rename(columns={'weight':'value','src':'source','tgt':'target'},inplace=True)
+	links= links[links['value'] != 0]
+	vals = []
+	for k in links['source']:
+
+		if k in color_dict.keys():
+			vals.append(color_dict[k])
+		else:
+			vals.append("black")
+	#color_code_0 = {k:v for k,v in zip(df2[0],df2[1]) if k not in "Rater Code"}
+
+	#keywords = dict(bgcolor='black', width=800, height=800, xaxis=None, yaxis=None)
+	#opts.defaults(opts.Graph(**keywords), opts.Nodes(**keywords), opts.RGB(**keywords))
+	#links['color'] = pd.Series(vals)
+	chord = hv.Chord(links)#.select(value=(5, None))
+	#node_color = [color_code[n] for n in H]
+	#st.text(links['color'])
+	chord.opts(opts.Chord(cmap='Category20',fontscale=2, width=500, height=500,
+			   edge_cmap='Category20', edge_color=dim('source').str(),
+               labels='name', node_color=dim('index').str()))
+	st.markdown("Chord layout democratic")
+
+	st.write(hv.render((chord), backend="bokeh"))
+	#st.text(dir(chord))
+	#st.text(type(chord))
+
+	#st.text(str(links.index))
+	edges_df = links.reset_index(drop=True)
+	graph = hv.Graph(edges_df)
+	#opts.defaults(opts.Nodes(size=5, padding=0.1))
+	from holoviews.operation.datashader import (
+    	datashade, dynspread, directly_connect_edges, bundle_graph, stack
+	)
+	st.markdown("bundling + chord")
+	circular = bundle_graph(graph)
+	datashade(circular, width=300, height=300) * circular.nodes
+	st.write(hv.render((circular), backend="bokeh"))
+	#st.text(dir(fig))
+	#st.text(type(fig))
+	g = sns.clustermap(df2)
+	st.pyplot(g)
+
+	#circular = bundle_graph(graph)
+	chord = hv.Chord(links)
+	datashade(chord, width=300, height=300) * circular.nodes
+	#overlay.opts(opts.Graph(edge_line_color='white', edge_hover_line_color='blue', padding=0.1))
+	st.write(hv.render((chord), backend="bokeh"))
+
+
+	#st.write(chord)
+	#st.write(links)
+	#st.write(nodes.data.head())
+	#chord = hv.Chord((links,nodes))#.select(value=(5, None))
+	#chord.opts(opts.Chord(cmap='Category20',
+	#		   edge_cmap='Category20', edge_color=dim('source').str(),
+    #           labels='name', node_color=node_color))
 	#st.write(hv.render((chord), backend="bokeh"))
 	#st.hvplot(chord)
-	st.write(hv.render(chord, backend="bokeh"))
+	#st.write(hv.render(chord, backend="bokeh"))
 
 	#st.write(adj_mat3)
 	#chord3 = chord2.make_filled_chord(adj_mat3)

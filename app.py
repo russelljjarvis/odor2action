@@ -688,6 +688,8 @@ def main():
     # keywords = dict(bgcolor='black', width=800, height=800, xaxis=None, yaxis=None)
     # opts.defaults(opts.Graph(**keywords), opts.Nodes(**keywords), opts.RGB(**keywords))
     # links['color'] = pd.Series(vals)
+    #fig = chord2.make_filled_chord(list(links.values[:]))
+    #st.write(fig)
     chord = hv.Chord(links)  # .select(value=(5, None))
     # node_color = [color_code[n] for n in H]
     # st.text(links['color'])

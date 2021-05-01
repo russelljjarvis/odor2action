@@ -138,7 +138,7 @@ def data_shade(graph, color_code, adj_mat, color_dict):
         "Think of it conceptually like Ramon Y Cajal principle of wiring cost optimization."
     )
     st.markdown(
-        "Neurons going to a similar place shouldnt travel down different dedicated lines, there is less metabolic cost involved in \n channeling parallel routes down the same myline sheath."
+        "Neurons processes projecting to very close places shouldnt travel down indipendant dedicated lines, there is less metabolic cost involved in \n channeling parallel fibres in the same myline sheath."
     )
 
     for stop in splits:
@@ -667,7 +667,6 @@ def main():
     chord.opts(
         opts.Chord(
             cmap="Category20",
-            fontscale=2,
             width=500,
             height=500,
             edge_cmap="Category20",

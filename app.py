@@ -711,7 +711,10 @@ def main():
         height=800,
         width=800,
     )
+    #row_labels=list(df2.index.values),
+
     st.write(figure)
+    st.markdown("clustergram of adjacency matrix: These don't look the same as sorting algorithms are different")
 
     g = sns.clustermap(df2)
     st.pyplot(g)

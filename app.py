@@ -521,7 +521,7 @@ def main():
 		node['value'] = len(neighbor_map[node['id']])
 		node['color'] = color_code[node['id']]
 
-	if False:
+	if True:
 		nt.show_buttons(filter_=['physics'])
 	st.markdown("Keep scrolling a fair way down...")
 

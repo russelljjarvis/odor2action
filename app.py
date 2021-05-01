@@ -9,7 +9,7 @@ import networkx as nx
 #import node2vec
 from node2vec import node2vec
 from gensim.models import Word2Vec
-from node2vec.edges import HadamardEmbedder
+#from node2vec.edges import HadamardEmbedder
 import dash_bio as dashbio
 
 import streamlit as st
@@ -69,8 +69,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 pd.set_option('display.max_colwidth', -1)
 import plotly.graph_objects as go
-from auxillary_methods import plotly_sized2#, data_shade#, draw_wstate_tree
-#@st.cache(suppress_st_warning=True)
+#from auxillary_methods import plotly_sized2
 
 from datashader.bundling import hammer_bundle
 
@@ -79,8 +78,6 @@ import pandas as pd
 import holoviews as hv
 import seaborn as sns;
 
-#from holoviews import opts, dim
-#from bokeh.sampledata.les_mis import data
 
 def generate_sankey_figure(nodes_list: List, edges_df: pd.DataFrame,
 							   title: str = 'Sankey Diagram'):
@@ -122,7 +119,7 @@ def generate_sankey_figure(nodes_list: List, edges_df: pd.DataFrame,
 	st.write(fig)
 
 	#return fig
-def data_shade(graph,color_code):
+def data_shade(graph,color_code,adj_mat):
 
 	nodes = graph.nodes
 	#orig_pos=nx.get_node_attributes(graph,'pos')
@@ -159,12 +156,20 @@ def data_shade(graph,color_code):
 
 
 	fig, ax = plt.subplots(figsize=(15,15))
+	widths=list(adj_mat["weight"].values)
+	srcs=list(adj_mat["src"].values)
 
-	for seg in segments:
-		 ax.plot(seg[:,0], seg[:,1],c='grey')
+	#srcs = []
+	#for e in H.edges:
+	#	src = e[0]
+	#	srcs.append(src)
+
+
+	for ind,seg in enumerate(segments):
+		 ax.plot(seg[:,0], seg[:,1],c=color_code[srcs[ind]],alpha=0.35,linewidth=0.25*widths[ind])
 	node_color = [color_code[n] for n in graph]
 
-	ax3 = nx.draw_networkx_nodes(graph, pos_,node_color=node_color, node_size=node_size, node_shape='o', alpha=0.5, vmin=None, vmax=None, linewidths=1.0, label=None,ax=ax)#, **kwds)
+	ax3 = nx.draw_networkx_nodes(graph, pos_,node_color=node_color, node_size=node_size, node_shape='o', alpha=1, vmin=None, vmax=None, linewidths=1.0, label=None,ax=ax)#, **kwds)
 
 	return fig
 def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
@@ -409,7 +414,7 @@ def learn_embeddings(walks):
 	return
 
 def main():
-	st.title('NeuroScience Collaboration Survey Data')
+	st.title('Odor 2 Action Collaboration Survey Data')
 
 	st.markdown("""I talk or directly email with this person (for any reason)...\n""")
 
@@ -458,14 +463,9 @@ def main():
 	except:
 		pass
 	adj_mat = pd.DataFrame(adj_mat_dicts)
-	#st.write(adj_mat)
 	encoded = {v:k for k,v in enumerate(first.nodes())}
 	link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)], target =[encoded[i] for i in list(adj_mat["tgt"].values)], value =[i*3 for i in list(adj_mat["weight"].values)])
 	adj_mat2 = pd.DataFrame(link)
-	#st.write(adj_mat2)
-	#for s,t,w in zip(link["src"],link["tgt"],link["weight"]):
-
-	#for k,v in link.items():
 
 
 
@@ -479,7 +479,7 @@ def main():
 	d = [((d[node]+1) * 1.25) for node in first.nodes()]
 	G = nx_G = first#ead_graph()
 
-	nt = Network("500px", "500px",notebook=True,heading='Elastic Physics Network Survey Data')
+	nt = Network("500px", "500px",notebook=True,heading='Odor 2 Action Network Survey Data')
 	nt.barnes_hut()
 	nt.from_nx(G)
 		#nt.nodes[3]['group'] = 10
@@ -506,7 +506,7 @@ def main():
 
 		#node['title'] += ' Neighbors:<br>' + '<br>'.join(neighbor_map[node['id']])
 		node['value'] = len(neighbor_map[node['id']])
-		node['group'] = color_code[node['id']]
+		node['color'] = color_code[node['id']]
 
 	if False:
 		nt.show_buttons(filter_=['physics'])
@@ -522,18 +522,9 @@ def main():
 		components.v1.html(source_code, height = 1100,width=1100)
 	except:
 		components.html(source_code, height = 1100,width=1100)
-
-	#%%opts Chord [height=700 width=700 title="Traffic Movement Between Cities" labels="City"]
-
-
-	#careers.opts(
-	#    opts.Sankey(labels='label', label_position='right', width=900, height=300, cmap='Set1',
-	#               edge_color=dim('To').str(), node_color=dim('index').str()))
-	#adj_mat = pd.DataFrame(adj_mat_dicts)
-
 	st.markdown("Graphs below can be made to be interactive...")
 
-	fig4 = data_shade(first,color_code)
+	fig4 = data_shade(first,color_code,adj_mat)
 	st.pyplot(fig4)
 
 	st.markdown("for contrast see hair ball below...")
@@ -546,23 +537,40 @@ def main():
 
 	#### draw graph ####
 	fig, ax = plt.subplots(figsize=(20, 15))
+	#fig, ax = plt.subplots(figsize=(15,15))
+
 	pos = nx.spring_layout(H, k=0.15, seed=4572321)
-	#for k in color_code.keys():
-	#	st.text((k,k in H))
-	#for n in H:
-	#	st.text((n,n in color_code.keys()))
 
 	node_color = [color_code[n] for n in H]
 	node_size = [v * 20000 for v in centrality.values()]
-	nx.draw_networkx(
+	edge_thickness = [v * 20000 for v in centrality.values()]
+	srcs=list(adj_mat["src"].values)
+
+	srcs = []
+	for e in H.edges:
+		src = color_code[e[0]]
+		srcs.append(src)
+
+
+	#for ind,seg in enumerate(segments):
+	#	 ax.plot(seg[:,0], seg[:,1],c=color_code[srcs[ind]],alpha=0.35,linewidth=0.25*widths[ind])
+
+
+	nx.draw_networkx_edges(
 		H,
 		pos=pos,
-		with_labels=False,
+		edge_color=srcs,
+		alpha=1,
+		width=list(adj_mat["weight"].values)
+	)
+	nx.draw_networkx_nodes(
+		H,
+		pos=pos,
 		node_color=node_color,
 		node_size=node_size,
-		edge_color="gainsboro",
-		alpha=0.4,
+		alpha=1,
 	)
+
 
 	# Title/legend
 	font = {"color": "k", "fontweight": "bold", "fontsize": 20}
@@ -570,14 +578,6 @@ def main():
 	# Change font color for legend
 	font["color"] = "b"
 
-	#ax.text(
-	#    0.80,
-	#    0.10,
-	#    "node color = community structure",
-	#    horizontalalignment="center",
-	#    transform=ax.transAxes,
-	#    fontdict=font,
-	#)
 	ax.text(
 		0.80,
 		0.06,
@@ -619,8 +619,6 @@ if __name__ == "__main__":
 	main()
 
 def dontdo():
-	fig4 = data_shade(first)
-	st.pyplot(fig4)
 
 	adj_mat = pd.DataFrame(adj_mat_dicts)
 	link = dict(source = adj_mat["src"], target = adj_mat["tgt"], value = adj_mat["weight"])

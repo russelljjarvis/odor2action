@@ -664,7 +664,7 @@ def main():
 
 	#circular = bundle_graph(graph)
 	chord = hv.Chord(links)
-	datashade(chord, width=300, height=300) * circular.nodes
+	datashade(chord, width=300, height=300) #* circular.nodes
 	#overlay.opts(opts.Graph(edge_line_color='white', edge_hover_line_color='blue', padding=0.1))
 	st.write(hv.render((chord), backend="bokeh"))
 

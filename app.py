@@ -5,31 +5,21 @@ Author: [Russell Jarvis](https://github.com/russelljjarvis)
 import argparse
 import numpy as np
 import networkx as nx
-
-# import node2vec
-# from node2vec import node2vec
-# from gensim.models import Word2Vec
-# from node2vec.edges import HadamardEmbedder
 import dash_bio as dashbio
-
 import streamlit as st
 import streamlit.components.v1 as components
 import networkx as nx
 import matplotlib.pyplot as plt
 from pyvis.network import Network
-
-
 import shelve
 import streamlit as st
 import os
-
 import pandas as pd
 import pickle
 import streamlit as st
 from holoviews import opts, dim
 from collections import Iterable
 import networkx
-
 import holoviews as hv
 import chord2
 import shelve

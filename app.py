@@ -119,7 +119,7 @@ def generate_sankey_figure(nodes_list: List, edges_df: pd.DataFrame,
 	st.write(fig)
 
 	#return fig
-def data_shade(graph,color_code,adj_mat):
+def data_shade(graph,color_code,adj_mat,color_dict):
 
 	nodes = graph.nodes
 	#orig_pos=nx.get_node_attributes(graph,'pos')
@@ -159,10 +159,6 @@ def data_shade(graph,color_code,adj_mat):
 	widths=list(adj_mat["weight"].values)
 	srcs=list(adj_mat["src"].values)
 
-	#srcs = []
-	#for e in H.edges:
-	#	src = e[0]
-	#	srcs.append(src)
 
 
 	for ind,seg in enumerate(segments):
@@ -170,7 +166,13 @@ def data_shade(graph,color_code,adj_mat):
 	node_color = [color_code[n] for n in graph]
 
 	ax3 = nx.draw_networkx_nodes(graph, pos_,node_color=node_color, node_size=node_size, node_shape='o', alpha=1, vmin=None, vmax=None, linewidths=1.0, label=None,ax=ax)#, **kwds)
+	#ax3.margins(0.1, 0.05)
+	fig.tight_layout()
+	plt.axis("off")
 
+	for k,v in color_dict.items():
+	    plt.scatter([],[], c=v, label=k)
+	plt.legend()
 	return fig
 def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 	with shelve.open("fast_graphs_splash.p") as db:
@@ -196,41 +198,39 @@ def plot_stuff(df2,edges_df_full,first,adj_mat_dicts):
 
 		else:
 			#st.write(edges_df_full)
-			'''
-			adj_mat = pd.DataFrame(adj_mat_dicts)
-			encoded = {v:k for k,v in enumerate(first.nodes())}
-			link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)][0:30], target =[encoded[i] for i in list(adj_mat["tgt"].values)][0:30], value =[i*3 for i in list(adj_mat["weight"].values)][0:30])
-			labels = list(first.nodes)
-			edge_list = nx.to_edgelist(first)
-			columns = list(df2.columns.values)
-			rows = list(df2.index[1:-1])
-			st.text(rows)
-			st.text(columns)
-			st.write(df2)
-			figure=dashbio.Clustergram(
-					data=df2.loc[rows].values,
-					column_labels=columns,
-					row_labels=rows,
-					color_threshold={
-						'row': 250,
-						'col': 700
-					},
-					hidden_labels='row',
-					height=800,
-					width=800
-				)
-			st.write(figure)
-			hv.Chord(edge_list,label=labels)
-			g = sns.clustermap(df2)
-			st.pyplot(g)
-			'''
+			#'''
+			#adj_mat = pd.DataFrame(adj_mat_dicts)
+			#encoded = {v:k for k,v in enumerate(first.nodes())}
+			##link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)][0:30], target =[encoded[i] for i in list(adj_mat["tgt"].values)][0:30], value =[i*3 for i in list(adj_mat["weight"].values)][0:30])
+			#labels = list(first.nodes)
+			#edge_list = nx.to_edgelist(first)
+			#columns = list(df2.columns.values)
+			#rows = list(df2.index[1:-1])
+			#st.text(rows)
+			#st.text(columns)
+			#st.write(df2)
+			#figure=dashbio.Clustergram(
+			#		data=df2.loc[rows].values,
+			#		column_labels=columns,
+			#		row_labels=rows,
+			#		color_threshold={
+			#			'row': 250,
+			#			'col': 700
+			#		},
+			#		hidden_labels='row',
+			#		height=800,
+			#		width=800
+			#	)
+			#st.write(figure)
+			#hv.Chord(edge_list,label=labels)
+			#g = sns.clustermap(df2)
+			#st.pyplot(g)
+			#'''
 			#plot_imshow_plotly(df2)
 
-			#chord3 = chord2.make_filled_chord(adj_mat)
-			#st.write(chord3)
 			#db['chord3'] = chord3
 
-		db.close()
+			db.close()
 
 def get_frame():
 
@@ -259,14 +259,9 @@ def get_frame():
 			#st.write(len(df2))
 
 			df2 = pd.concat([df3,df2])
-			#st.write(len(df2))
-			#st.text(df2.index.values)
-			#st.text(df2.T[0].values)
-			#st.write(df3)
-			#st.write(df2.values[:]==None)
 			color_code_0 = {k:v for k,v in zip(df2[0],df2[1]) if k not in "Rater Code"}
 
-			color_dict = {'IRG 3':'green','IRG 1':'blue','IRG 2':'yellow','DCMT':'orange'}
+			color_dict = {'Unknown':'black','IRG 3':'green','IRG 1':'blue','IRG 2':'yellow','DCMT':'orange'}
 			color_code_1 = {}
 			for k,v in color_code_0.items():
 				color_code_1[k] = color_dict[v]
@@ -358,7 +353,7 @@ def get_frame():
 			#fig = go.Figure(data)
 			#st.write(fig)
 
-	return df2,names,ratercodes,legend,color_code_1
+	return df2,names,ratercodes,legend,color_code_1,color_dict
 
 sns_colorscale = [[0.0, '#3f7f93'], #cmap = sns.diverging_palette(220, 10, as_cmap = True)
 	[0.071, '#5890a1'],
@@ -419,8 +414,6 @@ def main():
 	st.markdown("""I talk or directly email with this person (for any reason)...\n""")
 
 	st.markdown("""Graphs loading first plotting spread sheets...\n""")
-
-	df2,names,ratercodes,legend,color_code = get_frame()
 	option = st.checkbox('consult spread sheet?')
 	"""
 	Note clicking yes wont result in instaneous results
@@ -430,6 +423,17 @@ def main():
 		st.write(legend)
 		st.write(df2)
 	st.markdown("""Still loading Graphs please wait...\n""")
+
+	df2,names,ratercodes,legend,color_code,color_dict = get_frame()
+	fig = plt.figure()
+	for k,v in color_dict.items():
+	    plt.scatter([],[], c=v, label=k)
+	plt.legend()
+	fig.tight_layout()
+	plt.axis("off")
+
+	st.pyplot(fig)
+
 
 	inboth = set(names) & set(ratercodes)
 	notinboth = set(names) - set(ratercodes)
@@ -466,11 +470,16 @@ def main():
 	encoded = {v:k for k,v in enumerate(first.nodes())}
 	link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)], target =[encoded[i] for i in list(adj_mat["tgt"].values)], value =[i*3 for i in list(adj_mat["weight"].values)])
 	adj_mat2 = pd.DataFrame(link)
+	adj_mat3= adj_mat[adj_mat['weight'] != 0]
+	chord = hv.Chord(adj_mat3)
+	#graph = chord.opts(node_color='tgt', edge_color='src',\
+	#label_index='tgt',cmap='Category10', edge_cmap='Category10',height=700, width=700 )
+	st.write(hv.render(chord, backend="bokeh"))
+	#st.write(hv.render(graph, backend="bokeh"))
 
-
-
-
-
+	#st.write(adj_mat3)
+	#chord3 = chord2.make_filled_chord(adj_mat3)
+	#st.write(chord3)
 	pos = nx.get_node_attributes(first,'pos')
 	fig = plt.figure()
 	d = nx.degree(first)
@@ -524,7 +533,7 @@ def main():
 		components.html(source_code, height = 1100,width=1100)
 	st.markdown("Graphs below can be made to be interactive...")
 
-	fig4 = data_shade(first,color_code,adj_mat)
+	fig4 = data_shade(first,color_code,adj_mat,color_dict)
 	st.pyplot(fig4)
 
 	st.markdown("for contrast see hair ball below...")
@@ -539,7 +548,7 @@ def main():
 	fig, ax = plt.subplots(figsize=(20, 15))
 	#fig, ax = plt.subplots(figsize=(15,15))
 
-	pos = nx.spring_layout(H, k=0.15, seed=4572321)
+	pos = nx.spring_layout(H, k=0.15, seed=4572321,scale=10)
 
 	node_color = [color_code[n] for n in H]
 	node_size = [v * 20000 for v in centrality.values()]
@@ -591,13 +600,14 @@ def main():
 	ax.margins(0.1, 0.05)
 	fig.tight_layout()
 	plt.axis("off")
+
+	for k,v in color_dict.items():
+	    plt.scatter([],[], c=v, label=k)
+	plt.legend()
+
 	st.pyplot(fig)
 
 	plot_stuff(df2,edges_df_full,first,adj_mat_dicts)
-	chord = hv.Chord(adj_mat[:90])
-	#graph = chord.opts(node_color='tgt', edge_color='src',\
-	#label_index='tgt',cmap='Category10', edge_cmap='Category10',height=700, width=700 )
-	st.write(hv.render(chord, backend="bokeh"))
 
 	#nodes = first.nodes
 	#edges = first.edges

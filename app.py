@@ -7,8 +7,8 @@ import argparse
 import numpy as np
 import networkx as nx
 #import node2vec
-from node2vec import node2vec
-from gensim.models import Word2Vec
+#from node2vec import node2vec
+#from gensim.models import Word2Vec
 #from node2vec.edges import HadamardEmbedder
 import dash_bio as dashbio
 
@@ -657,16 +657,15 @@ def main():
 	circular = bundle_graph(graph)
 	datashade(circular, width=300, height=300) * circular.nodes
 	st.write(hv.render((circular), backend="bokeh"))
-	#st.text(dir(fig))
-	#st.text(type(fig))
+	st.markdown("clustergram of adjacency matrix")
 	g = sns.clustermap(df2)
 	st.pyplot(g)
 
 	#circular = bundle_graph(graph)
-	chord = hv.Chord(links)
-	datashade(chord, width=300, height=300) #* circular.nodes
+	#chord = hv.Chord(links)
+	#datashade(chord, width=300, height=300) #* circular.nodes
 	#overlay.opts(opts.Graph(edge_line_color='white', edge_hover_line_color='blue', padding=0.1))
-	st.write(hv.render((chord), backend="bokeh"))
+	#st.write(hv.render((chord), backend="bokeh"))
 
 
 	#st.write(chord)

@@ -471,15 +471,6 @@ def main():
 	link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)], target =[encoded[i] for i in list(adj_mat["tgt"].values)], value =[i*3 for i in list(adj_mat["weight"].values)])
 	adj_mat2 = pd.DataFrame(link)
 	adj_mat3= adj_mat[adj_mat['weight'] != 0]
-	chord = hv.Chord(adj_mat3)
-	#graph = chord.opts(node_color='tgt', edge_color='src',\
-	#label_index='tgt',cmap='Category10', edge_cmap='Category10',height=700, width=700 )
-	st.write(hv.render(chord, backend="bokeh"))
-	#st.write(hv.render(graph, backend="bokeh"))
-
-	#st.write(adj_mat3)
-	#chord3 = chord2.make_filled_chord(adj_mat3)
-	#st.write(chord3)
 	pos = nx.get_node_attributes(first,'pos')
 	fig = plt.figure()
 	d = nx.degree(first)
@@ -608,6 +599,15 @@ def main():
 	st.pyplot(fig)
 
 	plot_stuff(df2,edges_df_full,first,adj_mat_dicts)
+	chord = hv.Chord(adj_mat3)
+	#graph = chord.opts(node_color='tgt', edge_color='src',\
+	#label_index='tgt',cmap='Category10', edge_cmap='Category10',height=700, width=700 )
+	st.write(hv.render(chord, backend="bokeh"))
+	#st.write(hv.render(graph, backend="bokeh"))
+
+	#st.write(adj_mat3)
+	#chord3 = chord2.make_filled_chord(adj_mat3)
+	#st.write(chord3)
 
 	#nodes = first.nodes
 	#edges = first.edges

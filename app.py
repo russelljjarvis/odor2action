@@ -17,10 +17,10 @@ import os
 import pandas as pd
 import pickle
 import streamlit as st
-from holoviews import opts, dim
+#from holoviews import opts, dim
 from collections import Iterable
 import networkx
-import holoviews as hv
+#import holoviews as hv
 import chord2
 import shelve
 
@@ -50,9 +50,9 @@ def disable_logo(plot, element):
     plot.state.toolbar.logo = None
 
 
-hv.extension("bokeh", logo=False)
-hv.output(size=150)
-hv.plotting.bokeh.ElementPlot.finalize_hooks.append(disable_logo)
+#hv.extension("bokeh", logo=False)
+#hv.output(size=150)
+#hv.plotting.bokeh.ElementPlot.finalize_hooks.append(disable_logo)
 
 pd.set_option("display.max_rows", None)
 pd.set_option("display.max_columns", None)
@@ -66,7 +66,7 @@ from datashader.bundling import hammer_bundle
 
 from typing import List
 import pandas as pd
-import holoviews as hv
+#import holoviews as hv
 import seaborn as sns
 
 
@@ -182,7 +182,7 @@ def data_shade(graph, color_code, adj_mat, color_dict):
     for node in graph.nodes():
         #set the node name as the key and the label as its value
         labels[node] = node
-    nx.draw_networkx_labels(graph,pos_,labels,font_size=16,font_color='r')
+    #nx.draw_networkx_labels(graph,pos_,labels,font_size=16,font_color='r')
 
     # ax3.margins(0.1, 0.05)
     fig.tight_layout()
@@ -433,8 +433,8 @@ def learn_embeddings(walks):
 
 
 def main():
-    import holoviews
-    st.text(holoviews.__version__)
+    #import holoviews
+    #st.text(holoviews.__version__)
 
     st.title("Odor 2 Action Collaboration Survey Data")
 
@@ -476,7 +476,7 @@ def main():
         for j, col in enumerate(df2.columns):
             if idx != col:
                 weight = df2.iloc[i, j]  # df2.loc[idx, col]
-                if float(weight) !=0.0:
+                if float(weight) >3.0:
                     adj_mat_dicts.append({"src": idx, "tgt": col, "weight": weight})
                     first.add_edge(idx, col, weight=weight)
     first.remove_nodes_from(list(nx.isolates(first)))
@@ -654,6 +654,7 @@ def main():
     # chord = hv.Chord(adj_mat3)
     # st.write(pd.DataFrame(first.nodes))
     temp = pd.DataFrame(first.nodes)
+    '''
     nodes = hv.Dataset(temp[0])
     # links = pd.DataFrame(data['links'])
     import copy
@@ -670,6 +671,7 @@ def main():
             vals.append(color_dict[k])
         else:
             vals.append("black")
+    '''
     # color_code_0 = {k:v for k,v in zip(df2[0],df2[1]) if k not in "Rater Code"}
 
     # keywords = dict(bgcolor='black', width=800, height=800, xaxis=None, yaxis=None)
@@ -677,6 +679,7 @@ def main():
     # links['color'] = pd.Series(vals)
     # fig = chord2.make_filled_chord(list(links.values[:]))
     # st.write(fig)
+    '''
     chord = hv.Chord(links)  # .select(value=(5, None))
     # node_color = [color_code[n] for n in H]
     # st.text(links['color'])
@@ -693,10 +696,6 @@ def main():
     )
     st.markdown("Chord layout democratic")
     st.write(hv.render((chord), backend="bokeh"))
-    # st.text(dir(chord))
-    # st.text(type(chord))
-
-    # st.text(str(links.index))
     edges_df = links.reset_index(drop=True)
     graph = hv.Graph(edges_df)
     # opts.defaults(opts.Nodes(size=5, padding=0.1))
@@ -707,15 +706,15 @@ def main():
         bundle_graph,
         stack,
     )
-
+    '''
     st.markdown("bundling + chord")
     st.markdown("Able to show that not everything is connected to everything else")
-
+    '''
     circular = bundle_graph(graph)
     datashade(circular, width=500, height=500) * circular.nodes
     st.write(hv.render((circular), backend="bokeh"))
     st.markdown("clustergram of adjacency matrix: These don't look the same as sorting algorithms are different")
-
+    '''
     g = sns.clustermap(df2)
     st.pyplot(g)
     st.markdown("clustergram of adjacency matrix")

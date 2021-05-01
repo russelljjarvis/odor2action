@@ -211,29 +211,6 @@ def plot_stuff(df2, edges_df_full, first, adj_mat_dicts):
         else:
             # st.write(edges_df_full)
             #'''
-            # adj_mat = pd.DataFrame(adj_mat_dicts)
-            # encoded = {v:k for k,v in enumerate(first.nodes())}
-            ##link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)][0:30], target =[encoded[i] for i in list(adj_mat["tgt"].values)][0:30], value =[i*3 for i in list(adj_mat["weight"].values)][0:30])
-            # labels = list(first.nodes)
-            # edge_list = nx.to_edgelist(first)
-            # columns = list(df2.columns.values)
-            # rows = list(df2.index[1:-1])
-            # st.text(rows)
-            # st.text(columns)
-            # st.write(df2)
-            # figure=dashbio.Clustergram(
-            # 		data=df2.loc[rows].values,
-            # 		column_labels=columns,
-            # 		row_labels=rows,
-            # 		color_threshold={
-            # 			'row': 250,
-            # 			'col': 700
-            # 		},
-            # 		hidden_labels='row',
-            # 		height=800,
-            # 		width=800
-            # 	)
-            # st.write(figure)
             # hv.Chord(edge_list,label=labels)
             #'''
             # plot_imshow_plotly(df2)
@@ -513,6 +490,11 @@ def main():
     )
     adj_mat2 = pd.DataFrame(link)
     adj_mat3 = adj_mat[adj_mat["weight"] != 0]
+    # encoded = {v:k for k,v in enumerate(first.nodes())}
+    # link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)][0:30], target =[encoded[i] for i in list(adj_mat["tgt"].values)][0:30], value =[i*3 for i in list(adj_mat["weight"].values)][0:30])
+    # labels = list(first.nodes)
+    # edge_list = nx.to_edgelist(first)
+
     # ch = Chord(adj_mat3.values[:],names=names)
     # st.text(dir(ch))
     # st.write(ch.render_html())
@@ -677,8 +659,8 @@ def main():
     # keywords = dict(bgcolor='black', width=800, height=800, xaxis=None, yaxis=None)
     # opts.defaults(opts.Graph(**keywords), opts.Nodes(**keywords), opts.RGB(**keywords))
     # links['color'] = pd.Series(vals)
-    #fig = chord2.make_filled_chord(list(links.values[:]))
-    #st.write(fig)
+    # fig = chord2.make_filled_chord(list(links.values[:]))
+    # st.write(fig)
     chord = hv.Chord(links)  # .select(value=(5, None))
     # node_color = [color_code[n] for n in H]
     # st.text(links['color'])
@@ -719,6 +701,18 @@ def main():
     datashade(circular, width=500, height=500) * circular.nodes
     st.write(hv.render((circular), backend="bokeh"))
     st.markdown("clustergram of adjacency matrix")
+    columns = list(df2.columns.values)
+    rows = list(df2.index)
+    figure = dashbio.Clustergram(
+        data=df2.loc[rows].values,
+        column_labels=columns,
+        color_threshold={"row": 250, "col": 700},
+        hidden_labels="row",
+        height=800,
+        width=800,
+    )
+    st.write(figure)
+
     g = sns.clustermap(df2)
     st.pyplot(g)
 

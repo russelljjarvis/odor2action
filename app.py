@@ -166,7 +166,7 @@ def data_shade(graph,color_code,adj_mat):
 
 
 	for ind,seg in enumerate(segments):
-		 ax.plot(seg[:,0], seg[:,1],c=color_code[srcs[ind]],alpha=0.35,linewidth=0.25*widths[ind])
+		 ax.plot(seg[:,0], seg[:,1],c=color_code[srcs[ind]],alpha=1,linewidth=1*widths[ind])
 	node_color = [color_code[n] for n in graph]
 
 	ax3 = nx.draw_networkx_nodes(graph, pos_,node_color=node_color, node_size=node_size, node_shape='o', alpha=1, vmin=None, vmax=None, linewidths=1.0, label=None,ax=ax)#, **kwds)

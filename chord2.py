@@ -203,7 +203,7 @@ def invPerm(perm):
 
 
 def make_filled_chord(M):  # ,labels):
-    
+
     n = M.shape[0]
     labels = list(M.columns)
     print(labels)
@@ -241,11 +241,7 @@ def make_filled_chord(M):  # ,labels):
                     )
                 )
                 z = 0.9 * np.exp(1j * (l[0] + l[1]) / 2)
-                text = (
-                    labels[k]
-                    + " co-occurs with "
-                    + "{0}".format(M.iloc[k, k])
-                )
+                text = labels[k] + " co-occurs with " + "{0}".format(M.iloc[k, k])
                 ribbon_info.append(
                     go.Scatter(
                         x=[z.real],
@@ -257,9 +253,9 @@ def make_filled_chord(M):  # ,labels):
                     )
                 )
             else:
-                #labels = [str(lab) for lab in labels]
-                #import streamlit as st
-                #st.write(labels)
+                # labels = [str(lab) for lab in labels]
+                # import streamlit as st
+                # st.write(labels)
                 r = ribbon_ends[j][eta_inv[k]]
                 zi = 0.9 * np.exp(1j * (l[0] + l[1]) / 2)
                 zf = 0.9 * np.exp(1j * (r[0] + r[1]) / 2)

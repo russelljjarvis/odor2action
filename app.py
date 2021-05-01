@@ -107,7 +107,7 @@ def data_shade(graph, color_code, adj_mat, color_dict):
     nodes_ind = [i for i in range(0, len(graph.nodes()))]
     redo = {k: v for k, v in zip(graph.nodes, nodes_ind)}
 
-    pos_ = nx.spring_layout(graph, scale=125, k=0.15, seed=4572321)
+    pos_ = nx.spring_layout(graph, scale=125, k=0.05, seed=4572321)
     # node_color = [community_index[n] for n in graph]
     H = graph.to_undirected()
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
@@ -285,7 +285,6 @@ def get_frame():
                 else:
                     names2.append(i)
             names = names2
-            st.text(names)
             for nm in names:
                 if nm not in color_code_1.keys():
                     color_code_1[nm] = "black"
@@ -349,23 +348,12 @@ def get_frame():
                 else:
                     # st.text(col)
                     df4[col] = df2[col]
-            # st.write(df4)
             df2 = df4
-            #df2.drop('xyz', inplace=True)
-            #del df2[112]
-            #st.write(df2)
             store["df2"] = df2  # save it
-
-            st.write(df2)
-
-            # store['df'] = df  # save it
-            # st.write(df2)
-
+            #st.write(df2)
             store["names"] = names  # save it
             store["ratercodes"] = ratercodes  # save it
             store["legend"] = legend  # save it
-            # fig = go.Figure(data)
-            # st.write(fig)
 
     return df2, names, ratercodes, legend, color_code_1, color_dict, color_code_0
 
@@ -461,9 +449,7 @@ def main():
     plt.legend()
     fig.tight_layout()
     plt.axis("off")
-
     st.pyplot(fig)
-
     inboth = set(names) & set(ratercodes)
     notinboth = set(names) - set(ratercodes)
 
@@ -480,8 +466,9 @@ def main():
         for j, col in enumerate(df2.columns):
             if idx != col:
                 weight = df2.iloc[i, j]  # df2.loc[idx, col]
-                adj_mat_dicts.append({"src": idx, "tgt": col, "weight": weight})
-                first.add_edge(idx, col, weight=weight)
+                if float(weight) !=0.0:
+                    adj_mat_dicts.append({"src": idx, "tgt": col, "weight": weight})
+                    first.add_edge(idx, col, weight=weight)
     first.remove_nodes_from(list(nx.isolates(first)))
     edges_df_full = nx.to_pandas_adjacency(first)
     try:
@@ -542,10 +529,16 @@ def main():
         list(adj_mat["weight"].values),
     )
 
+    H = first.to_undirected()
+    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+    edge_thickness = {k:v * 20000 for v in centrality.items()}
+    node_size = {k:v * 20000 for v in centrality.items()}
+
     for e in edge_data:
         src = e[0]
         dst = e[1]
         w = e[2]
+        #st.text(src)
 
         # nt.add_node(src, src, title=src,group=color_code[src])
         # nt.add_node(dst, dst, title=dst,group=color_code[src])
@@ -557,7 +550,7 @@ def main():
     for node in nt.nodes:
         if "title" not in node.keys():
             node["title"] = " Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
-
+        #node["size"] = node_size[node["id"]]
         # node['title'] += ' Neighbors:<br>' + '<br>'.join(neighbor_map[node['id']])
         node["value"] = len(neighbor_map[node["id"]])
         node["color"] = color_code[node["id"]]
@@ -582,6 +575,8 @@ def main():
     st.markdown("for contrast see hair ball below (wiring length is not reduced)...")
     H = first.to_undirected()
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+    edge_thickness = [v * 20000 for v in centrality.values()]
+    node_size = [v * 20000 for v in centrality.values()]
 
     # compute community structure
     lpc = nx.community.label_propagation_communities(H)
@@ -591,11 +586,9 @@ def main():
     fig, ax = plt.subplots(figsize=(20, 15))
     # fig, ax = plt.subplots(figsize=(15,15))
 
-    pos = nx.spring_layout(H, k=0.15, seed=4572321, scale=10)
+    pos = nx.spring_layout(H, k=0.75, seed=4572321, scale=10)
 
     node_color = [color_code[n] for n in H]
-    node_size = [v * 20000 for v in centrality.values()]
-    edge_thickness = [v * 20000 for v in centrality.values()]
     srcs = list(adj_mat["src"].values)
 
     srcs = []

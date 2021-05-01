@@ -2,7 +2,7 @@
 sudo apt-get update
 #sudo apt-get install graphviz graphviz-dev
 sudo python3 -m pip install -r requirements.txt
-sudo python3 -m pip install seaborn
+sudo python3 -m pip install seaborn holoviews bokeh
 sudo python3 -m pip install bs4 pyvis dash_bio
 sudo python3 -m pip install natsort dask plotly tabulate streamlit-agraph
 #git clone https://github.com/pygraphviz/pygraphviz; cd pygraphviz; sudo python3 setup.py install; cd -

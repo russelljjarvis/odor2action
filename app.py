@@ -714,7 +714,13 @@ def main():
     circular = bundle_graph(graph)
     datashade(circular, width=500, height=500) * circular.nodes
     st.write(hv.render((circular), backend="bokeh"))
+    st.markdown("clustergram of adjacency matrix: These don't look the same as sorting algorithms are different")
+
+    g = sns.clustermap(df2)
+    st.pyplot(g)
     st.markdown("clustergram of adjacency matrix")
+
+
     columns = list(df2.columns.values)
     rows = list(df2.index)
     figure = dashbio.Clustergram(
@@ -728,10 +734,6 @@ def main():
     #row_labels=list(df2.index.values),
 
     st.write(figure)
-    st.markdown("clustergram of adjacency matrix: These don't look the same as sorting algorithms are different")
-
-    g = sns.clustermap(df2)
-    st.pyplot(g)
 
     # circular = bundle_graph(graph)
     # chord = hv.Chord(links)

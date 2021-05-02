@@ -135,12 +135,12 @@ def data_shade(graph, color_code, adj_mat, color_dict):
     st.markdown(
         'The graph type below is called edge bundling, it gets rid of "hair ball effect"'
     )
-    st.markdown(
-        "Think of it conceptually like Ramon Y Cajal principle of wiring cost optimization."
-    )
-    st.markdown(
-        "Neurons processes projecting to very close places shouldnt travel down indipendant dedicated lines, there is less metabolic cost involved in \n channeling parallel fibres in the same myline sheath through a backbone like the corpus callosum."
-    )
+    #st.markdown(
+    #    "Think of it conceptually like Ramon Y Cajal principle of wiring cost optimization."
+    #)
+    #st.markdown(
+    #    "Neurons processes projecting to very close places shouldnt travel down indipendant dedicated lines, there is less metabolic cost involved in \n channeling parallel fibres in the same myline sheath through a backbone like the corpus callosum."
+    #)
 
     for stop in splits:
         seg = hbnp[start:stop, :]
@@ -730,14 +730,17 @@ def main():
                   'rgba(166, 217, 106, 0.75)']
 
 
-    fig = doCircleRibbonGraph(narr,labs, colors=ideo_colors, plot_size=500, title='Phd Country' )
-    st.write(fig)
+    #fig = doCircleRibbonGraph(narr,labs, colors=ideo_colors, plot_size=500, title='Phd Country' )
+    #st.write(fig)
 
     plot_stuff(df2, edges_df_full, first, adj_mat_dicts)
     # chord = hv.Chord(adj_mat3)
     # st.write(pd.DataFrame(first.nodes))
+    import holoviews as hv
+    from holoviews import opts, dim
+    from bokeh.plotting import show, output_file
+
     temp = pd.DataFrame(first.nodes)
-    '''
     nodes = hv.Dataset(temp[0])
     # links = pd.DataFrame(data['links'])
     import copy
@@ -747,6 +750,8 @@ def main():
         columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
     )
     links = links[links["value"] != 0]
+    '''
+
     vals = []
     for k in links["source"]:
 
@@ -754,13 +759,16 @@ def main():
             vals.append(color_dict[k])
         else:
             vals.append("black")
-    '''
     # color_code_0 = {k:v for k,v in zip(df2[0],df2[1]) if k not in "Rater Code"}
 
     # keywords = dict(bgcolor='black', width=800, height=800, xaxis=None, yaxis=None)
     # opts.defaults(opts.Graph(**keywords), opts.Nodes(**keywords), opts.RGB(**keywords))
     # links['color'] = pd.Series(vals)
     '''
+    pd.set_option("display.max_columns",11)
+    hv.extension('bokeh')
+    hv.output(size = 200)
+
     chord = hv.Chord(links)  # .select(value=(5, None))
     # node_color = [color_code[n] for n in H]
     # st.text(links['color'])
@@ -776,7 +784,32 @@ def main():
         )
     )
     st.markdown("Chord layout democratic")
-    st.write(hv.render((chord), backend="bokeh"))
+    #import panel as pn
+    #from bokeh.resources import INLINE
+
+    #st.write(hv.render((chord), backend="bokeh"))
+    hv.save(chord, 'chord2.html', backend='bokeh')
+
+    #panel_object = pn.pane.HoloViews(chord)
+    #pn.pane.HoloViews(chord).save('chord.html', embed=True, resources=INLINE)
+    #HtmlFile = open("chord.html", "r", encoding="utf-8")
+    #source_code = HtmlFile.read()
+    HtmlFile2 = open("chord2.html", "r", encoding="utf-8")
+    source_code2 = HtmlFile2.read()
+
+
+    try:
+        components.v1.html(source_code2, height=1100, width=1100)
+    except:
+        components.html(source_code2, height=1100, width=1100)
+
+
+    try:
+        components.v1.html(source_code, height=1100, width=1100)
+    except:
+        components.html(source_code, height=1100, width=1100)
+
+
     edges_df = links.reset_index(drop=True)
     graph = hv.Graph(edges_df)
     # opts.defaults(opts.Nodes(size=5, padding=0.1))
@@ -787,7 +820,7 @@ def main():
         bundle_graph,
         stack,
     )
-    '''
+
     st.markdown("bundling + chord")
     st.markdown("Able to show that not everything is connected to everything else")
     '''

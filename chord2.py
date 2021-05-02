@@ -81,6 +81,7 @@ def make_ribbon_ends(mapped_data, ideo_ends, idx_sort):
         for j in range(1, n + 1):
             J = idx_sort[k][j - 1]
             ribbon_boundary[k][j] = start + mapped_data[k][J]
+            st.write(ribbon_boundary[k][j])
             start = ribbon_boundary[k][j]
     return [
         [(ribbon_boundary[k][j], ribbon_boundary[k][j + 1]) for j in range(n)]
@@ -124,6 +125,11 @@ def make_q_bezier(b):
 
 
 def make_ribbon_arc(theta0, theta1):
+    import streamlit as st
+
+    st.text(theta0)
+    st.text(theta1)
+
     if test_2PI(theta0) and test_2PI(theta1):
         if theta0 < theta1:
             theta0 = moduloAB(theta0, -PI, PI)
@@ -140,7 +146,8 @@ def make_ribbon_arc(theta0, theta1):
             string_arc += "L " + str(pts.real[k]) + ", " + str(pts.imag[k]) + " "
         return string_arc
     else:
-        raise ValueError("The angle coords for arc ribbon must be [0, 2*PI]")
+        pass
+        #raise ValueError("The angle coords for arc ribbon must be [0, 2*PI]")
 
 
 def make_layout(title):
@@ -202,21 +209,25 @@ def invPerm(perm):
     return inv
 
 
-def make_filled_chord(M):  # ,labels):
-
+def make_filled_chord(M,color_code):  # ,labels):
+    colors=['blue','green','orange','black']
     n = M.shape[0]
     labels = list(M.columns)
-    print(labels)
+    #print(labels)
     M = M.T
     matrix = M.to_numpy()
     n = M.shape[0]
     row_sum = [np.sum(matrix[k, :]) for k in range(n)]
-    gap = 2 * PI * 10e-8
-
+    #gap = 2 * PI * 10e-8
+    #import pdb
+    #pdb.set_trace()
     ideogram_length = 2 * PI * np.asarray(row_sum) / sum(row_sum) - gap * np.ones(n)
-    ideo_colors = [
-        x[:3] + "a" + x[3:-1] + ",.75" + x[-1] for x in get_spaced_colors(len(labels))
-    ]
+    import streamlit as st
+    st.text(ideogram_length)
+    ideo_colors = [color_code[c] for c in labels]
+    #ideo_colors = [
+    #    x[:3] + "a" + x[3:-1] + ",.75" + x[-1] for x in get_spaced_colors(len(labels))
+    #]
     mapped_data = map_data(matrix, row_sum, ideogram_length)
     idx_sort = np.argsort(mapped_data, axis=1)
     ideo_ends = get_ideogram_ends(ideogram_length, gap)

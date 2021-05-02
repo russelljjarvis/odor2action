@@ -84,6 +84,111 @@ from plotly.graph_objs import *
 from networkx.drawing.nx_agraph import graphviz_layout
 
 
+def edge_bundle_plotly(
+    graph, colors, tab10, segments=None, pos_=None,
+    streamlit=False, just_nodes= True
+):
+    nodes = graph.nodes
+    second = graph
+    orig_pos = nx.get_node_attributes(second, "pos")
+    nodes_ind = [i for i in range(0, len(graph.nodes()))]
+    redo = {k: v for k, v in zip(graph.nodes, nodes_ind)}
+    if pos_ is None:
+        pos_ = nx.get_node_attributes(graph, "pos")
+
+    #assert segments is not None
+
+    #if segments is None:
+    coords = []
+    for node in graph.nodes:
+        x, y = pos_[node]
+        coords.append((x, y))
+    nodes_py = [
+        [new_name, pos[0], pos[1]]
+        for name, pos, new_name in zip(nodes, coords, nodes_ind)
+    ]
+    ds_nodes = pd.DataFrame(nodes_py, columns=["name", "x", "y"])
+
+    ds_edges_py = []
+    for (n0, n1) in graph.edges:
+        ds_edges_py.append([redo[n0], redo[n1]])
+
+    ds_edges = pd.DataFrame(ds_edges_py, columns=["source", "target"])
+
+    hb = hammer_bundle(ds_nodes, ds_edges)
+    hbnp = hb.to_numpy()
+    splits = (np.isnan(hbnp[:, 0])).nonzero()[0]
+    start = 0
+
+    segments = []
+    for stop in splits:
+        seg = hbnp[start:stop, :]
+        segments.append(seg)
+        start = stop
+    #df_geo = pd.DataFrame(columns=["lat", "lon", "text", "size", "color"])
+    #df_geo["lat"] = [i[1] for i in pos_.values()]
+    #df_geo["lon"] = [i[0] for i in pos_.values()]
+    #for name in graph.nodes:
+    #    assert name in sirg_author_list
+        #    print(name)
+    #df_geo["text"] = list(node for node in graph.nodes)
+
+    fig = go.Figure()
+    lats = []
+    lons = []
+    traces = []
+    other_traces = []
+    #if streamlit:
+    #    st.markdown(
+    #        """Note only 1001 node edges are shown in interactive plot below, because making the full list of {0} edges interactive would take hours""".format(
+    #            len(segments)
+    #        )
+    #    )
+    if not just_nodes:
+        for ind, seg in enumerate(tqdm(segments, title="Modifying Edges for Interactivity")):
+            x0, y0 = seg[1, 0], seg[1, 1]  # graph.nodes[edge[0]]['pos']
+            x1, y1 = seg[-1, 0], seg[-1, 1]  # graph.nodes[edge[1]]['pos']
+            xx = seg[:, 0]
+            yy = seg[:, 1]
+            lats.append(xx)
+            lons.append(yy)
+            for i, j in enumerate(xx):
+                if i > 0:
+                    other_traces.append(
+                        go.Scattergeo(
+                            lon=[xx[i], xx[i - 1]],
+                            lat=[yy[i], yy[i - 1]],
+                            mode="lines",
+                            showlegend=False,
+                            hoverinfo='skip',
+                            line=dict(width=0.5, color="blue"),
+                        )
+                    )
+        fig.add_traces(other_traces)
+
+    #with open('expensive_plotly_traces.p','wb') as f:
+    #    pickle.dump(other_traces,f)
+    fig.add_trace(
+        go.Scattergeo(
+            lat=df_geo["lat"],
+            lon=df_geo["lon"],
+            marker=dict(
+                size=3,  # data['Confirmed-ref'],
+                color=colors,
+                opacity=1,
+            ),
+            text=list(graph.nodes),
+            hovertemplate="%{text} <extra></extra>",
+        )
+    )
+    # layout = fig["layout"]
+    if streamlit:
+        fig["layout"]["width"] = 1825
+        fig["layout"]["height"] = 1825
+        st.write(fig)
+    return fig,colors
+
+
 def plotly_sized2(K):
 
     # https://nbviewer.jupyter.org/github/ykhorram/nips2015_topic_network_analysis/blob/master/nips_collaboration_network.ipynb

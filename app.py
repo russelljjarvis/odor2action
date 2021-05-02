@@ -191,7 +191,57 @@ def data_shade(graph, color_code, adj_mat, color_dict):
     for k, v in color_dict.items():
         plt.scatter([], [], c=v, label=k)
     plt.legend()
-    return fig
+    def dontdo(segments,pos_,graph):
+        fig.show()
+        df_geo = {}
+        df_geo["text"] = list(node for node in graph.nodes)
+
+        fig = go.Figure()
+        lats = []
+        lons = []
+        traces = []
+        other_traces = []
+        #from tqdm import tqdm
+        for ind, seg in enumerate(segments):
+            x0, y0 = seg[1, 0], seg[1, 1]  # graph.nodes[edge[0]]['pos']
+            x1, y1 = seg[-1, 0], seg[-1, 1]  # graph.nodes[edge[1]]['pos']
+            xx = seg[:, 0]
+            yy = seg[:, 1]
+            lats.append(xx)
+            lons.append(yy)
+            for i, j in enumerate(xx):
+                if i > 0:
+                    other_traces.append(
+                        go.Scatter(
+                            lon=[xx[i], xx[i - 1]],
+                            lat=[yy[i], yy[i - 1]],
+                            mode="lines",
+                            showlegend=False,
+                            hoverinfo='skip',
+                            line=dict(width=0.5, color="blue"),
+                        )
+                    )
+        fig.add_traces(other_traces)
+        fig.add_trace(
+            go.Scatter(
+                lat=pos_,
+                lon=pos_,
+                marker=dict(
+                    size=3,  # data['Confirmed-ref'],
+                    color=colors,
+                    opacity=1,
+                ),
+                text=list(graph.nodes),
+                hovertemplate="%{text} <extra></extra>",
+            )
+        )
+        fig["layout"]["width"] = 1825
+        fig["layout"]["height"] = 1825
+        st.write(fig)
+
+    return fig#,colors
+
+    #return fig
 
 
 def plot_stuff(df2, edges_df_full, first, adj_mat_dicts):
@@ -476,7 +526,7 @@ def main():
         for j, col in enumerate(df2.columns):
             if idx != col:
                 weight = df2.iloc[i, j]  # df2.loc[idx, col]
-                if float(weight) >3.0:
+                if float(weight) >4.0:
                     adj_mat_dicts.append({"src": idx, "tgt": col, "weight": weight})
                     first.add_edge(idx, col, weight=weight)
     first.remove_nodes_from(list(nx.isolates(first)))
@@ -526,8 +576,8 @@ def main():
     G = nx_G = first  # ead_graph()
 
     nt = Network(
-        "500px", "500px", notebook=True, heading="Odor 2 Action Network Survey Data"
-    )
+        notebook=True, directed=True, height='750px', width='100%', font_color='white'
+    )#bgcolor='#222222',
     nt.barnes_hut()
     nt.from_nx(G)
     # nt.nodes[3]['group'] = 10
@@ -547,7 +597,7 @@ def main():
     for e in edge_data:
         src = e[0]
         dst = e[1]
-        w = e[2]
+        w = e[2]*50
         #st.text(src)
 
         # nt.add_node(src, src, title=src,group=color_code[src])
@@ -560,10 +610,22 @@ def main():
     for node in nt.nodes:
         if "title" not in node.keys():
             node["title"] = " Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
-        #node["size"] = node_size[node["id"]]
+        #
+        if node["id"] in node_size.keys():
+            node["size"] = 150*node_size[node["id"]]
+        #if node in node_size.keys():
+        #    st.text(node_size[node])
+        #st.text(node.keys())
+        #st.text(node["id"])
         # node['title'] += ' Neighbors:<br>' + '<br>'.join(neighbor_map[node['id']])
         node["value"] = len(neighbor_map[node["id"]])
         node["color"] = color_code[node["id"]]
+        node["borderWidth"] =  10
+        node["borderWidthSelected"] =  20
+
+        #\
+        #st.text(node)
+        #st.text(dir(node))
 
     if False:
         nt.show_buttons(filter_=["physics"])
@@ -649,6 +711,27 @@ def main():
     plt.legend()
 
     st.pyplot(fig)
+    adj_mat = pd.DataFrame(adj_mat_dicts)
+    narr = nx.to_pandas_adjacency(first)
+
+    from chord3 import doCircleRibbonGraph, get_colors
+    #edges_df = networkx.to_pandas_adjacency(g)
+    labs = ["IRG1","IRG2","IRG3","DX"]
+    #colors = get_colors(4)
+    ideo_colors= ['rgba(244, 109, 67, 0.75)',
+                  'rgba(253, 174, 97, 0.75)',
+                  'rgba(254, 224, 139, 0.75)',
+                  'rgba(217, 239, 139, 0.75)',
+                  'rgba(166, 217, 106, 0.75)',
+                  'rgba(244, 109, 67, 0.75)',
+                  'rgba(253, 174, 97, 0.75)',
+                  'rgba(254, 224, 139, 0.75)',
+                  'rgba(217, 239, 139, 0.75)',
+                  'rgba(166, 217, 106, 0.75)']
+
+
+    fig = doCircleRibbonGraph(narr,labs, colors=ideo_colors, plot_size=500, title='Phd Country' )
+    st.write(fig)
 
     plot_stuff(df2, edges_df_full, first, adj_mat_dicts)
     # chord = hv.Chord(adj_mat3)
@@ -677,8 +760,6 @@ def main():
     # keywords = dict(bgcolor='black', width=800, height=800, xaxis=None, yaxis=None)
     # opts.defaults(opts.Graph(**keywords), opts.Nodes(**keywords), opts.RGB(**keywords))
     # links['color'] = pd.Series(vals)
-    # fig = chord2.make_filled_chord(list(links.values[:]))
-    # st.write(fig)
     '''
     chord = hv.Chord(links)  # .select(value=(5, None))
     # node_color = [color_code[n] for n in H]
@@ -779,7 +860,7 @@ if __name__ == "__main__":
 
 def dontdo():
 
-    adj_mat = pd.DataFrame(adj_mat_dicts)
+
     link = dict(source=adj_mat["src"], target=adj_mat["tgt"], value=adj_mat["weight"])
 
     # generate_sankey_figure(list(first.nodes), adj_mat,title = 'Sankey Diagram')

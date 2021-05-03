@@ -597,6 +597,14 @@ def main():
     # except:
     # 	components.html(source_code, height = 1100,width=1100)
     if genre == "Physics":
+
+
+        labels_ = st.radio("Would you like node labels to be prominent, or degree size?", ("labels", "degsize"))
+        if labels_ == "labels":
+            labels = True
+        else:
+            labels = False
+
         pos = nx.get_node_attributes(first, "pos")
         fig = plt.figure()
         d = nx.degree(first)
@@ -628,10 +636,16 @@ def main():
         edge_thickness = {k: v * 20000 for v in centrality.items()}
         node_size = {k: v * 20000 for v in centrality.items()}
 
+
         for e in edge_data:
             src = e[0]
             dst = e[1]
-            w = e[2] * 50
+            if labels:
+                w = e[2]
+
+            else:
+                w = e[2] * 50
+
             # st.text(src)
 
             # nt.add_node(src, src, title=src,group=color_code[src])
@@ -648,7 +662,8 @@ def main():
                 )
             #
             if node["id"] in node_size.keys():
-                node["size"] = 150 * node_size[node["id"]]
+                if not labels:
+                    node["size"] = 150 * node_size[node["id"]]
             # if node in node_size.keys():
             #    st.text(node_size[node])
             # st.text(node.keys())
@@ -656,8 +671,9 @@ def main():
             # node['title'] += ' Neighbors:<br>' + '<br>'.join(neighbor_map[node['id']])
             node["value"] = len(neighbor_map[node["id"]])
             node["color"] = color_code[node["id"]]
-            node["borderWidth"] = 10
-            node["borderWidthSelected"] = 20
+            if not labels:
+                node["borderWidth"] = 10
+                node["borderWidthSelected"] = 20
 
         if False:
             nt.show_buttons(filter_=["physics"])

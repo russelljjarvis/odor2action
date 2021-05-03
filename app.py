@@ -145,7 +145,9 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     st.markdown(
         'Think of it like internet cables "bundled" backbones connect places far apart, this economizes on wiring material'
     )
-
+    #st.markdown(
+    #    'It is also a bit like how parallel neurons are wrapped together closely by a density of myline cells, like neurons traveling through the corpus callosum'
+    #)
     # st.markdown(
     #    "Think of it conceptually like Ramon Y Cajal principle of wiring cost optimization."
     # )
@@ -510,11 +512,7 @@ def main():
         "What's your prefered graph layout?", ("Physics", "Chord", "Bundle", "Basic","Consult spreadsheet")
     )
 
-    # if genre == 'Chord':
-    """
-	Note clicking yes wont result in instaneous results
-	please scroll down to explore putative network visualizations
-	"""
+
     st.markdown("""Still loading Graphs please wait...\n""")
 
     st.markdown(
@@ -671,7 +669,7 @@ def main():
         source_code = HtmlFile.read()
 
         components.html(source_code, height=1100, width=1100)
-        st.markdown("Graphs below can be made to be interactive...")
+        #st.markdown("Graphs below can be made to be interactive...")
 
     if genre == "Bundle":
 

@@ -201,7 +201,6 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     # ax3.margins(0.1, 0.05)
     fig.tight_layout()
     plt.axis("off")
-
     for k, v in color_dict.items():
         plt.scatter([], [], c=v, label=k)
     plt.legend()
@@ -509,7 +508,7 @@ def main():
     #option = st.checkbox("consult spread sheet?")
 
     genre = st.radio(
-        "What's your prefered graph layout?", ("Physics", "Chord", "Bundle", "Basic","Consult spreadsheet")
+        "What's your prefered graph layout?", ("Chord","Physics" , "Bundle", "Basic","Consult spreadsheet")
     )
 
 
@@ -618,8 +617,11 @@ def main():
             directed=True,
             height="750px",
             width="100%",
-            font_color="white",
+            font_color="black"#, bgcolor='#222222'
         )  # bgcolor='#222222',
+        #nt.toggle_hide_edges_on_drag(True)
+        #nt.repulsion(300)
+
         nt.barnes_hut()
         nt.from_nx(G)
         # nt.nodes[3]['group'] = 10
@@ -669,6 +671,7 @@ def main():
             # st.text(node.keys())
             # st.text(node["id"])
             # node['title'] += ' Neighbors:<br>' + '<br>'.join(neighbor_map[node['id']])
+            node["label"] = str(node["id"])
             node["value"] = len(neighbor_map[node["id"]])
             node["color"] = color_code[node["id"]]
             if not labels:
@@ -797,54 +800,71 @@ def main():
 
         temp = pd.DataFrame(first.nodes)
         nodes = hv.Dataset(temp[0])
-        # links = pd.DataFrame(data['links'])
 
         links = copy.copy(adj_mat)
         links.rename(
             columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
         )
         links = links[links["value"] != 0]
+        #result = []
+        #for k in links["source"]:
+        #    result.append(color_code_0[k])
 
-        # import graphviz as graphviz
-        # graph = graphviz.Digraph()
-        # for l in link.iterrows():
-        #    graph.edge(l["src"],l["tgt"])
-        # st.graphviz_chart(graph)
+        Nodes_ = set(links['source'].unique().tolist()
+                    + links['target'].unique().tolist())
+        Nodes = {node: i for i, node in enumerate(Nodes_)}
 
-        def dont_do():
+        df_links = links.replace({'source': Nodes,
+                                 'target': Nodes})
+        for k in Nodes.keys():
+            if k not in color_code_0.keys():
+                color_code_0[k] = "Unknown"
 
-            vals = []
-            for k in links["source"]:
+        df_nodes = pd.DataFrame({'index': [idx for idx in Nodes.values()],
+                                 'name': [name for name in Nodes.keys()],
+                                 'colors':[color_code_0[k] for k in Nodes.keys()]})
+        for kk in df_links["source"]:
+            k = df_nodes.loc[kk,'name']
+            #st.text(k)
+            if k not in color_code_0.keys():
+                color_code_0[k] = "Unknown"
 
-                if k in color_dict.keys():
-                    vals.append(color_dict[k])
-                else:
-                    vals.append("black")
-            # color_code_0 = {k:v for k,v in zip(df2[0],df2[1]) if k not in "Rater Code"}
-
-            # keywords = dict(bgcolor='black', width=800, height=800, xaxis=None, yaxis=None)
-            # opts.defaults(opts.Graph(**keywords), opts.Nodes(**keywords), opts.RGB(**keywords))
-            # links['color'] = pd.Series(vals)
+        #Colors = [ (kk,color_code_0[df_nodes.loc[kk,'name']]) for kk in df_links["source"] ]
+        #st.text(Colors)
+        #df_links["colors"] = Colors
+        #st.write(df_links)
+        #st.write(df_nodes)
 
         pd.set_option("display.max_columns", 11)
         hv.extension("bokeh")
         hv.output(size=200)
-
-        chord = hv.Chord(links)  # .select(value=(5, None))
-        # node_color = [color_code[n] for n in H]
-        # st.text(links['color'])
-        chord.opts(
-            opts.Chord(
-                cmap="Category20",
-                width=500,
-                height=500,
-                edge_cmap="Category20",
-                edge_color=dim("source").str(),
-                labels="name",
-                node_color=dim("index").str(),
+        def dont():
+            chord = hv.Chord(links)  # .select(value=(5, None))
+            # node_color = [color_code[n] for n in H]
+            # st.text(links['color'])
+            chord.opts(
+                opts.Chord(
+                    cmap="Category20",
+                    width=500,
+                    height=500,
+                    edge_cmap="Category20",
+                    edge_color=dim("source").str(),
+                    labels="name",
+                    node_color=dim("index").str(),
+                )
             )
-        )
-        st.markdown("Chord layout democratic")
+
+        nodes = hv.Dataset(df_nodes, 'index')
+
+        chord = hv.Chord((df_links, nodes))#.select(value=(5, None))
+        chord.opts(
+                   opts.Chord(cmap='Category20', edge_cmap='Category20',
+                              edge_color=dim('colors').str(),
+                              width=500,
+                              height=500,
+                              labels='name', node_color=dim('colors').str()))
+        #st.write(hv.render((chord), backend="bokeh"))
+        #st.markdown("Chord layout democratic")
         hv.save(chord, "chord2.html", backend="bokeh")
         HtmlFile2 = open("chord2.html", "r", encoding="utf-8")
         source_code2 = HtmlFile2.read()

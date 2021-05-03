@@ -1,6 +1,9 @@
 """
 Author: [Russell Jarvis](https://github.com/russelljjarvis)
 """
+from hiveplotlib import Axis, Node, HivePlot, hive_plot_n_axes
+from hiveplotlib.viz import hive_plot_viz_mpl
+
 import holoviews as hv
 from holoviews import opts, dim
 from bokeh.plotting import show, output_file
@@ -263,32 +266,13 @@ def plot_stuff(df2, edges_df_full, first, adj_mat_dicts):
         flag = "chord" in db
         if False:  # flag:
             graph = db["graph"]
-            # graph.opts(
-            # 	color_index="circle",
-            # 	width=150,
-            # 	height=150,
-            # 	show_frame=False,
-            # 	xaxis=None,
-            # 	yaxis=None,
-            # 	tools=["hover", "tap"],
-            # 	node_size=10,
-            # 	cmap=["blue", "orange"],
-            # )
-            # st.write(hv.render(graph, backend="bokeh"))
-
-            # chord = db['chord']
-            # st.write(chord)
 
         else:
-            # st.write(edges_df_full)
-            #'''
-            # hv.Chord(edge_list,label=labels)
-            #'''
-            # plot_imshow_plotly(df2)
-
-            # db['chord3'] = chord3
-
             db.close()
+from hiveplotlib import Axis, Node, HivePlot
+from hiveplotlib.viz import axes_viz_mpl, node_viz_mpl, edge_viz_mpl
+from matplotlib.lines import Line2D
+import matplotlib.pyplot as plt
 
 
 def get_frame(threshold=6):
@@ -500,27 +484,26 @@ def main():
     # import holoviews
     # st.text(holoviews.__version__)
 
-    st.title("Odor 2 Action Collaboration Survey Data")
+    st.sidebar.title("Odor 2 Action Collaboration Survey Data")
 
-    st.markdown("""I talk or directly email with this person (for any reason)...\n""")
+    st.sidebar.markdown("""I talk or directly email with this person (for any reason)...\n""")
 
-    st.markdown("""Graphs loading first plotting spread sheets...\n""")
+    st.sidebar.markdown("""Graphs loading first plotting spread sheets...\n""")
     #option = st.checkbox("consult spread sheet?")
 
-    genre = st.radio(
-        "What's your prefered graph layout?", ("Chord","Physics" , "Bundle", "Basic","Spreadsheet","AdjacencyMatrix")
+    genre = st.sidebar.radio(
+        "What's your prefered graph layout?", ("Hive","Chord","Physics" , "Bundle", "Basic","Spreadsheet","AdjacencyMatrix")
     )
 
 
-    st.markdown("""Still loading Graphs please wait...\n""")
 
-    st.markdown(
+    st.sidebar.markdown(
         "Problem most people politely answer that they talk to someone a little bit, a bias if which is not corrected \n for hyperconnects everyone to everyone else in a meaningless way"
     )
-    st.markdown("solution threshold a meaningful level of communication")
-    st.markdown("The higher the threshold the more you reduce connections")
+    st.sidebar.markdown("solution threshold a meaningful level of communication")
+    st.sidebar.markdown("The higher the threshold the more you reduce connections")
 
-    st.markdown("")
+    #st.markdown("")
 
     # st.write("I'm ", age, 'years old')
     threshold = st.slider("Select a threshold value", 0.0, 17.0, 5.0, 1.0)
@@ -552,7 +535,7 @@ def main():
     plt.legend()
     fig.tight_layout()
     plt.axis("off")
-    st.pyplot(fig)
+    st.sidebar.pyplot(fig)
     inboth = set(names) & set(ratercodes)
     notinboth = set(names) - set(ratercodes)
 
@@ -694,7 +677,6 @@ def main():
 
         if False:
             nt.show_buttons(filter_=["physics"])
-        st.markdown("Keep scrolling a fair way down...")
 
         nt.show("test.html")
 
@@ -704,6 +686,214 @@ def main():
         components.html(source_code, height=1100, width=1100)
         #st.markdown("Graphs below can be made to be interactive...")
 
+    if genre == "Hive":
+
+                # convert `networkx` edges and nodes into `hiveplotlib`-ready structures
+        G = first
+        encoded = {v: k for k, v in enumerate(first.nodes())}
+        reverse = {v: k for k, v in encoded.items()}
+
+        G = nx.relabel_nodes(G, encoded, copy=True)
+        #for node in G.nodes:
+        #    st.text(dir(node))
+        #    st.text(type(node))
+        #    node_ = encoded[node]
+        #    G.nodes[node] = node_
+            #node.encode()# = encoded[node]
+
+        edges = np.array(G.edges)
+
+        # pull out degree information from nodes for later use
+        node_ids, degrees = np.unique(edges, return_counts=True)
+
+        nodes = []
+        Un_ind = []
+        IRG1_indices=[]
+        IRG2_indices=[]
+        IRG3_indices=[]
+        DCMT_ind=[]#,Un_ind
+
+        for i,(node_id, degree) in enumerate(zip(node_ids, degrees)):
+            # store the index number as a way to align the nodes on axes
+            G.nodes.data()[node_id]['loc'] = node_id
+            # also store the degree of each node as another way to align nodes on axes
+            G.nodes.data()[node_id]['degree'] = degree
+            #G.nodes.data()[node_id]['club'] =
+            if reverse[node_id] in color_code_0.keys():
+                 #= color_code_0[reverse[node_id]]
+                if color_code_0[reverse[node_id]] == "IRG 1":
+                    IRG1_indices.append(i)
+                    G.nodes.data()[node_id]['IRG 1'] = 1
+                    G.nodes.data()[node_id]['club'] = 1
+                if color_code_0[reverse[node_id]] == "IRG 2":
+                    IRG2_indices.append(i)
+                    G.nodes.data()[node_id]['IRG 2'] = 2
+                    G.nodes.data()[node_id]['club'] = 2
+
+                if color_code_0[reverse[node_id]] == "IRG 3":
+                    IRG3_indices.append(i)
+                    G.nodes.data()[node_id]['IRG 3'] = 3
+                    G.nodes.data()[node_id]['club'] = 3
+
+                #st.text(IRG3_indices)
+                if color_code_0[reverse[node_id]] == "DCMT":
+                    DCMT_ind.append(i)
+                    G.nodes.data()[node_id]['DCMT'] = 4
+                    G.nodes.data()[node_id]['club'] = 4
+
+            else:
+                #G.nodes.data()[node_id]['club'] = "Unknown"
+                G.nodes.data()[node_id]['Unknown'] = 5
+                G.nodes.data()[node_id]['club'] = 5
+
+                Un_ind.append(i)
+
+            temp_node = Node(unique_id=node_id, data=G.nodes.data()[node_id])
+            nodes.append(temp_node)
+
+        temp = list(set(color_code_0.values()))
+        temp.append("Unknown")
+        hp = hive_plot_n_axes(node_list=nodes, edges=edges,
+                              axes_assignments=[IRG1_indices, IRG2_indices, IRG3_indices,DCMT_ind,Un_ind],
+                              sorting_variables=['club','club','club','club','club'],
+                              axes_names=temp,
+                              vmins=[0, 0, 0,0,0], vmaxes=[2, 2, 2,2,2],
+                              orient_angle=30)
+        # change the line kwargs for edges in plot
+        hp.add_edge_kwargs(axis_id_1=temp[0], axis_id_2=temp[1],
+                           c=f"C0", lw=0.1, alpha=1, zorder=10)
+        hp.add_edge_kwargs(axis_id_1=temp[1], axis_id_2=temp[2],
+                           c=f"C2", lw=0.1, alpha=1, zorder=10)
+        st.text(temp[2])
+        hp.place_nodes_on_axis(axis_id=temp[0], unique_ids=[nodes[i].data['loc'] for i in IRG1_indices],
+                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
+        hp.place_nodes_on_axis(axis_id=temp[1], unique_ids=[nodes[i].data['loc'] for i in IRG2_indices],
+                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
+        hp.place_nodes_on_axis(axis_id=temp[2], unique_ids=[nodes[i].data['loc'] for i in IRG3_indices],
+                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
+        hp.place_nodes_on_axis(axis_id=temp[3], unique_ids=[nodes[i].data['loc'] for i in DCMT_ind],
+                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
+        hp.place_nodes_on_axis(axis_id=temp[3], unique_ids=[nodes[i].data['loc'] for i in Un_ind],
+                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
+
+        hp.connect_axes(edges=edges, axis_id_1=temp[0], axis_id_2=temp[1], c="C0")
+        hp.connect_axes(edges=edges, axis_id_1=temp[1], axis_id_2=temp[2], c="C1")
+        hp.connect_axes(edges=edges, axis_id_1=temp[0], axis_id_2=temp[2], c="C3")
+        hp.connect_axes(edges=edges, axis_id_1=temp[2], axis_id_2=temp[3], c="C4")
+        hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[1], c="C5")
+        hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[0], c="C6")
+        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[0], c="C6")
+        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[1], c="C6")
+        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[2], c="C6")
+        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[3], c="C6")
+
+        fig, ax = hive_plot_viz_mpl(hive_plot=hp)
+        st.pyplot(fig)
+
+        sorting_feature = 'club'
+        hp = hive_plot_n_axes(node_list=nodes, edges=edges,
+                      axes_assignments=[IRG1_indices, IRG2_indices, IRG3_indices,DCMT_ind,Un_ind],
+                      sorting_variables=['club', 'club', 'club','club','club'],
+                      axes_names=["IRG1", "IRG2", "IRG3","DCMT","Unknown"],
+                      vmins=[0, -0, 0,-10,-10],
+                      vmaxes=[33, 33, 33,33,33])
+        def dontdo():
+            '''
+            #fig = hive_plot_viz_mpl(hp)
+
+            ### axes ###
+
+            axis0 = Axis(axis_id="hi_id", start=1, end=5, angle=-30,
+                         long_name="Mr. Hi Faction\n(Sorted by ID)")
+            axis1 = Axis(axis_id="hi_degree", start=1, end=5, angle=30,
+                         long_name="Mr. Hi Faction\n(Sorted by Degree)")
+            axis2 = Axis(axis_id="john_degree", start=1, end=5, angle=180 - 30,
+                         long_name="John A. Faction\n(Sorted by Degree)")
+            axis3 = Axis(axis_id="john_id", start=1, end=5, angle=180 + 30,
+                         long_name="John A. Faction\n(Sorted by ID)")
+            axis4 = Axis(axis_id="irg1_id", start=1, end=5, angle=180,
+                         long_name="John A. Faction\n(Sorted by ID)")
+
+            axes = [axis0, axis1, axis2, axis3, axis4]
+
+            karate_hp.add_axes(axes)
+
+            ### node assignments ###
+
+            color_dict = {
+                "Unknown": "black",
+                "IRG 3": "green",
+                "IRG 1": "blue",
+                "IRG 2": "yellow",
+                "DCMT": "orange",
+            }
+
+            # partition the nodes into "Mr. Hi" nodes and "John A." nodes
+            IRG1_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 1"]
+            IRG2_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 2"]
+            DCMT_nodes = [node.unique_id for node in nodes if node.data['club'] == "DCMT"]
+            hi_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 3"]
+            john_a_nodes = [node.unique_id for node in nodes if node.data['club'] == "Unknown"]
+            #st.text(hi_nodes[0])
+            # assign nodes and sorting procedure to position nodes on axis
+            karate_hp.place_nodes_on_axis(axis_id="hi_id", unique_ids=hi_nodes,
+                                          sorting_feature_to_use="loc", vmin=0, vmax=33)
+            karate_hp.place_nodes_on_axis(axis_id="hi_degree", unique_ids=hi_nodes,
+                                          sorting_feature_to_use="degree", vmin=0, vmax=17)
+            karate_hp.place_nodes_on_axis(axis_id="john_degree", unique_ids=john_a_nodes,
+                                          sorting_feature_to_use="degree", vmin=0, vmax=17)
+            karate_hp.place_nodes_on_axis(axis_id="john_id", unique_ids=john_a_nodes,
+                                          sorting_feature_to_use="loc", vmin=0, vmax=33)
+            karate_hp.place_nodes_on_axis(axis_id="irg1_id", unique_ids=IRG1_nodes,
+                                          sorting_feature_to_use="loc", vmin=0, vmax=33)
+
+            ### edges ###
+
+            karate_hp.connect_axes(edges=edges, axis_id_1="hi_degree", axis_id_2="hi_id", c="C0")
+            karate_hp.connect_axes(edges=edges, axis_id_1="john_degree", axis_id_2="john_id", c="C1")
+            karate_hp.connect_axes(edges=edges, axis_id_1="hi_degree", axis_id_2="john_degree", c="C2")
+            karate_hp.connect_axes(edges=edges, axis_id_1="irg1_id", axis_id_2="john_id", c="C3")
+
+            # pull out the location of the John A. and Mr. Hi nodes for visual emphasis later
+            john_a_degree_locations = karate_hp.axes["john_degree"].node_placements
+            john_a_node = john_a_degree_locations.loc[john_a_degree_locations.loc[:, 'unique_id'] == 33,
+                                                      ['x', 'y']].values.flatten()
+
+            mr_hi_degree_locations = karate_hp.axes["hi_degree"].node_placements
+            mr_hi_node = mr_hi_degree_locations.loc[mr_hi_degree_locations.loc[:, 'unique_id'] == 0,
+                                                    ['x', 'y']].values.flatten()
+
+            # plot axes
+            fig, ax = axes_viz_mpl(karate_hp,
+                                   axes_labels_buffer=1.4)
+
+            # plot nodes
+            node_viz_mpl(karate_hp,
+                         fig=fig, ax=ax, s=80, c="black")
+
+            # highlight Mr. Hi and John. A on the degree axes
+            #ax.scatter(john_a_node[0], john_a_node[1],
+            #           facecolor="red", edgecolor="black", s=150, lw=2)
+            #ax.scatter(mr_hi_node[0], mr_hi_node[1],
+            #           facecolor="yellow", edgecolor="black", s=150, lw=2)
+
+            # plot edges
+            edge_viz_mpl(hive_plot=karate_hp, fig=fig, ax=ax, alpha=0.7, zorder=-1)
+
+            ax.set_title("Odor 2 Action \nHive Plot", fontsize=20, y=0.9)
+
+            ### legend ###
+
+            # edges
+
+            custom_lines = [Line2D([0], [0], color=f'C{i}', lw=3, linestyle='-') for i in range(3)]
+
+
+            ax.legend(custom_lines, ["Within Mr. Hi Faction", "Within John A. Faction",
+                                     "Between Factions"],
+                      loc='upper left', bbox_to_anchor=(0.37, 0.35), title="Social Connections")
+            st.pyplot(fig)
+            '''
     if genre == "Bundle":
 
         labels_ = st.radio("Would you like to label nodes?", ("No", "Yes"))
@@ -714,6 +904,11 @@ def main():
         fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
         st.pyplot(fig4)
     if genre == "Basic":
+        labels_ = st.radio("Would you like to label nodes?", ("No", "Yes"))
+        if labels_ == "Yes":
+            labels_ = True
+        if labels_ == "No":
+            labels_ = False
 
         st.markdown(
             "for contrast see hair ball below (wiring length is not reduced)..."
@@ -752,6 +947,13 @@ def main():
             alpha=0.5,
             linewidths=2,
         )
+
+        labels = {}
+        for node in H.nodes():
+            # set the node name as the key and the label as its value
+            labels[node] = node
+        if labels_:
+            nx.draw_networkx_labels(H, pos, labels, font_size=16, font_color="r")
 
         axx = fig.gca()  # to get the current axis
         axx.collections[0].set_edgecolor("#FF0000")
@@ -807,7 +1009,6 @@ def main():
 
     # fig = doCircleRibbonGraph(narr,labs, colors=ideo_colors, plot_size=500, title='Phd Country' )
     # st.write(fig)
-    # plot_stuff(df2, edges_df_full, first, adj_mat_dicts)
     # chord = hv.Chord(adj_mat3)
     # st.write(pd.DataFrame(first.nodes))
 

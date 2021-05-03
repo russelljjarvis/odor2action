@@ -759,6 +759,15 @@ def main():
                               axes_names=temp,
                               vmins=[0, 0, 0,0,0], vmaxes=[2, 2, 2,2,2],
                               orient_angle=30)
+
+        #fig, ax = axes_viz_mpl(karate_hp,
+        #                       axes_labels_buffer=1.4)
+
+        # plot nodes
+        node_viz_mpl(hp,
+                     fig=fig, ax=ax, s=180, c="black")
+
+
         # change the line kwargs for edges in plot
         hp.add_edge_kwargs(axis_id_1=temp[0], axis_id_2=temp[1],
                            c=f"C0", lw=0.1, alpha=1, zorder=10)
@@ -788,6 +797,8 @@ def main():
         hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[3], c="C6")
 
         fig, ax = hive_plot_viz_mpl(hive_plot=hp)
+
+
         st.pyplot(fig)
 
         sorting_feature = 'club'

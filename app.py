@@ -1,6 +1,10 @@
 """
 Author: [Russell Jarvis](https://github.com/russelljjarvis)
 """
+import holoviews as hv
+from holoviews import opts, dim
+from bokeh.plotting import show, output_file
+import copy
 
 import argparse
 import numpy as np
@@ -167,7 +171,7 @@ def data_shade(graph, color_code, adj_mat, color_dict):
         node_color=node_color,
         node_size=node_size,
         node_shape="o",
-        alpha=1,
+        alpha=0.5,
         vmin=None,
         vmax=None,
         linewidths=2.0,
@@ -277,7 +281,7 @@ def plot_stuff(df2, edges_df_full, first, adj_mat_dicts):
             db.close()
 
 
-def get_frame():
+def get_frame(threshold = 4):
 
     with shelve.open("fast_graphs_splash.p") as store:
         flag = "df" in store
@@ -492,13 +496,34 @@ def main():
 
     st.markdown("""Graphs loading first plotting spread sheets...\n""")
     option = st.checkbox("consult spread sheet?")
+
+    genre = st.radio(
+         "What's your prefered graph layout?",
+         ('Physics','Chord', 'Bundle','Basic'))
+
+    #if genre == 'Chord':
     """
 	Note clicking yes wont result in instaneous results
 	please scroll down to explore putative network visualizations
 	"""
     st.markdown("""Still loading Graphs please wait...\n""")
+    #slider_ph = st.empty()
+    #info_ph = st.empty()
 
-    df2, names, ratercodes, legend, color_code, color_dict, color_code_0 = get_frame()
+    #threshold = slider_ph.slider("slider", 4,0, 1, 2, 3,5,6,7,8,9)
+    #info_ph.info(threshold)
+    st.markdown("Problem most people politely answer that they talk to someone a little bit, a bias if which is not corrected \n for hyperconnects everyone to everyone else in a meaningless way")
+    st.markdown("solution threshold a meaningful level of communication")
+    st.markdown("The higher the threshold the more you reduce connections")
+
+    st.markdown("")
+
+    #st.write("I'm ", age, 'years old')
+    threshold = st.slider(
+        'Select a threshold value',
+        0.0, 16.0, 4.0,1.0)
+    st.write('Values:', threshold)
+    df2, names, ratercodes, legend, color_code, color_dict, color_code_0 = get_frame(threshold)
     if option:
         st.write(legend)
         st.write(df2)
@@ -526,7 +551,7 @@ def main():
         for j, col in enumerate(df2.columns):
             if idx != col:
                 weight = df2.iloc[i, j]  # df2.loc[idx, col]
-                if float(weight) >4.0:
+                if float(weight) >threshold:
                     adj_mat_dicts.append({"src": idx, "tgt": col, "weight": weight})
                     first.add_edge(idx, col, weight=weight)
     first.remove_nodes_from(list(nx.isolates(first)))
@@ -566,158 +591,157 @@ def main():
     # 	components.v1.html(source_code, height = 1100,width=1100)
     # except:
     # 	components.html(source_code, height = 1100,width=1100)
+    if genre == 'Physics':
+        pos = nx.get_node_attributes(first, "pos")
+        fig = plt.figure()
+        d = nx.degree(first)
+        temp = first.to_undirected()
+        cen = nx.betweenness_centrality(temp)
+        d = [((d[node] + 1) * 1.25) for node in first.nodes()]
+        G = nx_G = first  # ead_graph()
 
-    pos = nx.get_node_attributes(first, "pos")
-    fig = plt.figure()
-    d = nx.degree(first)
-    temp = first.to_undirected()
-    cen = nx.betweenness_centrality(temp)
-    d = [((d[node] + 1) * 1.25) for node in first.nodes()]
-    G = nx_G = first  # ead_graph()
+        nt = Network(
+            notebook=True, directed=True, height='750px', width='100%', font_color='white'
+        )#bgcolor='#222222',
+        nt.barnes_hut()
+        nt.from_nx(G)
+        # nt.nodes[3]['group'] = 10
+        adj_mat = pd.DataFrame(adj_mat_dicts)
 
-    nt = Network(
-        notebook=True, directed=True, height='750px', width='100%', font_color='white'
-    )#bgcolor='#222222',
-    nt.barnes_hut()
-    nt.from_nx(G)
-    # nt.nodes[3]['group'] = 10
-    adj_mat = pd.DataFrame(adj_mat_dicts)
+        edge_data = zip(
+            list(adj_mat["src"].values),
+            list(adj_mat["tgt"].values),
+            list(adj_mat["weight"].values),
+        )
 
-    edge_data = zip(
-        list(adj_mat["src"].values),
-        list(adj_mat["tgt"].values),
-        list(adj_mat["weight"].values),
-    )
+        H = first.to_undirected()
+        centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+        edge_thickness = {k:v * 20000 for v in centrality.items()}
+        node_size = {k:v * 20000 for v in centrality.items()}
 
-    H = first.to_undirected()
-    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
-    edge_thickness = {k:v * 20000 for v in centrality.items()}
-    node_size = {k:v * 20000 for v in centrality.items()}
+        for e in edge_data:
+            src = e[0]
+            dst = e[1]
+            w = e[2]*50
+            #st.text(src)
 
-    for e in edge_data:
-        src = e[0]
-        dst = e[1]
-        w = e[2]*50
-        #st.text(src)
+            # nt.add_node(src, src, title=src,group=color_code[src])
+            # nt.add_node(dst, dst, title=dst,group=color_code[src])
+            nt.add_edge(src, dst, value=w)
 
-        # nt.add_node(src, src, title=src,group=color_code[src])
-        # nt.add_node(dst, dst, title=dst,group=color_code[src])
-        nt.add_edge(src, dst, value=w)
+        neighbor_map = nt.get_adj_list()
 
-    neighbor_map = nt.get_adj_list()
+        # add neighbor data to node hover data
+        for node in nt.nodes:
+            if "title" not in node.keys():
+                node["title"] = " Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
+            #
+            if node["id"] in node_size.keys():
+                node["size"] = 150*node_size[node["id"]]
+            #if node in node_size.keys():
+            #    st.text(node_size[node])
+            #st.text(node.keys())
+            #st.text(node["id"])
+            # node['title'] += ' Neighbors:<br>' + '<br>'.join(neighbor_map[node['id']])
+            node["value"] = len(neighbor_map[node["id"]])
+            node["color"] = color_code[node["id"]]
+            node["borderWidth"] =  10
+            node["borderWidthSelected"] =  20
 
-    # add neighbor data to node hover data
-    for node in nt.nodes:
-        if "title" not in node.keys():
-            node["title"] = " Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
-        #
-        if node["id"] in node_size.keys():
-            node["size"] = 150*node_size[node["id"]]
-        #if node in node_size.keys():
-        #    st.text(node_size[node])
-        #st.text(node.keys())
-        #st.text(node["id"])
-        # node['title'] += ' Neighbors:<br>' + '<br>'.join(neighbor_map[node['id']])
-        node["value"] = len(neighbor_map[node["id"]])
-        node["color"] = color_code[node["id"]]
-        node["borderWidth"] =  10
-        node["borderWidthSelected"] =  20
 
-        #\
-        #st.text(node)
-        #st.text(dir(node))
+        if False:
+            nt.show_buttons(filter_=["physics"])
+        st.markdown("Keep scrolling a fair way down...")
 
-    if False:
-        nt.show_buttons(filter_=["physics"])
-    st.markdown("Keep scrolling a fair way down...")
+        nt.show("test.html")
 
-    nt.show("test.html")
+        HtmlFile = open("test.html", "r", encoding="utf-8")
+        source_code = HtmlFile.read()
 
-    HtmlFile = open("test.html", "r", encoding="utf-8")
-    source_code = HtmlFile.read()
-    try:
-        components.v1.html(source_code, height=1100, width=1100)
-    except:
         components.html(source_code, height=1100, width=1100)
-    st.markdown("Graphs below can be made to be interactive...")
+        st.markdown("Graphs below can be made to be interactive...")
 
-    fig4 = data_shade(first, color_code, adj_mat, color_dict)
-    st.pyplot(fig4)
 
-    st.markdown("for contrast see hair ball below (wiring length is not reduced)...")
-    H = first.to_undirected()
-    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
-    edge_thickness = [v * 20000 for v in centrality.values()]
-    node_size = [v * 20000 for v in centrality.values()]
+    if genre == 'Bundle':
+        fig4 = data_shade(first, color_code, adj_mat, color_dict)
+        st.pyplot(fig4)
+    if genre == 'Basic':
 
-    # compute community structure
-    lpc = nx.community.label_propagation_communities(H)
-    community_index = {n: i for i, com in enumerate(lpc) for n in com}
+        st.markdown("for contrast see hair ball below (wiring length is not reduced)...")
+        H = first.to_undirected()
+        centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+        edge_thickness = [v * 20000 for v in centrality.values()]
+        node_size = [v * 20000 for v in centrality.values()]
 
-    #### draw graph ####
-    fig, ax = plt.subplots(figsize=(20, 15))
-    # fig, ax = plt.subplots(figsize=(15,15))
+        # compute community structure
+        lpc = nx.community.label_propagation_communities(H)
+        community_index = {n: i for i, com in enumerate(lpc) for n in com}
 
-    pos = nx.spring_layout(H, k=0.05, seed=4572321, scale=1)
+        #### draw graph ####
+        fig, ax = plt.subplots(figsize=(20, 15))
+        # fig, ax = plt.subplots(figsize=(15,15))
 
-    node_color = [color_code[n] for n in H]
-    srcs = list(adj_mat["src"].values)
+        pos = nx.spring_layout(H, k=0.05, seed=4572321, scale=1)
 
-    srcs = []
-    for e in H.edges:
-        src = color_code[e[0]]
-        srcs.append(src)
+        node_color = [color_code[n] for n in H]
+        srcs = list(adj_mat["src"].values)
 
-    # for ind,seg in enumerate(segments):
-    # 	 ax.plot(seg[:,0], seg[:,1],c=color_code[srcs[ind]],alpha=0.35,linewidth=0.25*widths[ind])
+        srcs = []
+        for e in H.edges:
+            src = color_code[e[0]]
+            srcs.append(src)
 
-    nx.draw_networkx_nodes(
-        H,
-        pos=pos,
-        node_color=node_color,
-        node_size=node_size,
-        alpha=1,
-        linewidths=2,
-    )
+        # for ind,seg in enumerate(segments):
+        # 	 ax.plot(seg[:,0], seg[:,1],c=color_code[srcs[ind]],alpha=0.35,linewidth=0.25*widths[ind])
 
-    axx = fig.gca()  # to get the current axis
-    axx.collections[0].set_edgecolor("#FF0000")
-    nx.draw_networkx_edges(
-        H, pos=pos, edge_color=srcs, alpha=1, width=list(adj_mat["weight"].values)
-    )
+        nx.draw_networkx_nodes(
+            H,
+            pos=pos,
+            node_color=node_color,
+            node_size=node_size,
+            alpha=0.5,
+            linewidths=2,
+        )
 
-    # Title/legend
-    font = {"color": "k", "fontweight": "bold", "fontsize": 20}
-    ax.set_title("network", font)
-    # Change font color for legend
-    font["color"] = "b"
+        axx = fig.gca()  # to get the current axis
+        axx.collections[0].set_edgecolor("#FF0000")
+        nx.draw_networkx_edges(
+            H, pos=pos, edge_color=srcs, alpha=0.5, width=list(adj_mat["weight"].values)
+        )
 
-    ax.text(
-        0.80,
-        0.06,
-        "node size = betweeness centrality",
-        horizontalalignment="center",
-        transform=ax.transAxes,
-        fontdict=font,
-    )
+        # Title/legend
+        font = {"color": "k", "fontweight": "bold", "fontsize": 20}
+        ax.set_title("network", font)
+        # Change font color for legend
+        font["color"] = "b"
 
-    # Resize figure for label readibility
-    ax.margins(0.1, 0.05)
-    fig.tight_layout()
-    plt.axis("off")
+        ax.text(
+            0.80,
+            0.06,
+            "node size = betweeness centrality",
+            horizontalalignment="center",
+            transform=ax.transAxes,
+            fontdict=font,
+        )
 
-    for k, v in color_dict.items():
-        plt.scatter([], [], c=v, label=k)
-    plt.legend()
+        # Resize figure for label readibility
+        ax.margins(0.1, 0.05)
+        fig.tight_layout()
+        plt.axis("off")
 
-    st.pyplot(fig)
+        for k, v in color_dict.items():
+            plt.scatter([], [], c=v, label=k)
+        plt.legend()
+
+        st.pyplot(fig)
+
+    #from chord3 import doCircleRibbonGraph, get_colors
+    #edges_df = networkx.to_pandas_adjacency(g)
+    #labs = ["IRG1","IRG2","IRG3","DX"]
+    #colors = get_colors(4)
     adj_mat = pd.DataFrame(adj_mat_dicts)
     narr = nx.to_pandas_adjacency(first)
 
-    from chord3 import doCircleRibbonGraph, get_colors
-    #edges_df = networkx.to_pandas_adjacency(g)
-    labs = ["IRG1","IRG2","IRG3","DX"]
-    #colors = get_colors(4)
     ideo_colors= ['rgba(244, 109, 67, 0.75)',
                   'rgba(253, 174, 97, 0.75)',
                   'rgba(254, 224, 139, 0.75)',
@@ -732,137 +756,121 @@ def main():
 
     #fig = doCircleRibbonGraph(narr,labs, colors=ideo_colors, plot_size=500, title='Phd Country' )
     #st.write(fig)
-
-    plot_stuff(df2, edges_df_full, first, adj_mat_dicts)
+        #plot_stuff(df2, edges_df_full, first, adj_mat_dicts)
     # chord = hv.Chord(adj_mat3)
     # st.write(pd.DataFrame(first.nodes))
-    import holoviews as hv
-    from holoviews import opts, dim
-    from bokeh.plotting import show, output_file
+    if genre == 'Chord':
 
-    temp = pd.DataFrame(first.nodes)
-    nodes = hv.Dataset(temp[0])
-    # links = pd.DataFrame(data['links'])
-    import copy
 
-    links = copy.copy(adj_mat)
-    links.rename(
-        columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
-    )
-    links = links[links["value"] != 0]
-    '''
+        temp = pd.DataFrame(first.nodes)
+        nodes = hv.Dataset(temp[0])
+        # links = pd.DataFrame(data['links'])
 
-    vals = []
-    for k in links["source"]:
-
-        if k in color_dict.keys():
-            vals.append(color_dict[k])
-        else:
-            vals.append("black")
-    # color_code_0 = {k:v for k,v in zip(df2[0],df2[1]) if k not in "Rater Code"}
-
-    # keywords = dict(bgcolor='black', width=800, height=800, xaxis=None, yaxis=None)
-    # opts.defaults(opts.Graph(**keywords), opts.Nodes(**keywords), opts.RGB(**keywords))
-    # links['color'] = pd.Series(vals)
-    '''
-    pd.set_option("display.max_columns",11)
-    hv.extension('bokeh')
-    hv.output(size = 200)
-
-    chord = hv.Chord(links)  # .select(value=(5, None))
-    # node_color = [color_code[n] for n in H]
-    # st.text(links['color'])
-    chord.opts(
-        opts.Chord(
-            cmap="Category20",
-            width=500,
-            height=500,
-            edge_cmap="Category20",
-            edge_color=dim("source").str(),
-            labels="name",
-            node_color=dim("index").str(),
+        links = copy.copy(adj_mat)
+        links.rename(
+            columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
         )
-    )
-    st.markdown("Chord layout democratic")
-    #import panel as pn
-    #from bokeh.resources import INLINE
+        links = links[links["value"] != 0]
 
-    #st.write(hv.render((chord), backend="bokeh"))
-    hv.save(chord, 'chord2.html', backend='bokeh')
+        #import graphviz as graphviz
+        #graph = graphviz.Digraph()
+        #for l in link.iterrows():
+        #    graph.edge(l["src"],l["tgt"])
+        #st.graphviz_chart(graph)
 
-    #panel_object = pn.pane.HoloViews(chord)
-    #pn.pane.HoloViews(chord).save('chord.html', embed=True, resources=INLINE)
-    #HtmlFile = open("chord.html", "r", encoding="utf-8")
-    #source_code = HtmlFile.read()
-    HtmlFile2 = open("chord2.html", "r", encoding="utf-8")
-    source_code2 = HtmlFile2.read()
+        def dont_do():
 
+            vals = []
+            for k in links["source"]:
 
-    try:
-        components.v1.html(source_code2, height=1100, width=1100)
-    except:
+                if k in color_dict.keys():
+                    vals.append(color_dict[k])
+                else:
+                    vals.append("black")
+            # color_code_0 = {k:v for k,v in zip(df2[0],df2[1]) if k not in "Rater Code"}
+
+            # keywords = dict(bgcolor='black', width=800, height=800, xaxis=None, yaxis=None)
+            # opts.defaults(opts.Graph(**keywords), opts.Nodes(**keywords), opts.RGB(**keywords))
+            # links['color'] = pd.Series(vals)
+
+        pd.set_option("display.max_columns",11)
+        hv.extension('bokeh')
+        hv.output(size = 200)
+
+        chord = hv.Chord(links)  # .select(value=(5, None))
+        # node_color = [color_code[n] for n in H]
+        # st.text(links['color'])
+        chord.opts(
+            opts.Chord(
+                cmap="Category20",
+                width=500,
+                height=500,
+                edge_cmap="Category20",
+                edge_color=dim("source").str(),
+                labels="name",
+                node_color=dim("index").str(),
+            )
+        )
+        st.markdown("Chord layout democratic")
+        hv.save(chord, 'chord2.html', backend='bokeh')
+        HtmlFile2 = open("chord2.html", "r", encoding="utf-8")
+        source_code2 = HtmlFile2.read()
         components.html(source_code2, height=1100, width=1100)
 
+    def dontdo():
 
-    try:
-        components.v1.html(source_code, height=1100, width=1100)
-    except:
-        components.html(source_code, height=1100, width=1100)
+        edges_df = links.reset_index(drop=True)
+        graph = hv.Graph(edges_df)
+        # opts.defaults(opts.Nodes(size=5, padding=0.1))
+        from holoviews.operation.datashader import (
+            datashade,
+            dynspread,
+            directly_connect_edges,
+            bundle_graph,
+            stack,
+        )
 
-
-    edges_df = links.reset_index(drop=True)
-    graph = hv.Graph(edges_df)
-    # opts.defaults(opts.Nodes(size=5, padding=0.1))
-    from holoviews.operation.datashader import (
-        datashade,
-        dynspread,
-        directly_connect_edges,
-        bundle_graph,
-        stack,
-    )
-
-    st.markdown("bundling + chord")
-    st.markdown("Able to show that not everything is connected to everything else")
-    '''
-    circular = bundle_graph(graph)
-    datashade(circular, width=500, height=500) * circular.nodes
-    st.write(hv.render((circular), backend="bokeh"))
-    st.markdown("clustergram of adjacency matrix: These don't look the same as sorting algorithms are different")
-    '''
-    g = sns.clustermap(df2)
-    st.pyplot(g)
-    st.markdown("clustergram of adjacency matrix")
+        st.markdown("bundling + chord")
+        st.markdown("Able to show that not everything is connected to everything else")
+        '''
+        circular = bundle_graph(graph)
+        datashade(circular, width=500, height=500) * circular.nodes
+        st.write(hv.render((circular), backend="bokeh"))
+        st.markdown("clustergram of adjacency matrix: These don't look the same as sorting algorithms are different")
+        '''
+        g = sns.clustermap(df2)
+        st.pyplot(g)
+        st.markdown("clustergram of adjacency matrix")
 
 
-    columns = list(df2.columns.values)
-    rows = list(df2.index)
-    figure = dashbio.Clustergram(
-        data=df2.loc[rows].values,
-        column_labels=columns,
-        color_threshold={"row": 250, "col": 700},
-        hidden_labels="row",
-        height=800,
-        width=800,
-    )
-    #row_labels=list(df2.index.values),
+        columns = list(df2.columns.values)
+        rows = list(df2.index)
+        figure = dashbio.Clustergram(
+            data=df2.loc[rows].values,
+            column_labels=columns,
+            color_threshold={"row": 250, "col": 700},
+            hidden_labels="row",
+            height=800,
+            width=800,
+        )
+        #row_labels=list(df2.index.values),
 
-    st.write(figure)
+        st.write(figure)
 
 
 
-    fig = plt.figure(figsize=(6,6))
     #flux = np.array([[11975,  5871, 8916, 2868],
     #  [ 1951, 10048, 2060, 6171],
     #  [ 8010, 16145, 8090, 8045],
     #  [ 1013,   990,  940, 6907]
     #])
-    flux = narr
+    #flux = narr
 
-    ax = plt.axes([0,0,1,1])
-    from chord4 import chordDiagram
+    #ax = plt.axes([0,0,1,1])
+    #from chord4 import chordDiagram
     #nodePos = chordDiagram(flux, ax, colors=[hex2rgb(x) for x in ['#666666', '#66ff66', '#ff6666', '#6666ff']])
-    nodePos = chordDiagram(flux, ax)
-    ax.axis('off')
+    #nodePos = chordDiagram(flux, ax)
+    #ax.axis('off')
     #prop = dict(fontsize=16*0.8, ha='center', va='center')
     #nodes = ['non-crystal', 'FCC', 'HCP', 'BCC']
     #for i in range(4):
@@ -871,7 +879,7 @@ def main():
     #plt.savefig("example.png", dpi=600,
     #        transparent=True,
     #        bbox_inches='tight', pad_inches=0.02)
-    st.pyplot(fig)
+    #st.pyplot(fig)
     # circular = bundle_graph(graph)
     # chord = hv.Chord(links)
     # datashade(chord, width=300, height=300) #* circular.nodes

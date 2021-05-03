@@ -143,7 +143,7 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
         'The graph type below is called edge bundling, it gets rid of "hair ball effect"'
     )
     st.markdown(
-        'Think of it like internet cables "bundled" backbones connect places far apart, this economizes on wiring material'
+        'Think of it like internet cables "bundled" backbones connect places far apart as to economize wiring material.'
     )
     #st.markdown(
     #    'It is also a bit like how parallel neurons are wrapped together closely by a density of myline cells, like neurons traveling through the corpus callosum'
@@ -508,7 +508,7 @@ def main():
     #option = st.checkbox("consult spread sheet?")
 
     genre = st.radio(
-        "What's your prefered graph layout?", ("Chord","Physics" , "Bundle", "Basic","Consult spreadsheet")
+        "What's your prefered graph layout?", ("Chord","Physics" , "Bundle", "Basic","Spreadsheet")
     )
 
 
@@ -528,9 +528,23 @@ def main():
     df2, names, ratercodes, legend, color_code, color_dict, color_code_0 = get_frame(
         threshold
     )
-    if genre=="Consult spreadsheet":
+    def get_table_download_link_csv(df):
+        import base64
+        #csv = df.to_csv(index=False)
+        csv = df.to_csv().encode()
+        #b64 = base64.b64encode(csv.encode()).decode()
+        b64 = base64.b64encode(csv).decode()
+        href = f'<a href="data:file/csv;base64,{b64}" download="captura.csv" target="_blank">Download csv file</a>'
+        return href
+
+    if genre=="Spreadsheet":
         st.write(legend)
         st.write(df2)
+        #dl = st.radio(
+        #    "Download?", ("No","Yes")# , "Bundle", "Basic","Spreadsheet")
+        #)
+        #if dl == "Yes":
+        st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
 
     fig = plt.figure()
     for k, v in color_dict.items():
@@ -855,7 +869,9 @@ def main():
             )
 
         nodes = hv.Dataset(df_nodes, 'index')
-
+        # https://geomdata.gitlab.io/hiveplotlib/karate_club.html
+        # Todo make hiveplot
+        #
         chord = hv.Chord((df_links, nodes))#.select(value=(5, None))
         chord.opts(
                    opts.Chord(cmap='Category20', edge_cmap='Category20',

@@ -764,8 +764,8 @@ def main():
         #                       axes_labels_buffer=1.4)
 
         # plot nodes
-        node_viz_mpl(hp,
-                     fig=fig, ax=ax, s=180, c="black")
+        #node_viz_mpl(hp,
+        #             fig=fig, ax=ax, s=180, c="black")
 
 
         # change the line kwargs for edges in plot
@@ -773,7 +773,7 @@ def main():
                            c=f"C0", lw=0.1, alpha=1, zorder=10)
         hp.add_edge_kwargs(axis_id_1=temp[1], axis_id_2=temp[2],
                            c=f"C2", lw=0.1, alpha=1, zorder=10)
-        st.text(temp[2])
+        #st.text(temp[2])
         hp.place_nodes_on_axis(axis_id=temp[0], unique_ids=[nodes[i].data['loc'] for i in IRG1_indices],
                                       sorting_feature_to_use="loc", vmin=0, vmax=33)
         hp.place_nodes_on_axis(axis_id=temp[1], unique_ids=[nodes[i].data['loc'] for i in IRG2_indices],

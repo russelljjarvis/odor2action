@@ -148,9 +148,9 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     st.markdown(
         'Think of it like internet cables "bundled" backbones connect places far apart as to economize wiring material.'
     )
-    #st.markdown(
+    # st.markdown(
     #    'It is also a bit like how parallel neurons are wrapped together closely by a density of myline cells, like neurons traveling through the corpus callosum'
-    #)
+    # )
     # st.markdown(
     #    "Think of it conceptually like Ramon Y Cajal principle of wiring cost optimization."
     # )
@@ -269,6 +269,8 @@ def plot_stuff(df2, edges_df_full, first, adj_mat_dicts):
 
         else:
             db.close()
+
+
 from hiveplotlib import Axis, Node, HivePlot
 from hiveplotlib.viz import axes_viz_mpl, node_viz_mpl, edge_viz_mpl
 from matplotlib.lines import Line2D
@@ -299,15 +301,10 @@ def get_frame(threshold=6):
 
             df3 = pd.DataFrame(worksheet0.values)
             df2 = pd.DataFrame(worksheet1.values)
-
-            # st.write(len(df2))
+            import copy
 
             df2 = pd.concat([df3, df2])
-            # df2.rename(columns={112:'xyz'}, inplace=True)
-            # df2.rename(columns={'112':'xyz'}, inplace=True)
-            # df2.rename(index={42:'wxy'}, inplace=True)
-            # df2.rename(index={'42':'wxy'}, inplace=True)
-
+            sheet = copy.copy(df2)
             color_code_0 = {
                 k: v for k, v in zip(df2[0], df2[1]) if k not in "Rater Code"
             }
@@ -320,7 +317,16 @@ def get_frame(threshold=6):
                 "DCMT": "orange",
             }
             color_code_1 = {}
+
+            # if row[0] != 1 and row[0] != 0:
+            popg = nx.DiGraph()
+            # ,size=20)
+
             for k, v in color_code_0.items():
+
+                if v not in popg.nodes:
+                    # st.text(v)
+                    popg.add_node(v, name=v)
                 color_code_1[k] = color_dict[v]
             # st.text(color_code_1)
             col_to_rename = df2.columns
@@ -401,7 +407,6 @@ def get_frame(threshold=6):
                 if col in df3.columns and col in df2.columns:
                     df4[col] = df2[col] + df3[col]
                 else:
-                    # st.text(col)
                     df4[col] = df2[col]
             df2 = df4
             store["df2"] = df2  # save it
@@ -410,7 +415,17 @@ def get_frame(threshold=6):
             store["ratercodes"] = ratercodes  # save it
             store["legend"] = legend  # save it
 
-    return df2, names, ratercodes, legend, color_code_1, color_dict, color_code_0
+    return (
+        df2,
+        names,
+        ratercodes,
+        legend,
+        color_code_1,
+        color_dict,
+        color_code_0,
+        sheet,
+        popg,
+    )
 
 
 sns_colorscale = [
@@ -481,21 +496,26 @@ def learn_embeddings(walks):
 
 
 def main():
-    # import holoviews
-    # st.text(holoviews.__version__)
 
     st.sidebar.title("Odor 2 Action Collaboration Survey Data")
 
-    st.sidebar.markdown("""I talk or directly email with this person (for any reason)...\n""")
+    # st.sidebar.markdown("""I talk or directly email with this person (for any reason)...\n""")
 
-    st.sidebar.markdown("""Graphs loading first plotting spread sheets...\n""")
-    #option = st.checkbox("consult spread sheet?")
+    # st.sidebar.markdown("""Graphs loading first plotting spread sheets...\n""")
 
     genre = st.sidebar.radio(
-        "What's your prefered graph layout?", ("Hive","Chord","Physics" , "Bundle", "Basic","Spreadsheet","AdjacencyMatrix")
+        "What's your prefered graph layout?",
+        (
+            "Hive",
+            "Population",
+            "Chord",
+            "Physics",
+            "Bundle",
+            "Basic",
+            "Spreadsheet",
+            "AdjacencyMatrix",
+        ),
     )
-
-
 
     st.sidebar.markdown(
         "Problem most people politely answer that they talk to someone a little bit, a bias if which is not corrected \n for hyperconnects everyone to everyone else in a meaningless way"
@@ -503,31 +523,41 @@ def main():
     st.sidebar.markdown("solution threshold a meaningful level of communication")
     st.sidebar.markdown("The higher the threshold the more you reduce connections")
 
-    #st.markdown("")
-
-    # st.write("I'm ", age, 'years old')
     threshold = st.slider("Select a threshold value", 0.0, 17.0, 5.0, 1.0)
-    st.write("Values:", threshold)
-    df2, names, ratercodes, legend, color_code, color_dict, color_code_0 = get_frame(
-        threshold
-    )
+    # st.write("Values:", threshold)
+    (
+        df2,
+        names,
+        ratercodes,
+        legend,
+        color_code,
+        color_dict,
+        color_code_0,
+        sheet,
+        popg,
+    ) = get_frame(threshold)
+
     def get_table_download_link_csv(df):
         import base64
-        #csv = df.to_csv(index=False)
+
+        # csv = df.to_csv(index=False)
         csv = df.to_csv().encode()
-        #b64 = base64.b64encode(csv.encode()).decode()
+        # b64 = base64.b64encode(csv.encode()).decode()
         b64 = base64.b64encode(csv).decode()
         href = f'<a href="data:file/csv;base64,{b64}" download="captura.csv" target="_blank">Download csv file</a>'
         return href
 
-    if genre=="Spreadsheet":
+    if genre == "Spreadsheet":
+        st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
+        st.markdown(get_table_download_link_csv(sheet), unsafe_allow_html=True)
+
         st.write(legend)
         st.write(df2)
-        #dl = st.radio(
+        st.table(df2)
+        # dl = st.radio(
         #    "Download?", ("No","Yes")# , "Bundle", "Basic","Spreadsheet")
-        #)
-        #if dl == "Yes":
-        st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
+        # )
+        # if dl == "Yes":
 
     fig = plt.figure()
     for k, v in color_dict.items():
@@ -542,19 +572,76 @@ def main():
     allcodes = set(names) or set(ratercodes)
 
     first = nx.DiGraph()
+
     for i, row in enumerate(allcodes):
         if i != 0:
             if row[0] != 1 and row[0] != 0:
                 first.add_node(row[0], name=row)  # ,size=20)
-
+    # popg = nx.DiGraph()
     adj_mat_dicts = []
+    conns = {}
+    cc = copy.copy(color_code_0)
     for i, idx in enumerate(df2.index):
         for j, col in enumerate(df2.columns):
+            if col not in cc.keys():
+                cc[col] = "Unknown"
+            if idx not in color_code_0.keys():
+                cc[idx] = "Unknown"
+
+    for i, idx in enumerate(df2.index):
+        for j, col in enumerate(df2.columns):
+            weight = df2.iloc[i, j]
             if idx != col:
-                weight = df2.iloc[i, j]  # df2.loc[idx, col]
                 if float(weight) > threshold:
                     adj_mat_dicts.append({"src": idx, "tgt": col, "weight": weight})
                     first.add_edge(idx, col, weight=weight)
+
+            if not popg.has_edge(cc[idx], cc[col]):
+                popg.add_edge(cc[idx], cc[col], weight=weight)
+            else:
+                e = popg.get_edge_data(cc[idx], cc[col])
+                weight = weight + e["weight"]
+                popg.add_edge(cc[idx], cc[col], weight=weight)
+    # def dontdo(popg):
+    if genre == "Population":
+        fig, ax = plt.subplots(figsize=(20, 15))
+
+        pos = nx.spring_layout(popg, k=15, seed=4572321, scale=1.5)
+        sizes = {}
+        for k, v in cc.items():
+            if v not in sizes.keys():
+                sizes[v] = 1
+            else:
+                sizes[v] += 1
+        temp = list([s * 1000 for s in sizes.values()])
+        # st.text(temp)
+        # st.text(popg.node0s)
+        node_color = [color_dict[n] for n in popg]
+        nx.draw_networkx_nodes(
+            popg,
+            pos=pos,
+            node_color=node_color,  # = [color_code[n] for n in H],
+            node_size=temp,
+            alpha=0.5,
+            linewidths=2,
+        )
+
+        widths = []  # [e["weight"] for e in popg.edges]
+        # st.text(widths)
+        for e in popg.edges:
+            e = popg.get_edge_data(cc[idx], cc[col])
+            widths.append(e["weight"] * 0.025)
+        nx.draw_networkx_edges(
+            popg, pos=pos, edge_color="grey", alpha=0.5, width=widths
+        )
+        # labels = {v.name:v for v,v in popg.nodes}
+        labels = {}
+        for node in popg.nodes():
+            # set the node name as the key and the label as its value
+            labels[node] = node
+        nx.draw_networkx_labels(popg, pos, labels, font_size=16, font_color="r")
+
+        st.pyplot(fig)
     first.remove_nodes_from(list(nx.isolates(first)))
     edges_df_full = nx.to_pandas_adjacency(first)
     try:
@@ -576,26 +663,12 @@ def main():
     )
     adj_mat2 = pd.DataFrame(link)
     adj_mat3 = adj_mat[adj_mat["weight"] != 0]
-    # encoded = {v:k for k,v in enumerate(first.nodes())}
-    # link = dict(source = [encoded[i] for i in list(adj_mat["src"].values)][0:30], target =[encoded[i] for i in list(adj_mat["tgt"].values)][0:30], value =[i*3 for i in list(adj_mat["weight"].values)][0:30])
-    # labels = list(first.nodes)
-    # edge_list = nx.to_edgelist(first)
-
-    # ch = Chord(adj_mat3.values[:],names=names)
-    # st.text(dir(ch))
-    # st.write(ch.render_html())
-
-    # ch.to_html("chord.html")
-    # HtmlFile = open("chord.html", 'r', encoding='utf-8')
-    # source_code = HtmlFile.read()
-    # try:
-    # 	components.v1.html(source_code, height = 1100,width=1100)
-    # except:
-    # 	components.html(source_code, height = 1100,width=1100)
     if genre == "Physics":
 
-
-        labels_ = st.radio("Would you like node labels to be prominent, or degree size?", ("labels", "degsize"))
+        labels_ = st.radio(
+            "Would you like node labels to be prominent, or degree size?",
+            ("labels", "degsize"),
+        )
         if labels_ == "labels":
             labels = True
         else:
@@ -614,10 +687,10 @@ def main():
             directed=True,
             height="750px",
             width="100%",
-            font_color="black"#, bgcolor='#222222'
+            font_color="black",  # , bgcolor='#222222'
         )  # bgcolor='#222222',
-        #nt.toggle_hide_edges_on_drag(True)
-        #nt.repulsion(300)
+        # nt.toggle_hide_edges_on_drag(True)
+        # nt.repulsion(300)
 
         nt.barnes_hut()
         nt.from_nx(G)
@@ -634,7 +707,6 @@ def main():
         centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
         edge_thickness = {k: v * 20000 for v in centrality.items()}
         node_size = {k: v * 20000 for v in centrality.items()}
-
 
         for e in edge_data:
             src = e[0]
@@ -684,22 +756,22 @@ def main():
         source_code = HtmlFile.read()
 
         components.html(source_code, height=1100, width=1100)
-        #st.markdown("Graphs below can be made to be interactive...")
+        # st.markdown("Graphs below can be made to be interactive...")
 
     if genre == "Hive":
 
-                # convert `networkx` edges and nodes into `hiveplotlib`-ready structures
+        # convert `networkx` edges and nodes into `hiveplotlib`-ready structures
         G = first
         encoded = {v: k for k, v in enumerate(first.nodes())}
         reverse = {v: k for k, v in encoded.items()}
 
         G = nx.relabel_nodes(G, encoded, copy=True)
-        #for node in G.nodes:
+        # for node in G.nodes:
         #    st.text(dir(node))
         #    st.text(type(node))
         #    node_ = encoded[node]
         #    G.nodes[node] = node_
-            #node.encode()# = encoded[node]
+        # node.encode()# = encoded[node]
 
         edges = np.array(G.edges)
 
@@ -708,43 +780,43 @@ def main():
 
         nodes = []
         Un_ind = []
-        IRG1_indices=[]
-        IRG2_indices=[]
-        IRG3_indices=[]
-        DCMT_ind=[]#,Un_ind
+        IRG1_indices = []
+        IRG2_indices = []
+        IRG3_indices = []
+        DCMT_ind = []  # ,Un_ind
 
-        for i,(node_id, degree) in enumerate(zip(node_ids, degrees)):
+        for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
             # store the index number as a way to align the nodes on axes
-            G.nodes.data()[node_id]['loc'] = node_id
+            G.nodes.data()[node_id]["loc"] = node_id
             # also store the degree of each node as another way to align nodes on axes
-            G.nodes.data()[node_id]['degree'] = degree
-            #G.nodes.data()[node_id]['club'] =
+            G.nodes.data()[node_id]["degree"] = degree
+            # G.nodes.data()[node_id]['club'] =
             if reverse[node_id] in color_code_0.keys():
-                 #= color_code_0[reverse[node_id]]
+                # = color_code_0[reverse[node_id]]
                 if color_code_0[reverse[node_id]] == "IRG 1":
                     IRG1_indices.append(i)
-                    G.nodes.data()[node_id]['IRG 1'] = 1
-                    G.nodes.data()[node_id]['club'] = 1
+                    G.nodes.data()[node_id]["IRG 1"] = 1
+                    G.nodes.data()[node_id]["club"] = 1
                 if color_code_0[reverse[node_id]] == "IRG 2":
                     IRG2_indices.append(i)
-                    G.nodes.data()[node_id]['IRG 2'] = 2
-                    G.nodes.data()[node_id]['club'] = 2
+                    G.nodes.data()[node_id]["IRG 2"] = 2
+                    G.nodes.data()[node_id]["club"] = 2
 
                 if color_code_0[reverse[node_id]] == "IRG 3":
                     IRG3_indices.append(i)
-                    G.nodes.data()[node_id]['IRG 3'] = 3
-                    G.nodes.data()[node_id]['club'] = 3
+                    G.nodes.data()[node_id]["IRG 3"] = 3
+                    G.nodes.data()[node_id]["club"] = 3
 
-                #st.text(IRG3_indices)
+                # st.text(IRG3_indices)
                 if color_code_0[reverse[node_id]] == "DCMT":
                     DCMT_ind.append(i)
-                    G.nodes.data()[node_id]['DCMT'] = 4
-                    G.nodes.data()[node_id]['club'] = 4
+                    G.nodes.data()[node_id]["DCMT"] = 4
+                    G.nodes.data()[node_id]["club"] = 4
 
             else:
-                #G.nodes.data()[node_id]['club'] = "Unknown"
-                G.nodes.data()[node_id]['Unknown'] = 5
-                G.nodes.data()[node_id]['club'] = 5
+                # G.nodes.data()[node_id]['club'] = "Unknown"
+                G.nodes.data()[node_id]["Unknown"] = 5
+                G.nodes.data()[node_id]["club"] = 5
 
                 Un_ind.append(i)
 
@@ -753,37 +825,73 @@ def main():
 
         temp = list(set(color_code_0.values()))
         temp.append("Unknown")
-        hp = hive_plot_n_axes(node_list=nodes, edges=edges,
-                              axes_assignments=[IRG1_indices, IRG2_indices, IRG3_indices,DCMT_ind,Un_ind],
-                              sorting_variables=['club','club','club','club','club'],
-                              axes_names=temp,
-                              vmins=[0, 0, 0,0,0], vmaxes=[2, 2, 2,2,2],
-                              orient_angle=30)
+        hp = hive_plot_n_axes(
+            node_list=nodes,
+            edges=edges,
+            axes_assignments=[
+                IRG1_indices,
+                IRG2_indices,
+                IRG3_indices,
+                DCMT_ind,
+                Un_ind,
+            ],
+            sorting_variables=["club", "club", "club", "club", "club"],
+            axes_names=temp,
+            vmins=[0, 0, 0, 0, 0],
+            vmaxes=[2, 2, 2, 2, 2],
+            orient_angle=30,
+        )
 
-        #fig, ax = axes_viz_mpl(karate_hp,
+        # fig, ax = axes_viz_mpl(karate_hp,
         #                       axes_labels_buffer=1.4)
 
         # plot nodes
-        #node_viz_mpl(hp,
+        # node_viz_mpl(hp,
         #             fig=fig, ax=ax, s=180, c="black")
 
-
         # change the line kwargs for edges in plot
-        hp.add_edge_kwargs(axis_id_1=temp[0], axis_id_2=temp[1],
-                           c=f"C0", lw=0.1, alpha=1, zorder=10)
-        hp.add_edge_kwargs(axis_id_1=temp[1], axis_id_2=temp[2],
-                           c=f"C2", lw=0.1, alpha=1, zorder=10)
-        #st.text(temp[2])
-        hp.place_nodes_on_axis(axis_id=temp[0], unique_ids=[nodes[i].data['loc'] for i in IRG1_indices],
-                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
-        hp.place_nodes_on_axis(axis_id=temp[1], unique_ids=[nodes[i].data['loc'] for i in IRG2_indices],
-                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
-        hp.place_nodes_on_axis(axis_id=temp[2], unique_ids=[nodes[i].data['loc'] for i in IRG3_indices],
-                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
-        hp.place_nodes_on_axis(axis_id=temp[3], unique_ids=[nodes[i].data['loc'] for i in DCMT_ind],
-                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
-        hp.place_nodes_on_axis(axis_id=temp[3], unique_ids=[nodes[i].data['loc'] for i in Un_ind],
-                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
+        hp.add_edge_kwargs(
+            axis_id_1=temp[0], axis_id_2=temp[1], c=f"C0", lw=0.1, alpha=1, zorder=10
+        )
+        hp.add_edge_kwargs(
+            axis_id_1=temp[1], axis_id_2=temp[2], c=f"C2", lw=0.1, alpha=1, zorder=10
+        )
+        # st.text(temp[2])
+        hp.place_nodes_on_axis(
+            axis_id=temp[0],
+            unique_ids=[nodes[i].data["loc"] for i in IRG1_indices],
+            sorting_feature_to_use="loc",
+            vmin=0,
+            vmax=33,
+        )
+        hp.place_nodes_on_axis(
+            axis_id=temp[1],
+            unique_ids=[nodes[i].data["loc"] for i in IRG2_indices],
+            sorting_feature_to_use="loc",
+            vmin=0,
+            vmax=33,
+        )
+        hp.place_nodes_on_axis(
+            axis_id=temp[2],
+            unique_ids=[nodes[i].data["loc"] for i in IRG3_indices],
+            sorting_feature_to_use="loc",
+            vmin=0,
+            vmax=33,
+        )
+        hp.place_nodes_on_axis(
+            axis_id=temp[3],
+            unique_ids=[nodes[i].data["loc"] for i in DCMT_ind],
+            sorting_feature_to_use="loc",
+            vmin=0,
+            vmax=33,
+        )
+        hp.place_nodes_on_axis(
+            axis_id=temp[3],
+            unique_ids=[nodes[i].data["loc"] for i in Un_ind],
+            sorting_feature_to_use="loc",
+            vmin=0,
+            vmax=33,
+        )
 
         hp.connect_axes(edges=edges, axis_id_1=temp[0], axis_id_2=temp[1], c="C0")
         hp.connect_axes(edges=edges, axis_id_1=temp[1], axis_id_2=temp[2], c="C1")
@@ -797,27 +905,37 @@ def main():
         hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[3], c="C10")
 
         fig, ax = hive_plot_viz_mpl(hive_plot=hp)
-        #john_a_degree_locations = \
-        #karate_hp.axes["john_degree"].node_placements
-        #[nodes[i]
-        #for i in IRG3_indices:
+        # john_a_degree_locations = \
+        # karate_hp.axes["john_degree"].node_placements
+        # [nodes[i]
+        # for i in IRG3_indices:
         #    st.text(nodes[i].data['loc'])
-            #ax.scatter(x, y,
-            #           facecolor="red", edgecolor="black", s=150, lw=2)
-            #ax.scatter(mr_hi_node[0], mr_hi_node[1],
-            #           facecolor="yellow", edgecolor="black", s=150, lw=2)
+        # ax.scatter(x, y,
+        #           facecolor="red", edgecolor="black", s=150, lw=2)
+        # ax.scatter(mr_hi_node[0], mr_hi_node[1],
+        #           facecolor="yellow", edgecolor="black", s=150, lw=2)
 
         st.pyplot(fig)
 
-        sorting_feature = 'club'
-        hp = hive_plot_n_axes(node_list=nodes, edges=edges,
-                      axes_assignments=[IRG1_indices, IRG2_indices, IRG3_indices,DCMT_ind,Un_ind],
-                      sorting_variables=['club', 'club', 'club','club','club'],
-                      axes_names=["IRG1", "IRG2", "IRG3","DCMT","Unknown"],
-                      vmins=[0, -0, 0,-10,-10],
-                      vmaxes=[33, 33, 33,33,33])
+        sorting_feature = "club"
+        hp = hive_plot_n_axes(
+            node_list=nodes,
+            edges=edges,
+            axes_assignments=[
+                IRG1_indices,
+                IRG2_indices,
+                IRG3_indices,
+                DCMT_ind,
+                Un_ind,
+            ],
+            sorting_variables=["club", "club", "club", "club", "club"],
+            axes_names=["IRG1", "IRG2", "IRG3", "DCMT", "Unknown"],
+            vmins=[0, -0, 0, -10, -10],
+            vmaxes=[33, 33, 33, 33, 33],
+        )
+
         def dontdo():
-            '''
+            """
             #fig = hive_plot_viz_mpl(hp)
 
             ### axes ###
@@ -912,7 +1030,8 @@ def main():
                                      "Between Factions"],
                       loc='upper left', bbox_to_anchor=(0.37, 0.35), title="Social Connections")
             st.pyplot(fig)
-            '''
+            """
+
     if genre == "Bundle":
 
         labels_ = st.radio("Would you like to label nodes?", ("No", "Yes"))
@@ -1031,7 +1150,7 @@ def main():
     # chord = hv.Chord(adj_mat3)
     # st.write(pd.DataFrame(first.nodes))
 
-    if genre=="AdjacencyMatrix":
+    if genre == "AdjacencyMatrix":
         g = sns.clustermap(df2)
         st.pyplot(g)
         st.markdown("clustergram of adjacency matrix")
@@ -1060,38 +1179,43 @@ def main():
             columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
         )
         links = links[links["value"] != 0]
-        #result = []
-        #for k in links["source"]:
+        # result = []
+        # for k in links["source"]:
         #    result.append(color_code_0[k])
 
-        Nodes_ = set(links['source'].unique().tolist()
-                    + links['target'].unique().tolist())
+        Nodes_ = set(
+            links["source"].unique().tolist() + links["target"].unique().tolist()
+        )
         Nodes = {node: i for i, node in enumerate(Nodes_)}
 
-        df_links = links.replace({'source': Nodes,
-                                 'target': Nodes})
+        df_links = links.replace({"source": Nodes, "target": Nodes})
         for k in Nodes.keys():
             if k not in color_code_0.keys():
                 color_code_0[k] = "Unknown"
 
-        df_nodes = pd.DataFrame({'index': [idx for idx in Nodes.values()],
-                                 'name': [name for name in Nodes.keys()],
-                                 'colors':[color_code_0[k] for k in Nodes.keys()]})
+        df_nodes = pd.DataFrame(
+            {
+                "index": [idx for idx in Nodes.values()],
+                "name": [name for name in Nodes.keys()],
+                "colors": [color_code_0[k] for k in Nodes.keys()],
+            }
+        )
         for kk in df_links["source"]:
-            k = df_nodes.loc[kk,'name']
-            #st.text(k)
+            k = df_nodes.loc[kk, "name"]
+            # st.text(k)
             if k not in color_code_0.keys():
                 color_code_0[k] = "Unknown"
 
-        #Colors = [ (kk,color_code_0[df_nodes.loc[kk,'name']]) for kk in df_links["source"] ]
-        #st.text(Colors)
-        #df_links["colors"] = Colors
-        #st.write(df_links)
-        #st.write(df_nodes)
+        # Colors = [ (kk,color_code_0[df_nodes.loc[kk,'name']]) for kk in df_links["source"] ]
+        # st.text(Colors)
+        # df_links["colors"] = Colors
+        # st.write(df_links)
+        # st.write(df_nodes)
 
         pd.set_option("display.max_columns", 11)
         hv.extension("bokeh")
         hv.output(size=200)
+
         def dont():
             chord = hv.Chord(links)  # .select(value=(5, None))
             # node_color = [color_code[n] for n in H]
@@ -1108,19 +1232,24 @@ def main():
                 )
             )
 
-        nodes = hv.Dataset(df_nodes, 'index')
+        nodes = hv.Dataset(df_nodes, "index")
         # https://geomdata.gitlab.io/hiveplotlib/karate_club.html
         # Todo make hiveplot
         #
-        chord = hv.Chord((df_links, nodes))#.select(value=(5, None))
+        chord = hv.Chord((df_links, nodes))  # .select(value=(5, None))
         chord.opts(
-                   opts.Chord(cmap='Category20', edge_cmap='Category20',
-                              edge_color=dim('colors').str(),
-                              width=500,
-                              height=500,
-                              labels='name', node_color=dim('colors').str()))
-        #st.write(hv.render((chord), backend="bokeh"))
-        #st.markdown("Chord layout democratic")
+            opts.Chord(
+                cmap="Category20",
+                edge_cmap="Category20",
+                edge_color=dim("colors").str(),
+                width=500,
+                height=500,
+                labels="name",
+                node_color=dim("colors").str(),
+            )
+        )
+        # st.write(hv.render((chord), backend="bokeh"))
+        # st.markdown("Chord layout democratic")
         hv.save(chord, "chord2.html", backend="bokeh")
         HtmlFile2 = open("chord2.html", "r", encoding="utf-8")
         source_code2 = HtmlFile2.read()
@@ -1139,8 +1268,8 @@ def main():
             stack,
         )
 
-        #st.markdown("bundling + chord")
-        #st.markdown("Able to show that not everything is connected to everything else")
+        # st.markdown("bundling + chord")
+        # st.markdown("Able to show that not everything is connected to everything else")
         """
         circular = bundle_graph(graph)
         datashade(circular, width=500, height=500) * circular.nodes

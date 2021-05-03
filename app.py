@@ -791,13 +791,21 @@ def main():
         hp.connect_axes(edges=edges, axis_id_1=temp[2], axis_id_2=temp[3], c="C4")
         hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[1], c="C5")
         hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[0], c="C6")
-        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[0], c="C6")
-        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[1], c="C6")
-        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[2], c="C6")
-        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[3], c="C6")
+        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[0], c="C7")
+        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[1], c="C8")
+        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[2], c="C9")
+        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[3], c="C10")
 
         fig, ax = hive_plot_viz_mpl(hive_plot=hp)
-
+        #john_a_degree_locations = \
+        #karate_hp.axes["john_degree"].node_placements
+        #[nodes[i]
+        #for i in IRG3_indices:
+        #    st.text(nodes[i].data['loc'])
+            #ax.scatter(x, y,
+            #           facecolor="red", edgecolor="black", s=150, lw=2)
+            #ax.scatter(mr_hi_node[0], mr_hi_node[1],
+            #           facecolor="yellow", edgecolor="black", s=150, lw=2)
 
         st.pyplot(fig)
 

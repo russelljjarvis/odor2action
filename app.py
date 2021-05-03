@@ -508,7 +508,7 @@ def main():
     #option = st.checkbox("consult spread sheet?")
 
     genre = st.radio(
-        "What's your prefered graph layout?", ("Chord","Physics" , "Bundle", "Basic","Spreadsheet")
+        "What's your prefered graph layout?", ("Chord","Physics" , "Bundle", "Basic","Spreadsheet","AdjacencyMatrix")
     )
 
 
@@ -810,6 +810,26 @@ def main():
     # plot_stuff(df2, edges_df_full, first, adj_mat_dicts)
     # chord = hv.Chord(adj_mat3)
     # st.write(pd.DataFrame(first.nodes))
+
+    if genre=="AdjacencyMatrix":
+        g = sns.clustermap(df2)
+        st.pyplot(g)
+        st.markdown("clustergram of adjacency matrix")
+
+        columns = list(df2.columns.values)
+        rows = list(df2.index)
+        figure = dashbio.Clustergram(
+            data=df2.loc[rows].values,
+            column_labels=columns,
+            color_threshold={"row": 250, "col": 700},
+            hidden_labels="row",
+            height=800,
+            width=800,
+        )
+        # row_labels=list(df2.index.values),
+
+        st.write(figure)
+
     if genre == "Chord":
 
         temp = pd.DataFrame(first.nodes)
@@ -899,31 +919,14 @@ def main():
             stack,
         )
 
-        st.markdown("bundling + chord")
-        st.markdown("Able to show that not everything is connected to everything else")
+        #st.markdown("bundling + chord")
+        #st.markdown("Able to show that not everything is connected to everything else")
         """
         circular = bundle_graph(graph)
         datashade(circular, width=500, height=500) * circular.nodes
         st.write(hv.render((circular), backend="bokeh"))
         st.markdown("clustergram of adjacency matrix: These don't look the same as sorting algorithms are different")
         """
-        g = sns.clustermap(df2)
-        st.pyplot(g)
-        st.markdown("clustergram of adjacency matrix")
-
-        columns = list(df2.columns.values)
-        rows = list(df2.index)
-        figure = dashbio.Clustergram(
-            data=df2.loc[rows].values,
-            column_labels=columns,
-            color_threshold={"row": 250, "col": 700},
-            hidden_labels="row",
-            height=800,
-            width=800,
-        )
-        # row_labels=list(df2.index.values),
-
-        st.write(figure)
 
     # flux = np.array([[11975,  5871, 8916, 2868],
     #  [ 1951, 10048, 2060, 6171],

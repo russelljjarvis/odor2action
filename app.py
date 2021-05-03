@@ -504,10 +504,10 @@ def main():
     st.markdown("""I talk or directly email with this person (for any reason)...\n""")
 
     st.markdown("""Graphs loading first plotting spread sheets...\n""")
-    option = st.checkbox("consult spread sheet?")
+    #option = st.checkbox("consult spread sheet?")
 
     genre = st.radio(
-        "What's your prefered graph layout?", ("Physics", "Chord", "Bundle", "Basic")
+        "What's your prefered graph layout?", ("Physics", "Chord", "Bundle", "Basic","Consult spreadsheet")
     )
 
     # if genre == 'Chord':
@@ -531,7 +531,7 @@ def main():
     df2, names, ratercodes, legend, color_code, color_dict, color_code_0 = get_frame(
         threshold
     )
-    if option:
+    if genre=="Consult spreadsheet":
         st.write(legend)
         st.write(df2)
 

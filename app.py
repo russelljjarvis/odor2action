@@ -103,7 +103,7 @@ def generate_sankey_figure(
     # return fig
 
 
-def data_shade(graph, color_code, adj_mat, color_dict):
+def data_shade(graph, color_code, adj_mat, color_dict,labels_=False):
 
     nodes = graph.nodes
     # orig_pos=nx.get_node_attributes(graph,'pos')
@@ -186,7 +186,8 @@ def data_shade(graph, color_code, adj_mat, color_dict):
     for node in graph.nodes():
         #set the node name as the key and the label as its value
         labels[node] = node
-    #nx.draw_networkx_labels(graph,pos_,labels,font_size=16,font_color='r')
+    if labels_:
+        nx.draw_networkx_labels(graph,pos_,labels,font_size=16,font_color='r')
 
     # ax3.margins(0.1, 0.05)
     fig.tight_layout()
@@ -281,7 +282,7 @@ def plot_stuff(df2, edges_df_full, first, adj_mat_dicts):
             db.close()
 
 
-def get_frame(threshold = 4):
+def get_frame(threshold = 6):
 
     with shelve.open("fast_graphs_splash.p") as store:
         flag = "df" in store
@@ -507,11 +508,7 @@ def main():
 	please scroll down to explore putative network visualizations
 	"""
     st.markdown("""Still loading Graphs please wait...\n""")
-    #slider_ph = st.empty()
-    #info_ph = st.empty()
 
-    #threshold = slider_ph.slider("slider", 4,0, 1, 2, 3,5,6,7,8,9)
-    #info_ph.info(threshold)
     st.markdown("Problem most people politely answer that they talk to someone a little bit, a bias if which is not corrected \n for hyperconnects everyone to everyone else in a meaningless way")
     st.markdown("solution threshold a meaningful level of communication")
     st.markdown("The higher the threshold the more you reduce connections")
@@ -521,7 +518,7 @@ def main():
     #st.write("I'm ", age, 'years old')
     threshold = st.slider(
         'Select a threshold value',
-        0.0, 16.0, 4.0,1.0)
+        0.0, 17.0, 5.0,1.0)
     st.write('Values:', threshold)
     df2, names, ratercodes, legend, color_code, color_dict, color_code_0 = get_frame(threshold)
     if option:
@@ -663,7 +660,15 @@ def main():
 
 
     if genre == 'Bundle':
-        fig4 = data_shade(first, color_code, adj_mat, color_dict)
+
+        labels_ = st.radio(
+             "Would you like to label nodes?",
+             ('No','Yes'))
+        if labels_=='Yes':
+            labels = True
+        if labels_=='No':
+            labels = False
+        fig4 = data_shade(first, color_code, adj_mat, color_dict,labels)
         st.pyplot(fig4)
     if genre == 'Basic':
 

@@ -126,10 +126,10 @@ def doCircleRibbonGraph(matrix, labels, colors, plot_size=400, title="Phd Countr
             raise ValueError("the arc ends must be elements in a list of len 2")
         return [control_pts([l[j], (l[j] + r[j]) / 2, r[j]], radius) for j in range(2)]
 
-    #ribbon_color=[L*[ideo_colors[k]] for k in range(L)]
-    ribbon_color = []
-    for k in range(L):
-        ribbon_color = append('#ff0000')
+    ribbon_color=[L*['#ff0000'] for k in range(L)]
+    #ribbon_color = []
+    #for k in range(L):
+    #    ribbon_color.append(['#ff0000'])
 
     def make_q_bezier(
         b,
@@ -284,7 +284,7 @@ def doCircleRibbonGraph(matrix, labels, colors, plot_size=400, title="Phd Countr
                 text = (
                     labels[k]
                     + " donated $"
-                    + "{:d}".format(matrix[k][k])
+                    + "{0}".format(matrix[k][k])
                     + " to theirself",
                 )
                 ribbon_info.append(
@@ -323,7 +323,7 @@ def doCircleRibbonGraph(matrix, labels, colors, plot_size=400, title="Phd Countr
                         x=zi.real,
                         y=zi.imag,
                         mode="markers",
-                        marker=Marker(size=0.5, color=ribbon_color[k][j]),
+                        marker=Marker(size=0.5, color="rgb(175,175,175)"),
                         text=texti,
                         hoverinfo="text",
                     )
@@ -333,9 +333,9 @@ def doCircleRibbonGraph(matrix, labels, colors, plot_size=400, title="Phd Countr
                         x=zf.real,
                         y=zf.imag,
                         mode="markers",
-                        marker=Marker(size=0.5, color=ribbon_color[k][j]),
-                        text=textf,
-                        hoverinfo="text",
+                        marker=Marker(size=0.5, color="rgb(175,175,175)"),
+                        #text=textf,
+                        #hoverinfo="text",
                     )
                 )
                 r = (
@@ -345,7 +345,7 @@ def doCircleRibbonGraph(matrix, labels, colors, plot_size=400, title="Phd Countr
                 # a twisted ribbon
                 # append the ribbon shape
                 layout["shapes"].append(
-                    make_ribbon(l, r, "rgb(175,175,175)", ribbon_color[k][j])
+                    make_ribbon(l, r, "rgb(175,175,175)", "rgb(175,175,175)")
                 )
 
     ideograms = []
@@ -360,7 +360,7 @@ def doCircleRibbonGraph(matrix, labels, colors, plot_size=400, title="Phd Countr
                 y=z.imag,
                 mode="lines",
                 line=Line(color=ideo_colors[k], shape="spline", width=0.25),
-                text="{:d}".format(row_sum[k])
+                text="{0}".format(row_sum[k])
                 + " scientists has migrated from "
                 + labels[k],
                 hoverinfo="text",

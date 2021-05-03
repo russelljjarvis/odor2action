@@ -3,6 +3,9 @@
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
 import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+import matplotlib.colors as cl
+import matplotlib.cm as cmx
 
 import numpy as np
 
@@ -143,7 +146,7 @@ def get_colors(n):
     """
     Checking the color pallete
     """
-    import matplotlib.pyplot as plt
+
 
     jet = cm = plt.get_cmap("RdYlGn")
     cNorm = cl.Normalize(vmin=0, vmax=n)
@@ -175,10 +178,10 @@ def chordDiagram(X, ax, colors=None, width=0.1, pad=2, chordwidth=0.7):
 
     if colors is None:
     # use d3.js category10 https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.md#category10
-        colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
-                  '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
-        if len(x) > 10:
-            print('x is too large! Use x smaller than 10')
+        #colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+        #          '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+        #if len(x) > 10:
+        #    print('x is too large! Use x smaller than 10')
         #colors = [hex2rgb(colors[i]) for i in range(len(x))]
         n = np.shape(X)[0]
         colors = get_colors(n)
@@ -200,6 +203,7 @@ def chordDiagram(X, ax, colors=None, width=0.1, pad=2, chordwidth=0.7):
             angle -= 270
         nodePos.append(tuple(polar2xy(1.1, 0.5*(start+end)*np.pi/180.)) + (angle,))
         z = (X[i, :]/x[i].astype(float)) * (end - start)
+
         ids = np.argsort(z)
         z0 = start
         for j in ids:

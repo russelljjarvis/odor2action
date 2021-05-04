@@ -475,18 +475,18 @@ sns_colorscale = [
 ]
 
 
-@st.cache
+#@st.cache
 def df_to_plotly(df, log=False):
     return {"z": df.values.tolist(), "x": df.columns.tolist(), "y": df.index.tolist()}
 
 
-@st.cache
+#@st.cache
 def plot_df_plotly(sleep_df):
     fig = go.Figure(data=go.Heatmap(df_to_plotly(sleep_df, log=True)))
     st.write(fig)
 
 
-@st.cache
+#@st.cache
 def plot_imshow_plotly(sleep_df):
 
     heat = go.Heatmap(df_to_plotly(sleep_df), colorscale=sns_colorscale)
@@ -1102,7 +1102,8 @@ def main():
         my_expander.markdown(
             """The graph type below is called edge bundling, it gets rid of hair ball effect\n \
 			Think of it like internet cables "bundled" backbones connect places far \n \
-			 apart as to economize wiring material."""
+			 apart as to economize wiring material. Setting high thresholds here: 14-16 leads to some insight.
+             High thresholds show only intense collaborations, disconnecting the network in meaningful way."""
         )
 
         fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
@@ -1117,7 +1118,7 @@ def main():
             labels_ = False
 
         st.markdown(
-            "Contrast this hair ball view with bundling (wiring length is not reduced)..."
+            "Contrast this hair ball view with bundling (wire cost is not economized here)..."
         )
         H = first.to_undirected()
         centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
@@ -1225,21 +1226,29 @@ def main():
 
         g = sns.clustermap(df2)
         st.pyplot(g)
-        st.markdown("clustergram of adjacency matrix")
+
+        st.markdown("un sorted interactive adjacency matrix (data not organized to emphasise clusters)")
+        st.markdown("Diagnols are still not zero, because column names and row names are not sorted.")
+
+        fig = plot_imshow_plotly(df2)
+        st.write(fig)
+        st.markdown("sorted interactive clustergram of adjacency matrix")
 
         columns = list(df2.columns.values)
         rows = list(df2.index)
-        figure = dashbio.Clustergram(
-            data=df2.loc[rows].values,
-            column_labels=columns,
-            color_threshold={"row": 250, "col": 700},
-            hidden_labels="row",
-            height=800,
-            width=800,
-        )
+        try:
+            figure = dashbio.Clustergram(
+                data=df2.loc[rows].values,
+                column_labels=columns,
+                color_threshold={"row": 250, "col": 700},
+                hidden_labels="row",
+                height=800,
+                width=800,
+            )
 
-        st.write(figure)
-
+            st.write(figure)
+        except:
+            pass
     if genre == "Chord":
         st.markdown(""" clicking on a node highlights its direct projections""")
         temp = pd.DataFrame(first.nodes)

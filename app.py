@@ -612,6 +612,108 @@ def population(cc, popg, color_dict):
         pass
 
 
+import numpy as np
+import matplotlib.pyplot as plt
+import networkx as nx
+
+def community_layout(g, partition):
+    """
+    Compute the layout for a modular graph.
+    Arguments:
+    ----------
+    g -- networkx.Graph or networkx.DiGraph instance
+        graph to plot
+    partition -- dict mapping int node -> int community
+        graph partitions
+    Returns:
+    --------
+    pos -- dict mapping int node -> (float x, float y)
+        node positions
+    """
+    pos_communities = _position_communities(g, partition, scale=3.)
+    pos_nodes = _position_nodes(g, partition, scale=1.)
+    # combine positions
+    pos = dict()
+    for node in g.nodes():
+        pos[node] = pos_communities[node] + pos_nodes[node]
+
+    return pos
+
+def _position_communities(g, partition, **kwargs):
+    # create a weighted graph, in which each node corresponds to a community,
+    # and each edge weight to the number of edges between communities
+    between_community_edges = _find_between_community_edges(g, partition)
+    communities = set(partition.values())
+    hypergraph = nx.DiGraph()
+    hypergraph.add_nodes_from(communities)
+    for (ci, cj), edges in between_community_edges.items():
+        hypergraph.add_edge(ci, cj, weight=len(edges))
+
+    # find layout for communities
+    pos_communities = nx.spring_layout(hypergraph, **kwargs)
+
+    # set node positions to position of community
+    pos = dict()
+    for node, community in partition.items():
+        pos[node] = pos_communities[community]
+
+    return pos
+
+def _find_between_community_edges(g, partition):
+
+    edges = dict()
+
+    for (ni, nj) in g.edges():
+        ci = partition[ni]
+        cj = partition[nj]
+
+        if ci != cj:
+            try:
+                edges[(ci, cj)] += [(ni, nj)]
+            except KeyError:
+                edges[(ci, cj)] = [(ni, nj)]
+
+    return edges
+
+def _position_nodes(g, partition, **kwargs):
+    """
+    Positions nodes within communities.
+    """
+
+    communities = dict()
+    for node, community in partition.items():
+        try:
+            communities[community] += [node]
+        except KeyError:
+            communities[community] = [node]
+
+    pos = dict()
+    for ci, nodes in communities.items():
+        subgraph = g.subgraph(nodes)
+        pos_subgraph = nx.spring_layout(subgraph, **kwargs)
+        pos.update(pos_subgraph)
+
+    return pos
+
+def community(first,color_code):
+    from community import community_louvain
+    temp = first.to_undirected()
+    ##
+    # partition = community_louvain.best_partition(temp,resolution=2.5)
+    ##
+    partition = community_louvain.best_partition(temp,resolution=2.5)
+    pos = community_layout(temp, partition)
+    fig = plt.figure()
+    nx.draw(temp, pos, node_color=list(partition.values()));
+    st.pyplot(fig)
+    node_color = [color_code[n] for n in first]
+    st.markdown(""" For contrast the machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
+    This suggests that the formal group ie IRG 1, is not a strict determinant of analysis inferred communities """)
+    nx.draw(temp, pos, node_color=node_color)
+    st.pyplot(fig)
+
+    #plt#.show()
+
 def physics(first, adj_mat_dicts, color_code):
     my_expander = st.beta_expander("Label vs node Vis")
     labels_ = my_expander.radio(
@@ -629,7 +731,7 @@ def physics(first, adj_mat_dicts, color_code):
     d = nx.degree(first)
     temp = first.to_undirected()
     cen = nx.betweenness_centrality(temp)
-    d = [((d[node] + 1) * 1.25) for node in first.nodes()]
+    d = [((d[node] + 1) * 10.25) for node in first.nodes()]
     G = first  # ead_graph()
 
     nt = Network(
@@ -714,20 +816,39 @@ def main():
     # st.sidebar.markdown("""I talk or directly email with this person (for any reason)...\n""")
 
     # st.sidebar.markdown("""Graphs loading first plotting spread sheets...\n""")
+    try:
+        from community import community_louvain
 
-    genre = st.sidebar.radio(
-        "Prefered graph layout?",
-        (
-            "Hive",
-            "Population",
-            "Chord",
-            "Physics",
-            "Bundle",
-            "Basic",
-            "Spreadsheet",
-            "AdjacencyMatrix",
-        ),
-    )
+        genre = st.sidebar.radio(
+            "Prefered graph layout?",
+            (
+                "Hive",
+                "Physics",
+                "Bundle",
+                "Community Mixing",
+                "Basic",
+                "Lumped Population",
+                "Chord",
+                "Spreadsheet",
+                "AdjacencyMatrix",
+
+            ),
+        )
+    except:
+        genre = st.sidebar.radio(
+            "Prefered graph layout?",
+            (
+                "Hive",
+                "Population",
+                "Chord",
+                "Physics",
+                "Bundle",
+                "Basic",
+                "Spreadsheet",
+                "AdjacencyMatrix"
+            ),
+        )
+
     my_expander = st.sidebar.beta_expander("Explanation of Threshold")
 
     my_expander.markdown(
@@ -831,14 +952,22 @@ def main():
         st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
         st.markdown("Anonymized raw survey data")
         st.markdown(get_table_download_link_csv(sheet), unsafe_allow_html=True)
-
-        st.write(legend)
+        #st.beta_expander()
+        my_expander = st.beta_expander("Numeric mapping of survery question answers")
+        my_expander.write(legend)
         st.table(df2)
+    try:
+        from community import community_louvain
+        if genre == "Community Mixing":
+            st.markdown("Note communities in the graph below are not IRG 1-3, but instead communities inferred by blind networkx analysis. It's appropritate to use a different color code for the 6 inferred communities.")
+            community(first,color_code)
+    except:
+        pass
 
     if genre == "Physics":
         physics(first, adj_mat_dicts, color_code)
 
-    if genre == "Population":
+    if genre == "Lumped Population":
         population(cc, popg, color_dict)
 
     if genre == "Hive":
@@ -849,13 +978,6 @@ def main():
         reverse = {v: k for k, v in encoded.items()}
 
         G = nx.relabel_nodes(G, encoded, copy=True)
-        # for node in G.nodes:
-        #    st.text(dir(node))
-        #    st.text(type(node))
-        #    node_ = encoded[node]
-        #    G.nodes[node] = node_
-        # node.encode()# = encoded[node]
-
         edges = np.array(G.edges)
 
         # pull out degree information from nodes for later use
@@ -925,12 +1047,6 @@ def main():
             orient_angle=30,
         )
 
-        # fig, ax = axes_viz_mpl(karate_hp,
-        #                       axes_labels_buffer=1.4)
-
-        # plot nodes
-        # node_viz_mpl(hp,
-        #             fig=fig, ax=ax, s=180, c="black")
 
         # change the line kwargs for edges in plot
         hp.add_edge_kwargs(
@@ -1229,10 +1345,6 @@ def main():
 
         st.pyplot(fig)
 
-    # from chord3 import doCircleRibbonGraph, get_colors
-    # edges_df = networkx.to_pandas_adjacency(g)
-    # labs = ["IRG1","IRG2","IRG3","DX"]
-    # colors = get_colors(4)
     adj_mat = pd.DataFrame(adj_mat_dicts)
     narr = nx.to_pandas_adjacency(first)
 

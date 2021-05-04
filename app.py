@@ -286,6 +286,31 @@ class renamer:
             return "%s_%d" % (x, self.d[x])
 
 
+
+def dontdo():
+    df2.rename(columns=renamer(), inplace=True)
+
+    df4 = pd.DataFrame()
+
+    for col in df2.columns[0 : int(len(df2.columns) / 2)]:
+        # if
+        if col + str("_1") in df2.columns:
+            df4[col] = df2[col] + df2[col + str("_1")]
+        else:
+            df4[col] = df2[col]
+
+def dontdo():
+    """
+    for col in df2.columns:
+
+                    if col.split("_")[0] in df3.columns and col.split("_")[0] in df5.columns:
+                                    df4[col] = df2[col] + df3[col]
+                                    #st.text('yes')
+
+                    else:
+                                    df4[col] = df2[col]
+    """
+
 # @st.cache(persist=True)
 # @st.cache(allow_output_mutation=True)
 def get_frame(threshold=6):
@@ -405,8 +430,10 @@ def get_frame(threshold=6):
             df2.replace({"Often": 7}, inplace=True)
             df2.replace({"Much or all of the time": 8}, inplace=True)
             df2.replace({"1-2 times a week": 9.0}, inplace=True)
+
+            # This sums columns under the same name
             df2.groupby(df2.columns, axis=1).sum()
-            df2.groupby(level=0, axis=1).sum()
+            #df2.groupby(level=0, axis=1).sum()
             # df2 = df4
             store["df2"] = df2  # save it
             # st.write(df2)
@@ -422,30 +449,6 @@ def get_frame(threshold=6):
             # st.write(df5)
 
             # import copy
-
-            def dontdo():
-                df2.rename(columns=renamer(), inplace=True)
-
-                df4 = pd.DataFrame()
-
-                for col in df2.columns[0 : int(len(df2.columns) / 2)]:
-                    # if
-                    if col + str("_1") in df2.columns:
-                        df4[col] = df2[col] + df2[col + str("_1")]
-                    else:
-                        df4[col] = df2[col]
-
-            def dontdo():
-                """
-                for col in df2.columns:
-
-                                if col.split("_")[0] in df3.columns and col.split("_")[0] in df5.columns:
-                                                df4[col] = df2[col] + df3[col]
-                                                #st.text('yes')
-
-                                else:
-                                                df4[col] = df2[col]
-                """
 
     return (
         df2,
@@ -530,7 +533,7 @@ def learn_embeddings(walks):
     return
 
 
-@st.cache(persist=True)
+#@st.cache(persist=True)
 def get_table_download_link_csv(df):
     import base64
 
@@ -706,14 +709,14 @@ def physics(first, adj_mat_dicts, color_code):
 
 def main():
 
-    st.sidebar.title("Odor 2 Action Collaboration Survey Data")
+    st.sidebar.title("Odor To Action: Collaboration Survey Data")
 
     # st.sidebar.markdown("""I talk or directly email with this person (for any reason)...\n""")
 
     # st.sidebar.markdown("""Graphs loading first plotting spread sheets...\n""")
 
     genre = st.sidebar.radio(
-        "What's your prefered graph layout?",
+        "Prefered graph layout?",
         (
             "Hive",
             "Population",
@@ -797,14 +800,6 @@ def main():
                 weight = weight + e["weight"]
                 popg.add_edge(cc[idx], cc[col], weight=weight)
 
-    if genre == "Spreadsheet":
-        st.markdown("Processed anonymized network data that is visualized")
-        st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
-        st.markdown("Anonymized raw survey data")
-        st.markdown(get_table_download_link_csv(sheet), unsafe_allow_html=True)
-
-        st.write(legend)
-        st.table(df2)
 
     first.remove_nodes_from(list(nx.isolates(first)))
     edges_df_full = nx.to_pandas_adjacency(first)
@@ -819,7 +814,10 @@ def main():
     except:
         pass
     adj_mat = pd.DataFrame(adj_mat_dicts)
-    encoded = {v: k for k, v in enumerate(first.nodes())}
+    try:
+        encoded = {v: k for k, v in enumerate(first.nodes())}
+    except:
+        encoded = {v: k for k, v in enumerate(adj_mat.columns)}
     link = dict(
         source=[encoded[i] for i in list(adj_mat["src"].values)],
         target=[encoded[i] for i in list(adj_mat["tgt"].values)],
@@ -827,6 +825,15 @@ def main():
     )
     adj_mat2 = pd.DataFrame(link)
     adj_mat3 = adj_mat[adj_mat["weight"] != 0]
+
+    if genre == "Spreadsheet":
+        st.markdown("Processed anonymized network data that is visualized")
+        st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
+        st.markdown("Anonymized raw survey data")
+        st.markdown(get_table_download_link_csv(sheet), unsafe_allow_html=True)
+
+        st.write(legend)
+        st.table(df2)
 
     if genre == "Physics":
         physics(first, adj_mat_dicts, color_code)

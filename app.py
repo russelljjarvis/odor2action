@@ -611,6 +611,7 @@ def physics(first,adj_mat_dicts,color_code):
 	    labels = True
 	else:
 		labels = False
+	labels = False
 
 	pos = nx.get_node_attributes(first, "pos")
 	#fig = plt.figure()
@@ -651,16 +652,12 @@ def physics(first,adj_mat_dicts,color_code):
 			w = e[2]
 
 		else:
-			w = e[2] * 250.0
+			w = e[2] * 350.0
 		src = str(src)
 		dst = str(dst)
 		w = float(w)
 		nt.add_edge(src, dst, value=w)
 
-	#nt.show("test1.html")
-	#HtmlFile = open("test1.html", "r", encoding="utf-8")
-	#source_code = HtmlFile.read()
-	#components.html(source_code, height=1100, width=1100)
 
 	neighbor_map = nt.get_adj_list()
 
@@ -685,6 +682,7 @@ def physics(first,adj_mat_dicts,color_code):
 		#if not labels:
 		node["borderWidth"] = 10
 		node["borderWidthSelected"] = 20
+	my_expander = st.beta_expander("physical parameters")
 
 	labels_ = my_expander.radio(
 		"Would you like to change physical parameters?", ("No", "Yes")
@@ -801,11 +799,6 @@ def main():
 		st.write(legend)
 		st.table(df2)
 
-	if genre == "Physics":
-		physics(first,adj_mat_dicts,color_code)
-
-	if genre == "Population":
-		population(cc,popg,color_dict)
 
 	first.remove_nodes_from(list(nx.isolates(first)))
 	edges_df_full = nx.to_pandas_adjacency(first)
@@ -829,6 +822,11 @@ def main():
 	adj_mat2 = pd.DataFrame(link)
 	adj_mat3 = adj_mat[adj_mat["weight"] != 0]
 
+	if genre == "Physics":
+		physics(first,adj_mat_dicts,color_code)
+
+	if genre == "Population":
+		population(cc,popg,color_dict)
 
 	if genre == "Hive":
 

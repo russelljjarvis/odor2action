@@ -651,8 +651,8 @@ def physics(first,adj_mat_dicts,color_code):
 
         else:
             w = e[2] * 50.0
-        src = str(src)
-        dst = str(dst)
+        #src = str(src)
+        #dst = str(dst)
         w = float(w)
         nt.add_edge(src, dst, value=w)
 
@@ -739,20 +739,6 @@ def main():
         popg,
     ) = get_frame(threshold)
 
-    if genre == "Spreadsheet":
-        st.markdown("Processed anonymized network data that is visualized")
-        st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
-        st.markdown("Anonymized raw survey data")
-        st.markdown(get_table_download_link_csv(sheet), unsafe_allow_html=True)
-
-        st.write(legend)
-        # st.write(df2)
-        st.table(df2)
-        # dl = st.radio(
-        #    "Download?", ("No","Yes")# , "Bundle", "Basic","Spreadsheet")
-        # )
-        # if dl == "Yes":
-
     fig = plt.figure()
     for k, v in color_dict.items():
         plt.scatter([], [], c=v, label=k)
@@ -799,7 +785,19 @@ def main():
                 e = popg.get_edge_data(cc[idx], cc[col])
                 weight = weight + e["weight"]
                 popg.add_edge(cc[idx], cc[col], weight=weight)
-    # def dontdo(popg):
+
+    if genre == "Spreadsheet":
+        st.markdown("Processed anonymized network data that is visualized")
+        st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
+        st.markdown("Anonymized raw survey data")
+        st.markdown(get_table_download_link_csv(sheet), unsafe_allow_html=True)
+
+        st.write(legend)
+        st.table(df2)
+
+    if genre == "Physics":
+        physics(first,adj_mat_dicts,color_code)
+
     if genre == "Population":
         population(cc,popg,color_dict)
 
@@ -825,8 +823,6 @@ def main():
     adj_mat2 = pd.DataFrame(link)
     adj_mat3 = adj_mat[adj_mat["weight"] != 0]
 
-    if genre == "Physics":
-        physics(first,adj_mat_dicts,color_code)
 
     if genre == "Hive":
 

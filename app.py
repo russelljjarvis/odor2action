@@ -543,7 +543,7 @@ def get_table_download_link_csv(df):
 	return href
 
 def population(cc,popg,color_dict):
-	#from networkx.drawing.nx_agraph import to_agraph
+	from networkx.drawing.nx_agraph import to_agraph
 
 	fig, ax = plt.subplots(figsize=(20, 15))
 

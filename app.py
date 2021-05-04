@@ -542,6 +542,156 @@ def get_table_download_link_csv(df):
     href = f'<a href="data:file/csv;base64,{b64}" download="captura.csv" target="_blank">Download csv file</a>'
     return href
 
+def population(cc,popg,color_dict):
+    #from networkx.drawing.nx_agraph import to_agraph
+
+    fig, ax = plt.subplots(figsize=(20, 15))
+
+    pos = nx.spring_layout(popg, k=15, seed=4572321, scale=1.5)
+    sizes = {}
+    for k, v in cc.items():
+        if v not in sizes.keys():
+            sizes[v] = 1
+        else:
+            sizes[v] += 1
+    temp = list([s * 1000 for s in sizes.values()])
+    # st.text(temp)
+    # st.text(popg.node0s)
+    node_color = [color_dict[n] for n in popg]
+    nx.draw_networkx_nodes(
+        popg,
+        pos=pos,
+        node_color=node_color,  # = [color_code[n] for n in H],
+        node_size=temp,
+        alpha=0.5,
+        linewidths=2,
+    )
+
+    widths = []  # [e["weight"] for e in popg.edges]
+    # st.text(widths)
+    edge_list = []
+    edge_colors = []
+    for e in popg.edges:
+        edge_list.append((e[0], e[1]))
+        edge_colors.append(color_dict[e[0]])
+
+        ee = popg.get_edge_data(e[0], e[1])
+        widths.append(ee["weight"] * 0.05)
+
+    #nx.draw_networkx_edges(G, pos, edgelist=edgelist, arrowstyle="<|-", style="dashed")
+
+    nx.draw_networkx_edges(
+        popg, pos=pos, edgelist=edge_list,edge_color=edge_colors, alpha=0.25, width=widths
+    )
+    # labels = {v.name:v for v,v in popg.nodes}
+    labels = {}
+    for node in popg.nodes():
+        # set the node name as the key and the label as its value
+        labels[node] = node
+    nx.draw_networkx_labels(popg, pos, labels, font_size=16, font_color="r")
+    popgc = copy.copy(popg)
+    popgc.graph['edge'] = {'arrowsize': '0.6', 'splines': 'curved'}
+    popgc.graph['graph'] = {'scale': '3'}
+
+    dot = to_agraph(popgc)
+    dot.layout('dot')
+    st.markdown(""" Missing self connections, but node size proportions""")
+    st.pyplot(fig)
+    st.markdown(""" Schematic View""")
+
+    st.graphviz_chart(dot.to_string())
+
+def physics(first,adj_mat_dicts,color_code):
+    #my_expander = st.beta_expander("Label vs node Vis")
+    #labels_ = my_expander.radio(
+    #    "Would you like node labels to be prominent, or degree size?",
+    #    ("degsize","labels"),
+    #)
+    #if labels_ == "labels":
+    #    labels = True
+    #else:
+    labels = False
+
+    pos = nx.get_node_attributes(first, "pos")
+    #fig = plt.figure()
+    d = nx.degree(first)
+    temp = first.to_undirected()
+    cen = nx.betweenness_centrality(temp)
+    d = [((d[node] + 1) * 1.25) for node in first.nodes()]
+    G = first  # ead_graph()
+
+    nt = Network(
+        notebook=True,
+        directed=True,
+        height="750px",
+        width="100%",
+        font_color="black",  # , bgcolor='#222222'
+    )  # bgcolor='#222222',
+
+    nt.barnes_hut()
+    nt.from_nx(G)
+    adj_mat = pd.DataFrame(adj_mat_dicts)
+    #st.write(adj_mat)
+    edge_data = zip(
+        list(adj_mat["src"].values),
+        list(adj_mat["tgt"].values),
+        list(adj_mat["weight"].values),
+    )
+
+    H = first.to_undirected()
+    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+    edge_thickness = {k: v * 20000 for k,v in centrality.items()}
+    node_size = {k: v * 20000 for k,v in centrality.items()}
+
+    for e in edge_data:
+        src = e[0]
+        dst = e[1]
+        if labels:
+            w = e[2]
+
+        else:
+            w = e[2] * 50.0
+        src = str(src)
+        dst = str(dst)
+        w = float(w)
+        nt.add_edge(src, dst, value=w)
+
+    nt.show("test1.html")
+    HtmlFile = open("test1.html", "r", encoding="utf-8")
+    source_code = HtmlFile.read()
+    components.html(source_code, height=1100, width=1100)
+
+    neighbor_map = nt.get_adj_list()
+
+    # add neighbor data to node hover data
+    for node in nt.nodes:
+        if "title" not in node.keys():
+            node["title"] = " Neighbors:<br>" + "<br>".join(
+                neighbor_map[node["id"]]
+            )
+        #
+        if node["id"] in node_size.keys():
+            if not labels:
+                node["size"] = 150.0 * node_size[node["id"]]
+        node["label"] = str(node["id"])
+        node["value"] = len(neighbor_map[node["id"]])
+        node["color"] = color_code[node["id"]]
+        if not labels:
+            node["borderWidth"] = 10
+            node["borderWidthSelected"] = 20
+
+    labels_ = my_expander.radio(
+        "Would you like to change physical parameters?", ("No", "Yes")
+    )
+    if labels_ == "Yes":
+        st.markdown("""scroll below graph""")
+        nt.show_buttons(filter_=["physics"])
+    #nt.show()
+    nt.show("test1.html")
+    HtmlFile = open("test1.html", "r", encoding="utf-8")
+    source_code = HtmlFile.read()
+    components.html(source_code, height=1100, width=1100)
+
 
 def main():
 
@@ -651,68 +801,7 @@ def main():
                 popg.add_edge(cc[idx], cc[col], weight=weight)
     # def dontdo(popg):
     if genre == "Population":
-        from networkx.drawing.nx_agraph import to_agraph
-
-        fig, ax = plt.subplots(figsize=(20, 15))
-
-        pos = nx.spring_layout(popg, k=15, seed=4572321, scale=1.5)
-        sizes = {}
-        for k, v in cc.items():
-            if v not in sizes.keys():
-                sizes[v] = 1
-            else:
-                sizes[v] += 1
-        temp = list([s * 1000 for s in sizes.values()])
-        # st.text(temp)
-        # st.text(popg.node0s)
-        node_color = [color_dict[n] for n in popg]
-        nx.draw_networkx_nodes(
-            popg,
-            pos=pos,
-            node_color=node_color,  # = [color_code[n] for n in H],
-            node_size=temp,
-            alpha=0.5,
-            linewidths=2,
-        )
-
-        widths = []  # [e["weight"] for e in popg.edges]
-        # st.text(widths)
-        edge_list = []
-        edge_colors = []
-        for e in popg.edges:
-            edge_list.append((e[0], e[1]))
-            edge_colors.append(color_dict[e[0]])
-
-            ee = popg.get_edge_data(e[0], e[1])
-            widths.append(ee["weight"] * 0.05)
-
-        #nx.draw_networkx_edges(G, pos, edgelist=edgelist, arrowstyle="<|-", style="dashed")
-
-        nx.draw_networkx_edges(
-            popg, pos=pos, edgelist=edge_list,edge_color=edge_colors, alpha=0.25, width=widths
-        )
-        # labels = {v.name:v for v,v in popg.nodes}
-        labels = {}
-        for node in popg.nodes():
-            # set the node name as the key and the label as its value
-            labels[node] = node
-        nx.draw_networkx_labels(popg, pos, labels, font_size=16, font_color="r")
-        popgc = copy.copy(popg)
-        popgc.graph['edge'] = {'arrowsize': '0.6', 'splines': 'curved'}
-        popgc.graph['graph'] = {'scale': '3'}
-
-        dot = to_agraph(popgc)
-        dot.layout('dot')
-        st.markdown(""" Missing self connections, but node size proportions""")
-        st.pyplot(fig)
-        st.markdown(""" Schematic View""")
-
-        st.graphviz_chart(dot.to_string())
-
-        #A.draw('multi.png')
-        #st.text(dir(A))
-        #st.text(type(A))
-        #st.pyplot(A)
+        population(cc,popg,color_dict)
 
     first.remove_nodes_from(list(nx.isolates(first)))
     edges_df_full = nx.to_pandas_adjacency(first)
@@ -735,106 +824,9 @@ def main():
     )
     adj_mat2 = pd.DataFrame(link)
     adj_mat3 = adj_mat[adj_mat["weight"] != 0]
+
     if genre == "Physics":
-        my_expander = st.beta_expander("Label vs node Vis")
-        labels_ = my_expander.radio(
-            "Would you like node labels to be prominent, or degree size?",
-            ("labels", "degsize"),
-        )
-        if labels_ == "labels":
-            labels = True
-        else:
-            labels = False
-
-        pos = nx.get_node_attributes(first, "pos")
-        fig = plt.figure()
-        d = nx.degree(first)
-        temp = first.to_undirected()
-        cen = nx.betweenness_centrality(temp)
-        d = [((d[node] + 1) * 1.25) for node in first.nodes()]
-        G = nx_G = first  # ead_graph()
-
-        nt = Network(
-            notebook=True,
-            directed=True,
-            height="750px",
-            width="100%",
-            font_color="black",  # , bgcolor='#222222'
-        )  # bgcolor='#222222',
-        # nt.toggle_hide_edges_on_drag(True)
-        # nt.repulsion(300)
-
-        nt.barnes_hut()
-        nt.from_nx(G)
-        my_expander = st.beta_expander("Change Physical Params?")
-        labels_ = my_expander.radio(
-            "Would you like to change physical parameters?", ("No", "Yes")
-        )
-        if labels_ == "Yes":
-            st.markdown("""scroll below graph""")
-            nt.show_buttons(filter_=["physics"])
-        adj_mat = pd.DataFrame(adj_mat_dicts)
-
-        edge_data = zip(
-            list(adj_mat["src"].values),
-            list(adj_mat["tgt"].values),
-            list(adj_mat["weight"].values),
-        )
-
-        H = first.to_undirected()
-        centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
-        edge_thickness = {k: v * 20000 for v in centrality.items()}
-        node_size = {k: v * 20000 for v in centrality.items()}
-
-        for e in edge_data:
-            src = e[0]
-            dst = e[1]
-            if labels:
-                w = e[2]
-
-            else:
-                w = e[2] * 50
-
-            # st.text(src)
-
-            # nt.add_node(src, src, title=src,group=color_code[src])
-            # nt.add_node(dst, dst, title=dst,group=color_code[src])
-            nt.add_edge(src, dst, value=w)
-
-        neighbor_map = nt.get_adj_list()
-
-        # add neighbor data to node hover data
-        for node in nt.nodes:
-            if "title" not in node.keys():
-                node["title"] = " Neighbors:<br>" + "<br>".join(
-                    neighbor_map[node["id"]]
-                )
-            #
-            if node["id"] in node_size.keys():
-                if not labels:
-                    node["size"] = 150 * node_size[node["id"]]
-            # if node in node_size.keys():
-            #    st.text(node_size[node])
-            # st.text(node.keys())
-            # st.text(node["id"])
-            # node['title'] += ' Neighbors:<br>' + '<br>'.join(neighbor_map[node['id']])
-            node["label"] = str(node["id"])
-            node["value"] = len(neighbor_map[node["id"]])
-            node["color"] = color_code[node["id"]]
-            if not labels:
-                node["borderWidth"] = 10
-                node["borderWidthSelected"] = 20
-
-        if False:
-            nt.show_buttons(filter_=["physics"])
-
-        nt.show("test.html")
-
-        HtmlFile = open("test.html", "r", encoding="utf-8")
-        source_code = HtmlFile.read()
-
-        components.html(source_code, height=1100, width=1100)
-        # st.markdown("Graphs below can be made to be interactive...")
+        physics(first,adj_mat_dicts,color_code)
 
     if genre == "Hive":
 

@@ -570,7 +570,7 @@ def main():
 		The higher the threshold the more you \n reduce connections"""
     )
     my_expander = st.beta_expander("Set threshold")
-    threshold = my_expander.slider("Select a threshold value", 0.0, 17.0, 5.0, 1.0)
+    threshold = my_expander.slider("Select a threshold value", 0.0, 16.0, 5.0, 1.0)
     # st.write("Values:", threshold)
     (
         df2,
@@ -1100,7 +1100,7 @@ def main():
         my_expander = st.beta_expander("Bundling explanation")
 
         my_expander.markdown(
-            """The graph type below is called edge bundling, it gets rid of "hair ball effect\n \
+            """The graph type below is called edge bundling, it gets rid of hair ball effect\n \
 			Think of it like internet cables "bundled" backbones connect places far \n \
 			 apart as to economize wiring material."""
         )

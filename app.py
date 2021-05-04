@@ -1241,7 +1241,7 @@ def main():
         st.write(figure)
 
     if genre == "Chord":
-
+        st.markdown(""" clicking on a node highlights its direct projections""")
         temp = pd.DataFrame(first.nodes)
         nodes = hv.Dataset(temp[0])
 

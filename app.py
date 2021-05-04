@@ -405,6 +405,14 @@ def get_frame(threshold=6):
             df2.replace({"Often": 7}, inplace=True)
             df2.replace({"Much or all of the time": 8}, inplace=True)
             df2.replace({"1-2 times a week": 9.0}, inplace=True)
+            df2.groupby(df2.columns, axis=1).sum()
+            df2.groupby(level=0, axis=1).sum()
+            #df2 = df4
+            store["df2"] = df2  # save it
+            # st.write(df2)
+            store["names"] = names  # save it
+            store["ratercodes"] = ratercodes  # save it
+            store["legend"] = legend  # save it
 
             # st.write(df2)
 
@@ -414,15 +422,18 @@ def get_frame(threshold=6):
             # st.write(df5)
 
             # import copy
-            df2.rename(columns=renamer(), inplace=True)
 
-            df4 = pd.DataFrame()
-            for col in df2.columns[0 : int(len(df2.columns) / 2)]:
-                # if
-                if col + str("_1") in df2.columns:
-                    df4[col] = df2[col] + df2[col + str("_1")]
-                else:
-                    df4[col] = df2[col]
+            def dontdo():
+                df2.rename(columns=renamer(), inplace=True)
+
+                df4 = pd.DataFrame()
+
+                for col in df2.columns[0 : int(len(df2.columns) / 2)]:
+                    # if
+                    if col + str("_1") in df2.columns:
+                        df4[col] = df2[col] + df2[col + str("_1")]
+                    else:
+                        df4[col] = df2[col]
 
             def dontdo():
                 """
@@ -436,12 +447,6 @@ def get_frame(threshold=6):
                                 df4[col] = df2[col]
                 """
 
-            df2 = df4
-            store["df2"] = df2  # save it
-            # st.write(df2)
-            store["names"] = names  # save it
-            store["ratercodes"] = ratercodes  # save it
-            store["legend"] = legend  # save it
 
     return (
         df2,
@@ -646,6 +651,8 @@ def main():
                 popg.add_edge(cc[idx], cc[col], weight=weight)
     # def dontdo(popg):
     if genre == "Population":
+        from networkx.drawing.nx_agraph import to_agraph
+
         fig, ax = plt.subplots(figsize=(20, 15))
 
         pos = nx.spring_layout(popg, k=15, seed=4572321, scale=1.5)
@@ -659,6 +666,8 @@ def main():
         # st.text(temp)
         # st.text(popg.node0s)
         node_color = [color_dict[n] for n in popg]
+        popg.graph['edge'] = {'arrowsize': '0.6', 'splines': 'curved'}
+        popg.graph['graph'] = {'scale': '3'}
         nx.draw_networkx_nodes(
             popg,
             pos=pos,
@@ -670,11 +679,17 @@ def main():
 
         widths = []  # [e["weight"] for e in popg.edges]
         # st.text(widths)
+        edge_list = []
         for e in popg.edges:
-            e = popg.get_edge_data(cc[idx], cc[col])
-            widths.append(e["weight"] * 0.025)
+            edge_list.append((e[0], e[1]))
+
+            e = popg.get_edge_data(e[0], e[1])
+            widths.append(e["weight"] * 0.05)
+
+        #nx.draw_networkx_edges(G, pos, edgelist=edgelist, arrowstyle="<|-", style="dashed")
+
         nx.draw_networkx_edges(
-            popg, pos=pos, edge_color="grey", alpha=0.5, width=widths
+            popg, pos=pos, edgelist=edge_list,edge_color="grey", alpha=1, width=widths
         )
         # labels = {v.name:v for v,v in popg.nodes}
         labels = {}
@@ -682,8 +697,16 @@ def main():
             # set the node name as the key and the label as its value
             labels[node] = node
         nx.draw_networkx_labels(popg, pos, labels, font_size=16, font_color="r")
+        dot = to_agraph(popg)
+        dot.layout('dot')
+        st.graphviz_chart(dot.to_string())
 
         st.pyplot(fig)
+        #A.draw('multi.png')
+        #st.text(dir(A))
+        #st.text(type(A))
+        #st.pyplot(A)
+
     first.remove_nodes_from(list(nx.isolates(first)))
     edges_df_full = nx.to_pandas_adjacency(first)
     try:

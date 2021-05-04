@@ -543,7 +543,6 @@ def get_table_download_link_csv(df):
 	return href
 
 def population(cc,popg,color_dict):
-	from networkx.drawing.nx_agraph import to_agraph
 
 	fig, ax = plt.subplots(figsize=(20, 15))
 
@@ -592,15 +591,16 @@ def population(cc,popg,color_dict):
 	popgc = copy.copy(popg)
 	popgc.graph['edge'] = {'arrowsize': '0.6', 'splines': 'curved'}
 	popgc.graph['graph'] = {'scale': '3'}
-
-	dot = to_agraph(popgc)
-	dot.layout('dot')
 	st.markdown(""" Missing self connections, but node size proportions""")
 	st.pyplot(fig)
-	st.markdown(""" Schematic View""")
-
-	st.graphviz_chart(dot.to_string())
-
+	try:
+		from networkx.drawing.nx_agraph import to_agraph
+		dot = to_agraph(popgc)
+		dot.layout('dot')
+		st.markdown(""" Schematic View""")
+		st.graphviz_chart(dot.to_string())
+	except:
+		pass
 def physics(first,adj_mat_dicts,color_code):
 	my_expander = st.beta_expander("Label vs node Vis")
 	labels_ = my_expander.radio(

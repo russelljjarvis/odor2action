@@ -666,8 +666,6 @@ def main():
         # st.text(temp)
         # st.text(popg.node0s)
         node_color = [color_dict[n] for n in popg]
-        popg.graph['edge'] = {'arrowsize': '0.6', 'splines': 'curved'}
-        popg.graph['graph'] = {'scale': '3'}
         nx.draw_networkx_nodes(
             popg,
             pos=pos,
@@ -680,16 +678,18 @@ def main():
         widths = []  # [e["weight"] for e in popg.edges]
         # st.text(widths)
         edge_list = []
+        edge_colors = []
         for e in popg.edges:
             edge_list.append((e[0], e[1]))
+            edge_colors.append(color_dict[e[0]])
 
-            e = popg.get_edge_data(e[0], e[1])
-            widths.append(e["weight"] * 0.05)
+            ee = popg.get_edge_data(e[0], e[1])
+            widths.append(ee["weight"] * 0.05)
 
         #nx.draw_networkx_edges(G, pos, edgelist=edgelist, arrowstyle="<|-", style="dashed")
 
         nx.draw_networkx_edges(
-            popg, pos=pos, edgelist=edge_list,edge_color="grey", alpha=1, width=widths
+            popg, pos=pos, edgelist=edge_list,edge_color=edge_colors, alpha=0.25, width=widths
         )
         # labels = {v.name:v for v,v in popg.nodes}
         labels = {}
@@ -697,11 +697,18 @@ def main():
             # set the node name as the key and the label as its value
             labels[node] = node
         nx.draw_networkx_labels(popg, pos, labels, font_size=16, font_color="r")
-        dot = to_agraph(popg)
+        popgc = copy.copy(popg)
+        popgc.graph['edge'] = {'arrowsize': '0.6', 'splines': 'curved'}
+        popgc.graph['graph'] = {'scale': '3'}
+
+        dot = to_agraph(popgc)
         dot.layout('dot')
+        st.markdown(""" Missing self connections, but node size proportions""")
+        st.pyplot(fig)
+        st.markdown(""" Schematic View""")
+
         st.graphviz_chart(dot.to_string())
 
-        st.pyplot(fig)
         #A.draw('multi.png')
         #st.text(dir(A))
         #st.text(type(A))

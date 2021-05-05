@@ -1537,12 +1537,23 @@ def main():
                 "colors": [color_code_0[k] for k in Nodes.keys()],
             }
         )
-        for kk in df_links["source"]:
+        dic_to_sort = {}
+        for i,kk in enumerate(df_nodes["name"]):
+            dic_to_sort[i] = color_code_0[k]
+
+        t = pd.Series(dic_to_sort)
+        df_nodes['sort']=t#pd.Series(df_links.source)
+        df_nodes.sort_values(by=['sort'],inplace=True)
+        #st.write(df_nodes)
+
+        dic_to_sort = {}
+        for i,kk in enumerate(df_links["source"]):
             k = df_nodes.loc[kk, "name"]
             # st.text(k)
             if k not in color_code_0.keys():
                 color_code_0[k] = "Unknown"
-
+            df_nodes.loc[kk,"colors"] = color_code_0[k]
+            dic_to_sort[i] = color_code_0[k]
         # Colors = [ (kk,color_code_0[df_nodes.loc[kk,'name']]) for kk in df_links["source"] ]
         # st.text(Colors)
         # df_links["colors"] = Colors
@@ -1552,16 +1563,23 @@ def main():
         pd.set_option("display.max_columns", 11)
         hv.extension("bokeh")
         hv.output(size=200)
+
         nodes = hv.Dataset(df_nodes, "index")
         # https://geomdata.gitlab.io/hiveplotlib/karate_club.html
         # Todo make hiveplot
         #
+
+        t = pd.Series(dic_to_sort)
+        df_links['sort']=t#pd.Series(df_links.source)
+        df_links.sort_values(by=['sort'],inplace=True)
+        #del df_links["colors"]
+        #st.write(df_links)
         chord = hv.Chord((df_links, nodes))  # .select(value=(5, None))
         chord.opts(
             opts.Chord(
                 cmap="Category20",
                 edge_cmap="Category20",
-                edge_color=dim("colors").str(),
+                edge_color=dim("sort").str(),
                 width=350,
                 height=350,
                 labels="name",

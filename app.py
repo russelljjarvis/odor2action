@@ -783,18 +783,18 @@ def physics(first, adj_mat_dicts, color_code):
     d = nx.degree(first)
     temp = first.to_undirected()
     cen = nx.betweenness_centrality(temp)
-    d = [((d[node] + 1) * 20000) for node in first.nodes()]
+    d = [((d[node] + 1) * 50000) for node in first.nodes()]
     G = first  # ead_graph()
 
     nt = Network(
         notebook=True,
         directed=True,
-        height="750px",
+        height="500px",
         width="100%",
         font_color="black",  # , bgcolor='#222222'
     )  # bgcolor='#222222',
     nt = Network(
-        "700px", "700px", notebook=True, heading="Interactive Physics Engine Network Survey Data"
+        "500px", "500px", notebook=True
     )
 
     nt.barnes_hut()
@@ -833,8 +833,8 @@ def physics(first, adj_mat_dicts, color_code):
             node["title"] = " Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
         #
         if node["id"] in node_size.keys():
-            if not labels:
-                node["size"] = 250.0 * node_size[node["id"]]
+            #if not labels:
+            node["size"] = 1250.0 * node_size[node["id"]]
         node["label"] = str(node["id"])
         node["value"] = len(neighbor_map[node["id"]])
         # st.text(node["id"])
@@ -858,7 +858,7 @@ def physics(first, adj_mat_dicts, color_code):
     nt.show("test1.html")
     HtmlFile = open("test1.html", "r", encoding="utf-8")
     source_code = HtmlFile.read()
-    components.html(source_code, height=900, width=900)
+    components.html(source_code, height=750, width=750)
 
 
 def main():
@@ -1014,9 +1014,9 @@ def main():
         from community import community_louvain
         if genre == "Community Mixing":
             my_expander = st.beta_expander("Explanation of Community Partitions")
-            my_expander.markdown("Note communities in the graph below are not IRG 1-3, but instead communities inferred by blind networkx analysis. It's appropritate to use a different color code for the 6 inferred communities. \
-            \n For contrast the machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
-            This suggests that the formal group ie IRG 1, does not determine inferred communities """)
+            my_expander.markdown("Note communities in the graph on the left are not IRG 1-3, but instead communities inferred by blind networkx analysis. It's appropritate to use a different color code for the 6 inferred communities. \
+            \n For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
+            This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities.""")
 
             community(first,color_code)
     except:
@@ -1539,7 +1539,7 @@ def main():
         hv.save(chord, "chord2.html", backend="bokeh")
         HtmlFile2 = open("chord2.html", "r", encoding="utf-8")
         source_code2 = HtmlFile2.read()
-        components.html(source_code2, height=650, width=650)
+        components.html(source_code2, height=450, width=450)
 
     def dontdo():
 

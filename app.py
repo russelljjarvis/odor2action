@@ -1031,7 +1031,11 @@ def main():
         #st.beta_expander()
         my_expander = st.beta_expander("Numeric mapping of survery question answers")
         my_expander.write(legend)
-        st.table(df2)
+        my_expander = st.beta_expander("Collapsed/Expand Numeric Spread sheet")
+        my_expander.table(df2)
+        my_expander = st.beta_expander("Collapsed/Expand Raw Spread sheet")
+        my_expander.table(sheet)
+
     #try:
     from community import community_louvain
     if genre == "Community Mixing":

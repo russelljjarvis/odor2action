@@ -737,6 +737,8 @@ def community(first,color_code,color_dict):
         alpha=0.5,
         linewidths=1,
     )
+    axx = fig1.gca()  # to get the current axis
+    axx.collections[0].set_edgecolor("#FF0000")
 
     labels = {}
     for node in temp.nodes():
@@ -768,6 +770,8 @@ def community(first,color_code,color_dict):
         alpha=0.5,
         linewidths=1,
     )
+    axx = fig2.gca()  # to get the current axis
+    axx.collections[0].set_edgecolor("#FF0000")
 
     #nx.draw(temp, pos, node_color=node_color)
     nx.draw_networkx_edges(
@@ -1032,7 +1036,7 @@ def main():
     from community import community_louvain
     if genre == "Community Mixing":
         my_expander = st.beta_expander("Explanation of Community Partitions")
-        my_expander.markdown("Note communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the five inferred communities. \
+        my_expander.markdown("Communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the five inferred communities. \
         For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
         This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities. In otherwords spontaneuosly emerging community groups may be significantly different to formal group assignments.""")
 

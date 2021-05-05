@@ -1374,9 +1374,9 @@ def main():
             labels_ = True
         if labels_ == "No":
             labels_ = False
-
-        st.markdown(
-            "Contrast this network layout with bundling (wire cost is not economized here)..."
+        exp = st.beta_expander("Information about Force Directed Layout")
+        exp.markdown(
+            "This is probably not the most informative layout option. Contrast this force directed layout network layout with bundling (wire cost is not economized here)..."
         )
         H = first.to_undirected()
         centrality = nx.betweenness_centrality(H, k=10, endpoints=True)

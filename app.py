@@ -701,9 +701,9 @@ def community(first,color_code):
     ##
     # partition = community_louvain.best_partition(temp,resolution=2.5)
     ##
-    partition = community_louvain.best_partition(temp,resolution=1)
+    #partition = community_louvain.best_partition(temp,resolution=1)
 
-    #partition = community_louvain.best_partition(temp,resolution=2.5)
+    partition = community_louvain.best_partition(temp,resolution=2.5)
     pos = community_layout(temp, partition)
     fig = plt.figure()
     diffcc = list(partition.values())
@@ -1016,7 +1016,7 @@ def main():
             my_expander = st.beta_expander("Explanation of Community Partitions")
             my_expander.markdown("Note communities in the graph below are not IRG 1-3, but instead communities inferred by blind networkx analysis. It's appropritate to use a different color code for the 6 inferred communities. \
             \n For contrast the machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
-            This suggests that the formal group ie IRG 1, is not a strict determinant of analysis inferred communities """)
+            This suggests that the formal group ie IRG 1, does not determine inferred communities """)
 
             community(first,color_code)
     except:

@@ -701,7 +701,9 @@ def community(first,color_code):
     ##
     # partition = community_louvain.best_partition(temp,resolution=2.5)
     ##
-    partition = community_louvain.best_partition(temp,resolution=2.5)
+    partition = community_louvain.best_partition(temp,resolution=1)
+
+    #partition = community_louvain.best_partition(temp,resolution=2.5)
     pos = community_layout(temp, partition)
     fig = plt.figure()
     diffcc = list(partition.values())
@@ -792,7 +794,7 @@ def physics(first, adj_mat_dicts, color_code):
         font_color="black",  # , bgcolor='#222222'
     )  # bgcolor='#222222',
     nt = Network(
-        "700px", "700px", notebook=True, heading="Elastic Physics Network Survey Data"
+        "700px", "700px", notebook=True, heading="Interactive Physics Engine Network Survey Data"
     )
 
     nt.barnes_hut()
@@ -874,11 +876,11 @@ def main():
             (
                 "Hive",
                 "Physics",
+                "Chord",
                 "Bundle",
                 "Community Mixing",
                 "Basic",
                 "Lumped Population",
-                "Chord",
                 "Spreadsheet",
                 "AdjacencyMatrix",
 
@@ -910,7 +912,7 @@ def main():
 		The higher the threshold the more you \n reduce connections"""
     )
     my_expander = st.beta_expander("Set threshold")
-    threshold = my_expander.slider("Select a threshold value", 0.0, 16.0, 5.0, 1.0)
+    threshold = my_expander.slider("Select a threshold value", 0.0, 8.0, 5.0, 1.0)
     # st.write("Values:", threshold)
     (
         df2,
@@ -989,6 +991,8 @@ def main():
         encoded = {v: k for k, v in enumerate(first.nodes())}
     except:
         encoded = {v: k for k, v in enumerate(adj_mat.columns)}
+    adj_mat = adj_mat[adj_mat["weight"] != 0]
+
     link = dict(
         source=[encoded[i] for i in list(adj_mat["src"].values)],
         target=[encoded[i] for i in list(adj_mat["tgt"].values)],
@@ -1305,8 +1309,8 @@ def main():
         my_expander = st.beta_expander("Bundling explanation")
 
         my_expander.markdown(
-            """The graph type below is called edge bundling, it gets rid of hair ball effect\n \
-			Think of it like internet cables "bundled" backbones connect places far \n \
+            """The graph type below is called edge bundling. "Bundling" connection cables gets rid of hair ball effect.\n \
+			 Think of it like internet cables which are bundled. internet backbones connect places far \n \
 			 apart as to economize wiring material. Setting high thresholds here: 14-16 leads to some insight.
 			 High thresholds show only intense collaborations, disconnecting the network in meaningful way."""
         )

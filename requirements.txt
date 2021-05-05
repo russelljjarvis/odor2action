@@ -16,6 +16,6 @@ matplotlib==2.2.5
 seaborn==0.9.1
 scikit-image
 bokeh
+#-e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=networkx==2.5.1
 -e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=community
-
 #==2.2.2

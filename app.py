@@ -695,7 +695,7 @@ def _position_nodes(g, partition, **kwargs):
 
     return pos
 
-def community(first,color_code):
+def community(first,color_code,color_dict):
     from community import community_louvain
     temp = first.to_undirected()
     ##
@@ -703,23 +703,30 @@ def community(first,color_code):
     ##
     #partition = community_louvain.best_partition(temp,resolution=1)
 
-    partition = community_louvain.best_partition(temp,resolution=2.5)
+    partition = community_louvain.best_partition(temp,resolution=3.5)
     pos = community_layout(temp, partition)
     fig = plt.figure()
     diffcc = list(partition.values())
+
+    centrality = nx.betweenness_centrality(temp, k=10, endpoints=True)
+    #edge_thickness = {k: v * 20000 for k, v in centrality.items()}
+    node_size = [v * 10000 for v in centrality.values()]
+
     #diffccl = list(partition.ite())
 
     srcs = []
+    widths = []
     for e in temp.edges:
         src = partition[e[0]]
         srcs.append(src)
+        ee = temp.get_edge_data(e[0], e[1])
+        widths.append(0.85*ee["weight"])
     fig1 = plt.figure()
-    #nx.draw(temp, pos, node_color=diffcc);
     nx.draw_networkx_nodes(
         temp,
         pos=pos,
         node_color=diffcc,
-        node_size=45,
+        node_size=node_size,
         alpha=0.5,
         linewidths=1,
     )
@@ -728,14 +735,13 @@ def community(first,color_code):
     for node in temp.nodes():
         # set the node name as the key and the label as its value
         labels[node] = node
-    #if labels_:
-    #nx.draw_networkx_labels(temp, pos, labels, font_size=16, font_color="r")
 
-    #axx = fig.gca()  # to get the current axis
-    #axx.collections[0].set_edgecolor("#FF0000")
     nx.draw_networkx_edges(
-        temp, pos=pos, edge_color=srcs, alpha=0.3, width=1.0
+        temp, pos=pos, edge_color=srcs, alpha=0.3, width=widths
     )
+    #for v in set(diffcc):
+    #    plt.scatter([0], [0], c=v, label=v)
+    #plt.legend()
 
 
     node_color = [color_code[n] for n in first]
@@ -743,6 +749,7 @@ def community(first,color_code):
     for e in temp.edges:
         src = color_code[e[0]]
         srcs.append(src)
+
     fig2 = plt.figure()
 
 
@@ -750,15 +757,19 @@ def community(first,color_code):
         temp,
         pos=pos,
         node_color=node_color,
-        node_size=45,
+        node_size=node_size,
         alpha=0.5,
         linewidths=1,
     )
 
     #nx.draw(temp, pos, node_color=node_color)
     nx.draw_networkx_edges(
-        temp, pos=pos, edge_color=srcs, alpha=0.3, width=1.0
+        temp, pos=pos, edge_color=srcs, alpha=0.3, width=widths
     )
+    for k, v in color_dict.items():
+        plt.scatter([], [], c=v, label=k)
+    plt.legend()
+
     col1, col2 = st.beta_columns(2)
     col1.pyplot(fig1)
 
@@ -1010,17 +1021,17 @@ def main():
         my_expander = st.beta_expander("Numeric mapping of survery question answers")
         my_expander.write(legend)
         st.table(df2)
-    try:
-        from community import community_louvain
-        if genre == "Community Mixing":
-            my_expander = st.beta_expander("Explanation of Community Partitions")
-            my_expander.markdown("Note communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the 6 inferred communities. \
-            For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
-            This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities.""")
+    #try:
+    from community import community_louvain
+    if genre == "Community Mixing":
+        my_expander = st.beta_expander("Explanation of Community Partitions")
+        my_expander.markdown("Note communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the 6 inferred communities. \
+        For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
+        This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities.""")
 
-            community(first,color_code)
-    except:
-        pass
+        community(first,color_code,color_dict)
+    #except:
+    #    pass
 
     if genre == "Physics":
         physics(first, adj_mat_dicts, color_code)

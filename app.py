@@ -169,7 +169,7 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
             seg[:, 1],
             c=color_code[srcs[ind]],
             alpha=0.67,
-            linewidth=0.25 * widths[ind],
+            linewidth=widths[ind],
         )
     node_color = [color_code[n] for n in graph]
 
@@ -789,7 +789,7 @@ def community(first,color_code,color_dict):
 
     #plt#.show()
 #@st.cache(allow_output_mutation=True,suppress_st_warning=True)
-def physics(first, adj_mat_dicts, color_code):
+def physics(first, adj_mat_dicts, color_code,color_code_0):
     my_expander = st.beta_expander("Label vs node Vis")
     labels_ = my_expander.radio(
         "Would you like node labels to be prominent, or degree size?",
@@ -853,7 +853,10 @@ def physics(first, adj_mat_dicts, color_code):
     # add neighbor data to node hover data
     for node in nt.nodes:
         if "title" not in node.keys():
-            node["title"] = "<br> This node is:"+str(node["id"])+"<br> It's neighbors are:<br>" + "<br>".join(neighbor_map[node["id"]])
+            if node["id"] in color_code_0.keys():
+                node["title"] = "<br> This node is:"+str(node["id"])+"<br> it's membership is "+str(color_code_0[node["id"]])+" It's neighbors are:<br>" + "<br>".join(neighbor_map[node["id"]])
+            else:
+                node["title"] = "<br> This node is:"+str(node["id"])+"<br> it's membership is "+str("unknown")+" It's neighbors are:<br>" + "<br>".join(neighbor_map[node["id"]])
         #
         if node["id"] in node_size.keys():
             #if not labels:
@@ -1050,7 +1053,7 @@ def main():
     #    pass
 
     if genre == "Physics":
-        physics(first, adj_mat_dicts, color_code)
+        physics(first, adj_mat_dicts, color_code,color_code_0)
 
     if genre == "Lumped Population":
         population(cc, popg, color_dict)

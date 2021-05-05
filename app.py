@@ -704,13 +704,63 @@ def community(first,color_code):
     partition = community_louvain.best_partition(temp,resolution=2.5)
     pos = community_layout(temp, partition)
     fig = plt.figure()
-    nx.draw(temp, pos, node_color=list(partition.values()));
-    st.pyplot(fig)
+    diffcc = list(partition.values())
+    #diffccl = list(partition.ite())
+
+    srcs = []
+    for e in temp.edges:
+        src = partition[e[0]]
+        srcs.append(src)
+    fig1 = plt.figure()
+    #nx.draw(temp, pos, node_color=diffcc);
+    nx.draw_networkx_nodes(
+        temp,
+        pos=pos,
+        node_color=diffcc,
+        node_size=45,
+        alpha=0.5,
+        linewidths=1,
+    )
+
+    labels = {}
+    for node in temp.nodes():
+        # set the node name as the key and the label as its value
+        labels[node] = node
+    #if labels_:
+    #nx.draw_networkx_labels(temp, pos, labels, font_size=16, font_color="r")
+
+    #axx = fig.gca()  # to get the current axis
+    #axx.collections[0].set_edgecolor("#FF0000")
+    nx.draw_networkx_edges(
+        temp, pos=pos, edge_color=srcs, alpha=0.3, width=1.0
+    )
+
+
     node_color = [color_code[n] for n in first]
-    st.markdown(""" For contrast the machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
-    This suggests that the formal group ie IRG 1, is not a strict determinant of analysis inferred communities """)
-    nx.draw(temp, pos, node_color=node_color)
-    st.pyplot(fig)
+    srcs = []
+    for e in temp.edges:
+        src = color_code[e[0]]
+        srcs.append(src)
+    fig2 = plt.figure()
+
+
+    nx.draw_networkx_nodes(
+        temp,
+        pos=pos,
+        node_color=node_color,
+        node_size=45,
+        alpha=0.5,
+        linewidths=1,
+    )
+
+    #nx.draw(temp, pos, node_color=node_color)
+    nx.draw_networkx_edges(
+        temp, pos=pos, edge_color=srcs, alpha=0.3, width=1.0
+    )
+    col1, col2 = st.beta_columns(2)
+    col1.pyplot(fig1)
+
+    col2.pyplot(fig2)
 
     #plt#.show()
 
@@ -731,7 +781,7 @@ def physics(first, adj_mat_dicts, color_code):
     d = nx.degree(first)
     temp = first.to_undirected()
     cen = nx.betweenness_centrality(temp)
-    d = [((d[node] + 1) * 10.25) for node in first.nodes()]
+    d = [((d[node] + 1) * 20000) for node in first.nodes()]
     G = first  # ead_graph()
 
     nt = Network(
@@ -959,7 +1009,11 @@ def main():
     try:
         from community import community_louvain
         if genre == "Community Mixing":
-            st.markdown("Note communities in the graph below are not IRG 1-3, but instead communities inferred by blind networkx analysis. It's appropritate to use a different color code for the 6 inferred communities.")
+            my_expander = st.beta_expander("Explanation of Community Partitions")
+            my_expander.markdown("Note communities in the graph below are not IRG 1-3, but instead communities inferred by blind networkx analysis. It's appropritate to use a different color code for the 6 inferred communities. \
+            \n For contrast the machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
+            This suggests that the formal group ie IRG 1, is not a strict determinant of analysis inferred communities """)
+
             community(first,color_code)
     except:
         pass

@@ -1025,9 +1025,9 @@ def main():
     from community import community_louvain
     if genre == "Community Mixing":
         my_expander = st.beta_expander("Explanation of Community Partitions")
-        my_expander.markdown("Note communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the 6 inferred communities. \
+        my_expander.markdown("Note communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the five inferred communities. \
         For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
-        This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities.""")
+        This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities. In otherwords the spontaneuosly emerging community structure may be different to formal group assignments""")
 
         community(first,color_code,color_dict)
     #except:
@@ -1337,8 +1337,8 @@ def main():
         my_expander = st.beta_expander("Bundling explanation")
 
         my_expander.markdown(
-            """The graph type below is called edge bundling. "Bundling" connection cables gets rid of hair ball effect.\n \
-			 Think of it like internet cables which are bundled. internet backbones connect places far \n \
+            """The graph type below is called edge bundling. "Bundling" connecting cables simplifies the visualization.\n \
+			 Think of it like internet cables which are bundled. Internet backbones connect places far \n \
 			 apart as to economize wiring material. Setting high thresholds here: 14-16 leads to some insight.
 			 High thresholds show only intense collaborations, disconnecting the network in meaningful way."""
         )

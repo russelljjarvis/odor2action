@@ -599,7 +599,7 @@ def population(cc, popg, color_dict):
     popgc = copy.copy(popg)
     popgc.graph["edge"] = {"arrowsize": "0.6", "splines": "curved"}
     popgc.graph["graph"] = {"scale": "3"}
-    st.markdown(""" Missing self connections, but node size proportions""")
+    #st.markdown(""" Missing self connections, but node size proportions""")
     st.pyplot(fig)
     try:
         from networkx.drawing.nx_agraph import to_agraph

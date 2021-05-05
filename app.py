@@ -202,7 +202,7 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     plt.axis("off")
     for k, v in color_dict.items():
         plt.scatter([], [], c=v, label=k)
-    plt.legend()
+    plt.legend(frameon=False,prop={'size':24})
 
     def dontdo(segments, pos_, graph):
         fig.show()
@@ -256,15 +256,15 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
 
     # return fig
 
+def depricated():
+    def plot_stuff(df2, edges_df_full, first, adj_mat_dicts):
+        with shelve.open("fast_graphs_splash.p") as db:
+            flag = "chord" in db
+            if False:  # flag:
+                graph = db["graph"]
 
-def plot_stuff(df2, edges_df_full, first, adj_mat_dicts):
-    with shelve.open("fast_graphs_splash.p") as db:
-        flag = "chord" in db
-        if False:  # flag:
-            graph = db["graph"]
-
-        else:
-            db.close()
+            else:
+                db.close()
 
 
 from hiveplotlib import Axis, Node, HivePlot
@@ -312,7 +312,7 @@ def dontdo():
     """
 
 # @st.cache(persist=True)
-# @st.cache(allow_output_mutation=True)
+#@st.cache(allow_output_mutation=True)
 def get_frame(threshold=6):
 
     with shelve.open("fast_graphs_splash.p") as store:
@@ -544,7 +544,7 @@ def get_table_download_link_csv(df):
     href = f'<a href="data:file/csv;base64,{b64}" download="captura.csv" target="_blank">Download csv file</a>'
     return href
 
-
+#@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def population(cc, popg, color_dict):
 
     fig, ax = plt.subplots(figsize=(20, 15))
@@ -595,10 +595,17 @@ def population(cc, popg, color_dict):
     for node in popg.nodes():
         # set the node name as the key and the label as its value
         labels[node] = node
-    nx.draw_networkx_labels(popg, pos, labels, font_size=16, font_color="r")
+
+    for k, v in labels.items():
+        plt.scatter([], [], c=color_dict[v], label=k)
+    plt.legend(frameon=False,prop={'size':34})
+
+    #nx.draw_networkx_labels(popg, pos, labels, font_size=16, font_color="r")
     popgc = copy.copy(popg)
     popgc.graph["edge"] = {"arrowsize": "0.6", "splines": "curved"}
     popgc.graph["graph"] = {"scale": "3"}
+
+
     #st.markdown(""" Missing self connections, but node size proportions""")
     st.pyplot(fig)
     try:
@@ -694,7 +701,7 @@ def _position_nodes(g, partition, **kwargs):
         pos.update(pos_subgraph)
 
     return pos
-
+#@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def community(first,color_code,color_dict):
     from community import community_louvain
     temp = first.to_undirected()
@@ -768,7 +775,7 @@ def community(first,color_code,color_dict):
     )
     for k, v in color_dict.items():
         plt.scatter([], [], c=v, label=k)
-    plt.legend()
+    plt.legend(frameon=False,prop={'size':12})
 
     col1, col2 = st.beta_columns(2)
     col1.pyplot(fig1)
@@ -776,7 +783,7 @@ def community(first,color_code,color_dict):
     col2.pyplot(fig2)
 
     #plt#.show()
-
+#@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def physics(first, adj_mat_dicts, color_code):
     my_expander = st.beta_expander("Label vs node Vis")
     labels_ = my_expander.radio(
@@ -940,7 +947,7 @@ def main():
     fig = plt.figure()
     for k, v in color_dict.items():
         plt.scatter([], [], c=v, label=k)
-    plt.legend()
+    plt.legend(frameon=False,prop={'size':24})
     fig.tight_layout()
     plt.axis("off")
     my_expander = st.sidebar.beta_expander("Color coding of most plots")
@@ -1346,6 +1353,8 @@ def main():
         fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
         st.pyplot(fig4)
     if genre == "Basic":
+        plt.rcParams['legend.title_fontsize'] = 'xx-large'
+
         my_expander = st.beta_expander("show labels?")
 
         labels_ = my_expander.radio("Would you like to label nodes?", ("No", "Yes"))
@@ -1355,7 +1364,7 @@ def main():
             labels_ = False
 
         st.markdown(
-            "Contrast this hair ball view with bundling (wire cost is not economized here)..."
+            "Contrast this network layout with bundling (wire cost is not economized here)..."
         )
         H = first.to_undirected()
         centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
@@ -1427,8 +1436,10 @@ def main():
 
         for k, v in color_dict.items():
             plt.scatter([], [], c=v, label=k)
-        plt.legend()
 
+        plt.legend(frameon=False,prop={'size':24})
+        #leg = ax.legend()
+        #leg.set_title()
         st.pyplot(fig)
 
     adj_mat = pd.DataFrame(adj_mat_dicts)

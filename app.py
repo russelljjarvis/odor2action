@@ -1176,8 +1176,7 @@ def main():
         my_expander = st.beta_expander("Explanation of Hive")
 
         my_expander.markdown(
-            """This predominantly shows between group connectivity, not whithin group connectivity
-			Thus total node number in each category is reduced compared to other graphs, as only nodes
+            """This predominantly shows between group connectivity. The total node number in each category is reduced compared to other graphs, as only nodes
 			are shown which can project externally from their respective groups.
 			"""
         )

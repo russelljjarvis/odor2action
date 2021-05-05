@@ -6,6 +6,7 @@ sudo python -m pip install -U pip
 #sudo conda install -c cython# bokeh graphviz_layout
 sudo python3 -m pip install numpy --upgrade --ignore-installed
 sudo python3 -m pip install cython --upgrade --ignore-installed
+sudo $(which python) -m pip install git+https://github.com/taynaud/python-louvain.git@networkx2
 
 
 sudo python3 -m pip install -r requirements.txt
@@ -18,7 +19,7 @@ sudo python3 -m pip install streamlit --upgrade --ignore-installed
 sudo pip install hiveplotlib pygraphviz
 # streamlit-agraph
 sudo $(which pip) install git+https://github.com/taynaud/python-louvain.git@networkx2
-git clone https://github.com/taynaud/python-louvain.git@networkx2; cd networkx; sudo python3 setup.py install; cd -
+git clone https://github.com/taynaud/python-louvain.git@networkx2; cd networkx; sudo $(which python) setup.py install; cd -
 python3 -c "from holoviews.operation.datashader import datashade"
 git clone https://github.com/pygraphviz/pygraphviz; cd pygraphviz; sudo python3 setup.py install; cd -
 #sudo python3 -m pip install git+https://github.com/pyviz/holoviews.git

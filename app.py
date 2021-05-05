@@ -830,7 +830,7 @@ def physics(first, adj_mat_dicts, color_code):
     # add neighbor data to node hover data
     for node in nt.nodes:
         if "title" not in node.keys():
-            node["title"] = " Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
+            node["title"] = "<br> This node is:"+str(node["id"])+"<br> It's neighbors are:<br>" + "<br>".join(neighbor_map[node["id"]])
         #
         if node["id"] in node_size.keys():
             #if not labels:
@@ -1014,7 +1014,7 @@ def main():
         from community import community_louvain
         if genre == "Community Mixing":
             my_expander = st.beta_expander("Explanation of Community Partitions")
-            my_expander.markdown("Note communities in the graph on the left are not IRG 1-3, but instead communities inferred by blind networkx analysis. It's appropritate to use a different color code for the 6 inferred communities. \
+            my_expander.markdown("Note communities in the graph on the left are not IRG 1-3, but instead communities inferred by blind network analysis. It's appropritate to use a different color code for the 6 inferred communities. \
             \n For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
             This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities.""")
 

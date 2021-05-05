@@ -565,7 +565,7 @@ def population(cc, popg, color_dict):
         pos=pos,
         node_color=node_color,  # = [color_code[n] for n in H],
         node_size=temp,
-        alpha=0.5,
+        alpha=0.6,
         linewidths=2,
     )
 
@@ -578,7 +578,7 @@ def population(cc, popg, color_dict):
         edge_colors.append(color_dict[e[0]])
 
         ee = popg.get_edge_data(e[0], e[1])
-        widths.append(ee["weight"] * 0.05)
+        widths.append(ee["weight"] * 0.02)
 
     # nx.draw_networkx_edges(G, pos, edgelist=edgelist, arrowstyle="<|-", style="dashed")
 
@@ -587,8 +587,9 @@ def population(cc, popg, color_dict):
         pos=pos,
         edgelist=edge_list,
         edge_color=edge_colors,
-        alpha=0.25,
+        alpha=0.70,
         width=widths,
+        arrowstyle="<|-"
     )
     # labels = {v.name:v for v,v in popg.nodes}
     labels = {}
@@ -602,8 +603,8 @@ def population(cc, popg, color_dict):
 
     #nx.draw_networkx_labels(popg, pos, labels, font_size=16, font_color="r")
     popgc = copy.copy(popg)
-    popgc.graph["edge"] = {"arrowsize": "0.6", "splines": "curved"}
-    popgc.graph["graph"] = {"scale": "3"}
+    #popgc.graph["edge"] = {"arrowsize": "0.6", "splines": "curved"}
+    #popgc.graph["graph"] = {"scale": "3"}
 
 
     #st.markdown(""" Missing self connections, but node size proportions""")

@@ -7,7 +7,7 @@ sudo python -m pip install -U pip
 sudo python3 -m pip install numpy --upgrade --ignore-installed
 sudo python3 -m pip install cython --upgrade --ignore-installed
 sudo $(which python) -m pip install git+https://github.com/taynaud/python-louvain.git@networkx2
-
+sudo python3 -m pip install git+https://github.com/taynaud/python-louvain.git@networkx2
 
 sudo python3 -m pip install -r requirements.txt
 sudo conda install -c pyviz scikit-image# bokeh graphviz_layout

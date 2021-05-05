@@ -1,5 +1,4 @@
 openpyxl==3.0.0
-#-e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=networkx
 numpy
 xlrd==1.2.0
 colorlover==0.3.0
@@ -17,4 +16,6 @@ matplotlib==2.2.5
 seaborn==0.9.1
 scikit-image
 bokeh
+-e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=community
+
 #==2.2.2

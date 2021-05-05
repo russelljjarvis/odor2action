@@ -891,11 +891,11 @@ def main():
             "Prefered graph layout?",
             (
                 "Hive",
-                "Population",
                 "Chord",
                 "Physics",
                 "Bundle",
                 "Basic",
+                "Lumped Population",
                 "Spreadsheet",
                 "AdjacencyMatrix"
             ),
@@ -1183,6 +1183,24 @@ def main():
         )
 
         st.pyplot(fig)
+
+
+        def dont():
+            chord = hv.Chord(links)  # .select(value=(5, None))
+            # node_color = [color_code[n] for n in H]
+            # st.text(links['color'])
+            chord.opts(
+                opts.Chord(
+                    cmap="Category20",
+                    width=250,
+                    height=250,
+                    edge_cmap="Category20",
+                    edge_color=dim("source").str(),
+                    labels="name",
+                    node_color=dim("index").str(),
+                )
+            )
+
 
         def dontdo():
             """
@@ -1501,23 +1519,6 @@ def main():
         pd.set_option("display.max_columns", 11)
         hv.extension("bokeh")
         hv.output(size=200)
-
-        def dont():
-            chord = hv.Chord(links)  # .select(value=(5, None))
-            # node_color = [color_code[n] for n in H]
-            # st.text(links['color'])
-            chord.opts(
-                opts.Chord(
-                    cmap="Category20",
-                    width=250,
-                    height=250,
-                    edge_cmap="Category20",
-                    edge_color=dim("source").str(),
-                    labels="name",
-                    node_color=dim("index").str(),
-                )
-            )
-
         nodes = hv.Dataset(df_nodes, "index")
         # https://geomdata.gitlab.io/hiveplotlib/karate_club.html
         # Todo make hiveplot
@@ -1539,7 +1540,7 @@ def main():
         hv.save(chord, "chord2.html", backend="bokeh")
         HtmlFile2 = open("chord2.html", "r", encoding="utf-8")
         source_code2 = HtmlFile2.read()
-        components.html(source_code2, height=450, width=450)
+        components.html(source_code2, height=750, width=750)
 
     def dontdo():
 

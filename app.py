@@ -882,28 +882,42 @@ def list_centrality(first):
     df = pd.DataFrame([centrality])
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
+    df.rename(columns={0:'centrality value'},inplace=True)
+
     bc = df
-    st.table(bc)
-    st.markdown("In degree Centrality:")
+    st.table(bc.head())
+    st.text("...")
+    st.table(bc.tail())
+
+    st.markdown("In degree Centrality: (percieved listeners/high authority)")
     st.markdown("Top to bottom node id from most central to least:")
 
-    centrality = nx.in_degree_centrality(H)
+    centrality = nx.in_degree_centrality(first)
     df = pd.DataFrame([centrality])
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
+    df.rename(columns={0:'centrality value'},inplace=True)
+    st.table(df.head())
+    st.text("...")
+    st.table(df.tail())
+
     #bc = df
-    st.table(df)
+    #st.table(df)
 
     #Compute the in-degree centrality for nodes.
-    st.markdown("Out-degree Centrality:")
-    st.markdown("Top to bottom node id from most central to least:")
+    st.markdown("Out-degree Centrality (percieved talkers), read from top to bottom from most central to least:")
 
-    centrality = nx.out_degree_centrality(G)
+    centrality = nx.out_degree_centrality(first)
     df = pd.DataFrame([centrality])
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
+    df.rename(columns={0:'centrality value'},inplace=True)
+    st.table(df.head())
+    st.text("...")
+    st.table(df.tail())
+
     #bc = df
-    st.table(df)
+    #st.table(df)
     return bc
 
     #Compute the in-degree centrality for nodes.
@@ -1185,7 +1199,6 @@ def main():
                 "Lumped Population",
                 "Spreadsheet",
                 "AdjacencyMatrix",
-                "Unknownids","cyto"
 
             ),
         )
@@ -1202,7 +1215,6 @@ def main():
                 "Lumped Population",
                 "Spreadsheet",
                 "AdjacencyMatrix",
-                "Unknownids"
             ),
         )
 
@@ -1806,6 +1818,21 @@ def main():
             pass
     if genre == "Chord":
         st.markdown(""" clicking on a node highlights its direct projections""")
+
+        H = first.to_undirected()
+        st.markdown("Betweeness Centrality:")
+        st.markdown("Top to bottom node id from most central to least:")
+
+        centrality = nx.betweenness_centrality(H, endpoints=True)
+        df = pd.DataFrame([centrality])
+        df = df.T
+        df.sort_values(0, axis=0, ascending=False, inplace=True)
+        bc = df
+        bc.rename(columns={0:'centrality value'},inplace=True)
+        st.write(bc.head())
+        #st.markdown("In degree Centrality:")
+        #st.markdown("Top to bottom node id from most central to least:")
+
         temp = pd.DataFrame(first.nodes)
         nodes = hv.Dataset(temp[0])
 

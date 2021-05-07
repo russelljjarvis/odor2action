@@ -14,12 +14,16 @@ import numpy as np
 import networkx as nx
 import dash_bio as dashbio
 import streamlit as st
+
+st.set_page_config(layout="wide")
+#st.text(dir(st))
+
 import streamlit.components.v1 as components
 import networkx as nx
 import matplotlib.pyplot as plt
 from pyvis.network import Network
 import shelve
-import streamlit as st
+#import streamlit as st
 import os
 import pandas as pd
 import pickle
@@ -666,8 +670,8 @@ def community_layout(g, partition):
     pos -- dict mapping int node -> (float x, float y)
         node positions
     """
-    pos_communities = _position_communities(g, partition, scale=3.)
-    pos_nodes = _position_nodes(g, partition, scale=1.)
+    pos_communities = _position_communities(g, partition, k=0.04, scale=5.)
+    pos_nodes = _position_nodes(g, partition, k=0.04, scale=1.)
     # combine positions
     pos = dict()
     for node in g.nodes():
@@ -734,6 +738,13 @@ from scipy.spatial import ConvexHull, convex_hull_plot_2d
 
 #@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def community(first,color_code,color_dict):
+    my_expander = st.beta_expander("Toggle node labels")
+    labels_ = my_expander.radio("Would you like to label nodes?", ("Yes", "No"))
+    if labels_ == "Yes":
+        labelsx = True
+    if labels_ == "No":
+        labelsx = False
+
     from community import community_louvain
     temp = first.to_undirected()
     ##
@@ -760,12 +771,6 @@ def community(first,color_code,color_dict):
             tocvxh.append((x,y))
         if len(tocvxh) <=2:
             pass
-            #st.text(pos_communities)
-            #x,y = pos_communities[k]
-            #for node in list_of_nodes:
-            #    plt.Circle((x, y), radius=145, color = str(diffcc[k]), lw=5)
-        #    tocvxh.append((np.mean([x[0] for x in tocvxh])+0.1,np.mean([x[1] for x in tocvxh])+0.01))
-        #    tocvxh.append((np.mean([x[0] for x in tocvxh])+0.1,np.mean([x[1] for x in tocvxh])+0.01))
 
         if len(tocvxh) >2:
             hull = ConvexHull(tocvxh)
@@ -789,45 +794,39 @@ def community(first,color_code,color_dict):
         srcs.append(src)
         ee = temp.get_edge_data(e[0], e[1])
         widths.append(0.85*ee["weight"])
-    fig1,ax = plt.subplots()
+    fig1,ax = plt.subplots(figsize=(20,20))
     for i,hull in enumerate(hulls):
         points = np.array(pointss[i])
         for simplex in hull.simplices:
-            plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(whichpkeys[i]), alpha=0.15)
+            #pass
+            plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(whichpkeys[i]), alpha=0.025)
 
 
     nx.draw_networkx_nodes(
         temp,
         pos=pos,
         node_color=diffcc,
-        node_size=node_size,
+        node_size=550,
         alpha=0.5,
         linewidths=1,
     )
-    #for i,(k,center) in enumerate(pos_communities.items()):
-    #    ax = plt.gca()
-        #st.text(str(diffcc[i]))
-    #    try:
-    #        c = plt.Circle(center, radius=1.25,color='grey',alpha=0.99)
-    #        ax.add_patch(c)
-    #    except:
-    #        pass
 
     axx = fig1.gca()  # to get the current axis
     axx.collections[0].set_edgecolor("#FF0000")
+    label_pos = copy.deepcopy(pos)
+    for k,v in label_pos.items():
+        label_pos[k][0] = v[0]+0.5
 
-    labels = {}
-    for node in temp.nodes():
-        # set the node name as the key and the label as its value
-        labels[node] = node
+    if labelsx:
+        labels = {}
+        for node in temp.nodes():
+            # set the node name as the key and the label as its value
+            labels[node] = node
+        nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
 
     nx.draw_networkx_edges(
-        temp, pos=pos, edge_color=srcs, alpha=0.3, width=widths
+        temp, pos=pos, edge_color='grey', alpha=0.15, width=widths
     )
-
-    #for v in set(diffcc):
-    #    plt.scatter([0], [0], c=v, label=v)
-    #plt.legend()
 
 
     node_color = [color_code[n] for n in first]
@@ -837,37 +836,35 @@ def community(first,color_code,color_dict):
         srcs.append(src)
 
     #fig2 = plt.figure()
-    fig2,ax = plt.subplots()
-    #for i,hull in enumerate(hulls):
-    #    points = np.array(pointss[i])
-    #    for simplex in hull.simplices:
-            #plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(diffcc[whichpkeys[i]]), alpha=0.35)
-    #        plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(whichpkeys[i]), alpha=0.15)
+    #fig2,ax = plt.subplots()
+    fig2,ax = plt.subplots(figsize=(20,20))
 
 
     nx.draw_networkx_nodes(
         temp,
         pos=pos,
         node_color=node_color,
-        node_size=node_size,
+        node_size=550,
         alpha=0.5,
         linewidths=1,
     )
     axx = fig2.gca()  # to get the current axis
     axx.collections[0].set_edgecolor("#FF0000")
+    #if labelsx:
+    #    nx.draw_networkx_labels(temp, label_pos, labels, font_size=9.5, font_color="b")
 
     #nx.draw(temp, pos, node_color=node_color)
     nx.draw_networkx_edges(
-        temp, pos=pos, edge_color=srcs, alpha=0.3, width=widths
+        temp, pos=pos, edge_color='grey', alpha=0.15, width=widths
     )
     for k, v in color_dict.items():
         plt.scatter([], [], c=v, label=k)
-    plt.legend(frameon=False,prop={'size':12})
-
+    plt.legend(frameon=False,prop={'size':29.5})
+    #st.beta_set_page_config(layout="wide")
     col1, col2 = st.beta_columns(2)
-    col1.pyplot(fig1)
+    col1.pyplot(fig1, use_column_width=True)
 
-    col2.pyplot(fig2)
+    col2.pyplot(fig2, use_column_width=True)
 
     #plt#.show()
 #@st.cache(allow_output_mutation=True,suppress_st_warning=True)
@@ -934,17 +931,12 @@ def list_centrality(first):
     #edge_thickness = {k: v * 200000 for k, v in centrality.items()}
 
 def physics(first, adj_mat_dicts, color_code,color_code_0):
-    my_expander = st.beta_expander("Label vs node Vis")
-    labels_ = my_expander.radio(
-        "Would you like node labels to be prominent, or degree size?",
-        ("degsize", "labels"),
-    )
-    if labels_ == "labels":
-        labels = True
-    else:
-        labels = False
-    labels = False
 
+    my_expander = st.beta_expander("physical parameters")
+
+    phys_ = my_expander.radio(
+        "Would you like to change physical parameters?", ("No", "Yes")
+    )
     pos = nx.get_node_attributes(first, "pos")
     # fig = plt.figure()
     d = nx.degree(first)
@@ -960,6 +952,7 @@ def physics(first, adj_mat_dicts, color_code,color_code_0):
         width="100%",
         font_color="black",  # , bgcolor='#222222'
     )  # bgcolor='#222222',
+
     nt = Network(
         "500px", "500px", notebook=True
     )
@@ -982,11 +975,7 @@ def physics(first, adj_mat_dicts, color_code,color_code_0):
     for e in edge_data:
         src = e[0]
         dst = e[1]
-        if labels:
-            w = e[2]
-
-        else:
-            w = e[2] * 1350.0
+        w = e[2] * 1350.0
         src = str(src)
         dst = str(dst)
         w = float(w)
@@ -1003,6 +992,11 @@ def physics(first, adj_mat_dicts, color_code,color_code_0):
     else:
         mo = False
     #labels = False
+    if phys_ == "Yes":
+        from PIL import Image
+        nt.show_buttons(filter_=["physics"])
+        #st.image(Image.open("disequilbration.png"))
+
 
     # add neighbor data to node hover data
     for node in nt.nodes:
@@ -1027,19 +1021,16 @@ def physics(first, adj_mat_dicts, color_code,color_code_0):
         # if not labels:
         # node["borderWidth"] = 10
         # node["borderWidthSelected"] = 20
-    my_expander = st.beta_expander("physical parameters")
-
-    phys_ = my_expander.radio(
-        "Would you like to change physical parameters?", ("No", "Yes")
-    )
-    if phys_ == "Yes":
-        st.markdown("""scroll below graph""")
-        nt.show_buttons(filter_=["physics"])
     # nt.show()
     nt.show("test1.html")
     HtmlFile = open("test1.html", "r", encoding="utf-8")
     source_code = HtmlFile.read()
     components.html(source_code, height=750, width=750)
+    if phys_ == "Yes":
+        from PIL import Image
+        st.markdown("Some parameter sets can prevent static equilibrium states. For example:")
+        #nt.show_buttons(filter_=["physics"])
+        st.image(Image.open("rescreen_shot_just_params.png"))
 
 
 def dont():
@@ -1349,9 +1340,12 @@ def main():
     from community import community_louvain
     if genre == "Community Mixing":
         my_expander = st.beta_expander("Explanation of Community Partitions")
-        my_expander.markdown("Communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the five inferred communities. \
+        my_expander.markdown("""Communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the five inferred communities. \
         For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
-        This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities. In otherwords spontaneuosly emerging community groups may be significantly different to formal group assignments.""")
+        This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities. In otherwords spontaneuosly emerging community groups may be significantly different to formal group assignments.
+        The stochastic community detection algorithm uses a differently seeded random number generator every time so the graph appears differently each time the function is called.
+        The algorithm is called Louvain community detection.
+        """)
 
         community(first,color_code,color_dict)
     #except:
@@ -1680,7 +1674,9 @@ def main():
             labels_ = False
         exp = st.beta_expander("Information about Force Directed Layout")
         exp.markdown(
-            "This is probably not the most informative layout option. Contrast this force directed layout network layout with bundling (wire cost is not economized here)..."
+            """This is probably not the most informative layout option. Contrast this force directed layout network layout with bundling (wire cost is not economized here).
+            The basic force directed layout is very similar to the physics engine layout, but without interactivity.
+            """
         )
         H = first.to_undirected()
 

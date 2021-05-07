@@ -1048,6 +1048,8 @@ def dont():
             node_color=dim("index").str(),
         )
     )
+import igraph as ig
+import plotly.graph_objs as go
 
 
 def dontdo():
@@ -1180,6 +1182,7 @@ def main():
         genre = st.sidebar.radio(
             "Prefered graph layout?",
             (
+
                 "Hive",
                 "Physics",
                 "Chord",
@@ -1190,6 +1193,7 @@ def main():
                 "Lumped Population",
                 "Spreadsheet",
                 "AdjacencyMatrix",
+                "3D"
 
             ),
         )
@@ -1353,7 +1357,75 @@ def main():
         community(first,color_code,color_dict)
     #except:
     #    pass
+    if genre == "3D":
+        st.markdown("in development")
+        g = first
 
+        #g1 = ig.Graph(len(g), zip(*zip(*nx.to_edgelist(g))[:2]))
+          # nx.to_edgelist(g) returns [(0, 1, {}), (0, 2, {}), ...], which is turned
+          #  into [(0, 1), (0, 2), ...] for igraph
+
+        # convert via adjacency matrix
+        G = ig.Graph.Adjacency((nx.to_numpy_matrix(g) > 0).tolist())
+
+        #assert G.get_adjacency() == g1.get_adjacency()
+        layt=G.layout('kk', dim=3) # plot network with the Kamada-Kawai layout algorithm
+        print(G)
+        Edges=G.edges#[(data['links'][k]['source'], data['links'][k]['target']) for k in range(L)]
+        print(layt[:3])
+        #print(Edges[:3])
+
+        #labels=[]
+        #group=[]
+
+        #for node in data['nodes']:
+          #labels.append(node['name'])
+          #group.append(node['group'])
+
+        #print(labels[:3])
+        #print(group[:3])
+
+        Xn=[]
+        Yn=[]
+        Zn=[]
+        N=len(g.nodes)
+        for k in range(N):
+          Xn+=[layt[k][0]]
+          Yn+=[layt[k][1]]
+          Zn+=[layt[k][2]]
+
+        Xe=[]
+        Ye=[]
+        Ze=[]
+
+        for e in Edges:
+          Xe+=[layt[e[0]][0],layt[e[1]][0],None]# x-coordinates of edge ends
+          Ye+=[layt[e[0]][1],layt[e[1]][1],None]
+          Ze+=[layt[e[0]][2],layt[e[1]][2],None]
+
+        trace1=go.Scatter3d(x=Xe, y=Ye, z=Ze, mode='lines', line=dict(color='rgb(125,125,125)', width=1),hoverinfo='none')
+
+        trace2=go.Scatter3d(x=Xn, y=Yn, z=Zn, mode='markers', name='actors',
+                           marker=dict(symbol='circle', size=6, color=group, colorscale='Viridis',
+                              line=dict(color='rgb(50,50,50)', width=0.5)), text=labels, hoverinfo='text')
+
+        axis=dict(showbackground=False, showline=False, zeroline=False, showgrid=False, showticklabels=False, title='')
+
+        layout = go.Layout(
+                 title="Network of coappearances of characters in Victor Hugo's novel<br> Les Miserables (3D visualization)",
+                 width=1000,
+                 height=1000,
+                 showlegend=False,
+                 scene=dict(
+                     xaxis=dict(axis),
+                     yaxis=dict(axis),
+                     zaxis=dict(axis),
+                ))
+
+        data=[trace1, trace2]
+
+        fig=go.Figure(data=data, layout=layout)
+        st.write(fig)
     if genre == "Physics":
         physics(first, adj_mat_dicts, color_code,color_code_0)
 

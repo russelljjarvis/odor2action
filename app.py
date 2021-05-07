@@ -331,6 +331,8 @@ def get_frame(threshold=6):
             legend = store["legend"]  # = legend  # save it
 
         else:
+            hard_codes = Path("code_by_IRG.xlsx")
+
             xlsx_file0 = Path("o2anetmap2021.xlsx")
             xlsx_file1 = Path("o2anetmap.xlsx")
             wb_obj0 = openpyxl.load_workbook(xlsx_file0)
@@ -1760,6 +1762,13 @@ def main():
         exp.markdown(
             """This is probably not the most informative layout option. Contrast this force directed layout network layout with bundling (wire cost is not economized here).
             The basic force directed layout is very similar to the physics engine layout, but without interactivity.
+            Qoute from wikipedia:
+            'Force-directed graph drawing algorithms assign forces among the set of edges and the set of nodes of a graph drawing. Typically, spring-like attractive forces based on Hooke's law are used to attract pairs of endpoints of the graph's edges towards each other, while simultaneously repulsive forces like those of electrically charged particles based on Coulomb's law are used to separate all pairs of nodes. In equilibrium states for this system of forces, the edges tend to have uniform length (because of the spring forces), and nodes that are not connected by an edge tend to be drawn further apart (because of the electrical repulsion). Edge attraction and vertex repulsion forces may be defined using functions that are not based on the physical behavior of springs and particles; for instance, some force-directed systems use springs whose attractive force is logarithmic rather than linear.'
+            \n
+            https://en.wikipedia.org/wiki/Force-directed_graph_drawing \n
+            What this means is conflicting forces of attraction, and repulsion determine node position.
+            node centrality does not necessarily determine a central position.
+            Also nodes can be central because of high in-degree out-degree or both.
             """
         )
         H = first.to_undirected()

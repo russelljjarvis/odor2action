@@ -310,6 +310,7 @@ def dontdo():
                     else:
                                     df4[col] = df2[col]
     """
+import copy
 
 # @st.cache(persist=True)
 #@st.cache(allow_output_mutation=True)
@@ -337,20 +338,24 @@ def get_frame(threshold=6):
 
             df3 = pd.DataFrame(worksheet0.values)
             df2 = pd.DataFrame(worksheet1.values)
-            import copy
 
             df2 = pd.concat([df3, df2])
             sheet = copy.copy(df2)
             color_code_0 = {
                 k: v for k, v in zip(df2[0], df2[1]) if k not in "Rater Code"
             }
+            #➜  ~ change yellow to red
+            #➜  ~ change orange to purple
+
+            # Ribbon color code needs to labeled as to or from.
+            # source or target.
 
             color_dict = {
                 "Unknown": "black",
                 "IRG 3": "green",
                 "IRG 1": "blue",
-                "IRG 2": "yellow",
-                "DCMT": "orange",
+                "IRG 2": "red",
+                "DCMT": "purple",
             }
             color_code_1 = {}
 
@@ -386,10 +391,15 @@ def get_frame(threshold=6):
                 if nm not in color_code_1.keys():
                     color_code_1[nm] = "black"
 
-            row_names = range(0, len(df2.columns) + 1, 1)
+            row_names = list(range(0, len(df2.columns) + 1, 1))
             to_rename = {k: v for k, v in zip(row_names, names)}
+            #st.text(row_names)
+            r_names = list(df2.index.values[:])
+            #st.text(r_names)
 
-            r_names = df2.index.values
+
+                    #st.text(rn)
+
             to_rename_ind = {v: k for k, v in zip(df2[0], r_names)}
             del df2[0]
             del df2[1]
@@ -397,8 +407,35 @@ def get_frame(threshold=6):
             del df2[113]
             df2.drop(0, inplace=True)
             df2.drop(1, inplace=True)
+
+
             df2.rename(columns=to_rename, inplace=True)
             df2.rename(index=to_rename_ind, inplace=True)
+            unk = []
+            for col in df2.columns:
+                if col in df2.index.values[:]:
+                    pass
+                else:
+                    unk.append(col)
+                    #st.text('not in')
+                    #st.text(col)
+
+            #st.text(r_names)
+            #st.write(df2)
+
+            ####
+            #edges_df_full = nx.to_pandas_adjacency(first)
+            #try:
+            #    del edges_df_full["0"]
+            #    del edges_df_full["1"]
+            #except:
+            #    pass
+            #try:
+            #    edges_df_full.drop("0", inplace=True)
+            #    edges_df_full.drop("1", inplace=True)
+            #except:
+            #    pass
+            ############
 
             # uniq_col = {k: k for k in list(set(df2.columns))}
             # comm = False
@@ -433,22 +470,13 @@ def get_frame(threshold=6):
 
             # This sums columns under the same name
             df2.groupby(df2.columns, axis=1).sum()
-            #df2.groupby(level=0, axis=1).sum()
+            df2.groupby(level=0, axis=1).sum()
             # df2 = df4
             store["df2"] = df2  # save it
             # st.write(df2)
             store["names"] = names  # save it
             store["ratercodes"] = ratercodes  # save it
             store["legend"] = legend  # save it
-
-            # st.write(df2)
-
-            # df3 = df2[df2.columns[0 : int(len(df2.columns) / 2)]]
-            # df5 = df2[df2.columns[int(len(df2.columns) / 2) + 1 ::]]
-            # st.write(df3)
-            # st.write(df5)
-
-            # import copy
 
     return (
         df2,
@@ -459,7 +487,7 @@ def get_frame(threshold=6):
         color_dict,
         color_code_0,
         sheet,
-        popg,
+        popg,unk
     )
 
 
@@ -645,7 +673,7 @@ def community_layout(g, partition):
     for node in g.nodes():
         pos[node] = pos_communities[node] + pos_nodes[node]
 
-    return pos
+    return pos, pos_communities
 
 def _position_communities(g, partition, **kwargs):
     # create a weighted graph, in which each node corresponds to a community,
@@ -702,6 +730,8 @@ def _position_nodes(g, partition, **kwargs):
         pos.update(pos_subgraph)
 
     return pos
+from scipy.spatial import ConvexHull, convex_hull_plot_2d
+
 #@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def community(first,color_code,color_dict):
     from community import community_louvain
@@ -712,10 +742,38 @@ def community(first,color_code,color_dict):
     #partition = community_louvain.best_partition(temp,resolution=1)
 
     partition = community_louvain.best_partition(temp,resolution=3.5)
-    pos = community_layout(temp, partition)
-    fig = plt.figure()
+    pos, pos_communities = community_layout(temp, partition)
+    #fig = plt.figure()
     diffcc = list(partition.values())
+    pkeys = set(partition.values())
+    #for k,v in partion.items():
+    partitiondf = pd.DataFrame([partition]).T
+    hulls = []
+    pointss = []
+    whichpkeys = []
+    for k in pkeys:
+        #st.text(k)
+        list_of_nodes = partitiondf[partitiondf.values==k].index.values[:]
+        tocvxh = []
+        for node in list_of_nodes:
+            x,y = pos[node]
+            tocvxh.append((x,y))
+        if len(tocvxh) <=2:
+            pass
+            #st.text(pos_communities)
+            #x,y = pos_communities[k]
+            #for node in list_of_nodes:
+            #    plt.Circle((x, y), radius=145, color = str(diffcc[k]), lw=5)
+        #    tocvxh.append((np.mean([x[0] for x in tocvxh])+0.1,np.mean([x[1] for x in tocvxh])+0.01))
+        #    tocvxh.append((np.mean([x[0] for x in tocvxh])+0.1,np.mean([x[1] for x in tocvxh])+0.01))
 
+        if len(tocvxh) >2:
+            hull = ConvexHull(tocvxh)
+            pointss.append(tocvxh)
+            hulls.append(hull)
+            whichpkeys.append(diffcc[k])
+
+    #st.write(partitiondf)
     centrality = nx.betweenness_centrality(temp, k=10, endpoints=True)
     #edge_thickness = {k: v * 20000 for k, v in centrality.items()}
     node_size = [v * 10000 for v in centrality.values()]
@@ -724,12 +782,20 @@ def community(first,color_code,color_dict):
 
     srcs = []
     widths = []
+
+
     for e in temp.edges:
         src = partition[e[0]]
         srcs.append(src)
         ee = temp.get_edge_data(e[0], e[1])
         widths.append(0.85*ee["weight"])
-    fig1 = plt.figure()
+    fig1,ax = plt.subplots()
+    for i,hull in enumerate(hulls):
+        points = np.array(pointss[i])
+        for simplex in hull.simplices:
+            plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(whichpkeys[i]), alpha=0.15)
+
+
     nx.draw_networkx_nodes(
         temp,
         pos=pos,
@@ -738,6 +804,15 @@ def community(first,color_code,color_dict):
         alpha=0.5,
         linewidths=1,
     )
+    #for i,(k,center) in enumerate(pos_communities.items()):
+    #    ax = plt.gca()
+        #st.text(str(diffcc[i]))
+    #    try:
+    #        c = plt.Circle(center, radius=1.25,color='grey',alpha=0.99)
+    #        ax.add_patch(c)
+    #    except:
+    #        pass
+
     axx = fig1.gca()  # to get the current axis
     axx.collections[0].set_edgecolor("#FF0000")
 
@@ -749,6 +824,7 @@ def community(first,color_code,color_dict):
     nx.draw_networkx_edges(
         temp, pos=pos, edge_color=srcs, alpha=0.3, width=widths
     )
+
     #for v in set(diffcc):
     #    plt.scatter([0], [0], c=v, label=v)
     #plt.legend()
@@ -760,7 +836,13 @@ def community(first,color_code,color_dict):
         src = color_code[e[0]]
         srcs.append(src)
 
-    fig2 = plt.figure()
+    #fig2 = plt.figure()
+    fig2,ax = plt.subplots()
+    #for i,hull in enumerate(hulls):
+    #    points = np.array(pointss[i])
+    #    for simplex in hull.simplices:
+            #plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(diffcc[whichpkeys[i]]), alpha=0.35)
+    #        plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(whichpkeys[i]), alpha=0.15)
 
 
     nx.draw_networkx_nodes(
@@ -789,6 +871,54 @@ def community(first,color_code,color_dict):
 
     #plt#.show()
 #@st.cache(allow_output_mutation=True,suppress_st_warning=True)
+
+
+def list_centrality(first):
+    H = first.to_undirected()
+    st.markdown("Betweeness Centrality:")
+    st.markdown("Top to bottom node id from most central to least:")
+
+    centrality = nx.betweenness_centrality(H, endpoints=True)
+    df = pd.DataFrame([centrality])
+    df = df.T
+    df.sort_values(0, axis=0, ascending=False, inplace=True)
+    bc = df
+    st.table(bc)
+    st.markdown("In degree Centrality:")
+    st.markdown("Top to bottom node id from most central to least:")
+
+    centrality = nx.in_degree_centrality(H)
+    df = pd.DataFrame([centrality])
+    df = df.T
+    df.sort_values(0, axis=0, ascending=False, inplace=True)
+    #bc = df
+    st.table(df)
+
+    #Compute the in-degree centrality for nodes.
+    st.markdown("Out-degree Centrality:")
+    st.markdown("Top to bottom node id from most central to least:")
+
+    centrality = nx.out_degree_centrality(G)
+    df = pd.DataFrame([centrality])
+    df = df.T
+    df.sort_values(0, axis=0, ascending=False, inplace=True)
+    #bc = df
+    st.table(df)
+    return bc
+
+    #Compute the in-degree centrality for nodes.
+    #st.markdown("Out-degree Centrality:")
+    #st.markdown("Top to bottom node id from most central to least:")
+
+    #Compute the out-degree centrality for nodes.
+    #st.markdown("Betweeness Centrality:")
+    #centrality = nx.betweenness_centrality(H, endpoints=True)
+    #df = pd.DataFrame([centrality])
+    #df = df.T
+    #df.sort_values(0, axis=0, ascending=False, inplace=True)
+    #st.table(df)
+    #edge_thickness = {k: v * 200000 for k, v in centrality.items()}
+
 def physics(first, adj_mat_dicts, color_code,color_code_0):
     my_expander = st.beta_expander("Label vs node Vis")
     labels_ = my_expander.radio(
@@ -832,8 +962,8 @@ def physics(first, adj_mat_dicts, color_code,color_code_0):
 
     H = first.to_undirected()
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
-    edge_thickness = {k: v * 20000 for k, v in centrality.items()}
-    node_size = {k: v * 20000 for k, v in centrality.items()}
+    edge_thickness = {k: v * 200000 for k, v in centrality.items()}
+    node_size = {k: v * 200000 for k, v in centrality.items()}
 
     for e in edge_data:
         src = e[0]
@@ -849,14 +979,25 @@ def physics(first, adj_mat_dicts, color_code,color_code_0):
         nt.add_edge(src, dst, value=w)
 
     neighbor_map = nt.get_adj_list()
+    my_expander = st.beta_expander("Mouse over node info?")
+
+    mo_ = my_expander.radio(
+        "Toggle Mouse overs?", ("No", "Yes")
+    )
+    if mo_ == "Yes":
+        mo = True
+    else:
+        mo = False
+    #labels = False
 
     # add neighbor data to node hover data
     for node in nt.nodes:
-        if "title" not in node.keys():
-            if node["id"] in color_code_0.keys():
-                node["title"] = "<br> This node is:"+str(node["id"])+"<br> it's membership is "+str(color_code_0[node["id"]])+" It's neighbors are:<br>" + "<br>".join(neighbor_map[node["id"]])
-            else:
-                node["title"] = "<br> This node is:"+str(node["id"])+"<br> it's membership is "+str("unknown")+" It's neighbors are:<br>" + "<br>".join(neighbor_map[node["id"]])
+        if mo:
+            if "title" not in node.keys():
+                if node["id"] in color_code_0.keys():
+                    node["title"] = "<br> This node is:"+str(node["id"])+"<br> it's membership is "+str(color_code_0[node["id"]])+" It's neighbors are:<br>" + "<br>".join(neighbor_map[node["id"]])
+                else:
+                    node["title"] = "<br> This node is:"+str(node["id"])+"<br> it's membership is "+str("unknown")+" It's neighbors are:<br>" + "<br>".join(neighbor_map[node["id"]])
         #
         if node["id"] in node_size.keys():
             #if not labels:
@@ -874,10 +1015,10 @@ def physics(first, adj_mat_dicts, color_code,color_code_0):
         # node["borderWidthSelected"] = 20
     my_expander = st.beta_expander("physical parameters")
 
-    labels_ = my_expander.radio(
+    phys_ = my_expander.radio(
         "Would you like to change physical parameters?", ("No", "Yes")
     )
-    if labels_ == "Yes":
+    if phys_ == "Yes":
         st.markdown("""scroll below graph""")
         nt.show_buttons(filter_=["physics"])
     # nt.show()
@@ -885,6 +1026,140 @@ def physics(first, adj_mat_dicts, color_code,color_code_0):
     HtmlFile = open("test1.html", "r", encoding="utf-8")
     source_code = HtmlFile.read()
     components.html(source_code, height=750, width=750)
+
+
+def dont():
+    chord = hv.Chord(links)  # .select(value=(5, None))
+    # node_color = [color_code[n] for n in H]
+    # st.text(links['color'])
+    chord.opts(
+        opts.Chord(
+            cmap="Category20",
+            width=250,
+            height=250,
+            edge_cmap="Category20",
+            edge_color=dim("source").str(),
+            labels="name",
+            node_color=dim("index").str(),
+        )
+    )
+
+
+def dontdo():
+    """
+    sorting_feature = "club"
+    hp = hive_plot_n_axes(
+                    node_list=nodes,
+                    edges=edges,
+                    axes_assignments=[
+                                    IRG1_indices,
+                                    IRG2_indices,
+                                    IRG3_indices,
+                                    DCMT_ind,
+                                    Un_ind,
+                    ],
+                    sorting_variables=["club", "club", "club", "club", "club"],
+                    axes_names=["IRG1", "IRG2", "IRG3", "DCMT", "Unknown"],
+                    vmins=[0, -0, 0, -10, -10],
+                    vmaxes=[33, 33, 33, 33, 33],
+    )
+
+    #fig = hive_plot_viz_mpl(hp)
+
+    ### axes ###
+
+    axis0 = Axis(axis_id="hi_id", start=1, end=5, angle=-30,
+                                                     long_name="Mr. Hi Faction\n(Sorted by ID)")
+    axis1 = Axis(axis_id="hi_degree", start=1, end=5, angle=30,
+                                                     long_name="Mr. Hi Faction\n(Sorted by Degree)")
+    axis2 = Axis(axis_id="john_degree", start=1, end=5, angle=180 - 30,
+                                                     long_name="John A. Faction\n(Sorted by Degree)")
+    axis3 = Axis(axis_id="john_id", start=1, end=5, angle=180 + 30,
+                                                     long_name="John A. Faction\n(Sorted by ID)")
+    axis4 = Axis(axis_id="irg1_id", start=1, end=5, angle=180,
+                                                     long_name="John A. Faction\n(Sorted by ID)")
+
+    axes = [axis0, axis1, axis2, axis3, axis4]
+
+    karate_hp.add_axes(axes)
+
+    ### node assignments ###
+
+    color_dict = {
+                    "Unknown": "black",
+                    "IRG 3": "green",
+                    "IRG 1": "blue",
+                    "IRG 2": "yellow",
+                    "DCMT": "orange",
+    }
+
+    # partition the nodes into "Mr. Hi" nodes and "John A." nodes
+    IRG1_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 1"]
+    IRG2_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 2"]
+    DCMT_nodes = [node.unique_id for node in nodes if node.data['club'] == "DCMT"]
+    hi_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 3"]
+    john_a_nodes = [node.unique_id for node in nodes if node.data['club'] == "Unknown"]
+    #st.text(hi_nodes[0])
+    # assign nodes and sorting procedure to position nodes on axis
+    karate_hp.place_nodes_on_axis(axis_id="hi_id", unique_ids=hi_nodes,
+                                                                                                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
+    karate_hp.place_nodes_on_axis(axis_id="hi_degree", unique_ids=hi_nodes,
+                                                                                                                      sorting_feature_to_use="degree", vmin=0, vmax=17)
+    karate_hp.place_nodes_on_axis(axis_id="john_degree", unique_ids=john_a_nodes,
+                                                                                                                      sorting_feature_to_use="degree", vmin=0, vmax=17)
+    karate_hp.place_nodes_on_axis(axis_id="john_id", unique_ids=john_a_nodes,
+                                                                                                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
+    karate_hp.place_nodes_on_axis(axis_id="irg1_id", unique_ids=IRG1_nodes,
+                                                                                                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
+
+    ### edges ###
+
+    karate_hp.connect_axes(edges=edges, axis_id_1="hi_degree", axis_id_2="hi_id", c="C0")
+    karate_hp.connect_axes(edges=edges, axis_id_1="john_degree", axis_id_2="john_id", c="C1")
+    karate_hp.connect_axes(edges=edges, axis_id_1="hi_degree", axis_id_2="john_degree", c="C2")
+    karate_hp.connect_axes(edges=edges, axis_id_1="irg1_id", axis_id_2="john_id", c="C3")
+
+    # pull out the location of the John A. and Mr. Hi nodes for visual emphasis later
+    john_a_degree_locations = karate_hp.axes["john_degree"].node_placements
+    john_a_node = john_a_degree_locations.loc[john_a_degree_locations.loc[:, 'unique_id'] == 33,
+                                                                                                                                                                      ['x', 'y']].values.flatten()
+
+    mr_hi_degree_locations = karate_hp.axes["hi_degree"].node_placements
+    mr_hi_node = mr_hi_degree_locations.loc[mr_hi_degree_locations.loc[:, 'unique_id'] == 0,
+                                                                                                                                                                    ['x', 'y']].values.flatten()
+
+    # plot axes
+    fig, ax = axes_viz_mpl(karate_hp,
+                                                                                       axes_labels_buffer=1.4)
+
+    # plot nodes
+    node_viz_mpl(karate_hp,
+                                                     fig=fig, ax=ax, s=80, c="black")
+
+    # highlight Mr. Hi and John. A on the degree axes
+    #ax.scatter(john_a_node[0], john_a_node[1],
+    #           facecolor="red", edgecolor="black", s=150, lw=2)
+    #ax.scatter(mr_hi_node[0], mr_hi_node[1],
+    #           facecolor="yellow", edgecolor="black", s=150, lw=2)
+
+    # plot edges
+    edge_viz_mpl(hive_plot=karate_hp, fig=fig, ax=ax, alpha=0.7, zorder=-1)
+
+    ax.set_title("Odor 2 Action \nHive Plot", fontsize=20, y=0.9)
+
+    ### legend ###
+
+    # edges
+
+    custom_lines = [Line2D([0], [0], color=f'C{i}', lw=3, linestyle='-') for i in range(3)]
+
+
+    ax.legend(custom_lines, ["Within Mr. Hi Faction", "Within John A. Faction",
+                                                                                                     "Between Factions"],
+                                      loc='upper left', bbox_to_anchor=(0.37, 0.35), title="Social Connections")
+    st.pyplot(fig)
+    """
+from scipy.spatial import Delaunay, ConvexHull
 
 
 def main():
@@ -904,11 +1179,13 @@ def main():
                 "Physics",
                 "Chord",
                 "Bundle",
+                "List Centrality",
                 "Community Mixing",
                 "Basic",
                 "Lumped Population",
                 "Spreadsheet",
                 "AdjacencyMatrix",
+                "Unknownids","cyto"
 
             ),
         )
@@ -919,11 +1196,13 @@ def main():
                 "Hive",
                 "Chord",
                 "Physics",
+                "List Centrality",
                 "Bundle",
                 "Basic",
                 "Lumped Population",
                 "Spreadsheet",
-                "AdjacencyMatrix"
+                "AdjacencyMatrix",
+                "Unknownids"
             ),
         )
 
@@ -949,7 +1228,7 @@ def main():
         color_dict,
         color_code_0,
         sheet,
-        popg,
+        popg, unk
     ) = get_frame(threshold)
 
     fig = plt.figure()
@@ -1001,17 +1280,6 @@ def main():
 
 
     first.remove_nodes_from(list(nx.isolates(first)))
-    edges_df_full = nx.to_pandas_adjacency(first)
-    try:
-        del edges_df_full["0"]
-        del edges_df_full["1"]
-    except:
-        pass
-    try:
-        edges_df_full.drop("0", inplace=True)
-        edges_df_full.drop("1", inplace=True)
-    except:
-        pass
     adj_mat = pd.DataFrame(adj_mat_dicts)
     try:
         encoded = {v: k for k, v in enumerate(first.nodes())}
@@ -1026,7 +1294,32 @@ def main():
     )
     adj_mat2 = pd.DataFrame(link)
     adj_mat3 = adj_mat[adj_mat["weight"] != 0]
+    unknownids = [k for k,v in cc.items() if v=="Unknown"]
+    if genre == "List Centrality":
+        list_centrality(first)
+    if genre == "Unknownids":
+        #for un in unknownids:
+        #
+        unk = set(unk)
+        unknownids = set(unknownids)
+        #st.text(unk)
+        st.text(len(unk))
+        #st.text(len(unknownids))
+        st.text(unk)
+        #st.text(len(set(unk)&set(unknownids)))
 
+
+
+        for kk in unk:
+            try:
+                k = df2.loc[kk, kk]
+                st.text('false')
+
+                st.text(kk)
+            except:
+                st.text('confirmed')
+
+            #df2[c]
     if genre == "Spreadsheet":
         st.markdown("Processed anonymized network data that is visualized")
         st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
@@ -1214,138 +1507,6 @@ def main():
         st.pyplot(fig)
 
 
-        def dont():
-            chord = hv.Chord(links)  # .select(value=(5, None))
-            # node_color = [color_code[n] for n in H]
-            # st.text(links['color'])
-            chord.opts(
-                opts.Chord(
-                    cmap="Category20",
-                    width=250,
-                    height=250,
-                    edge_cmap="Category20",
-                    edge_color=dim("source").str(),
-                    labels="name",
-                    node_color=dim("index").str(),
-                )
-            )
-
-
-        def dontdo():
-            """
-            sorting_feature = "club"
-            hp = hive_plot_n_axes(
-                            node_list=nodes,
-                            edges=edges,
-                            axes_assignments=[
-                                            IRG1_indices,
-                                            IRG2_indices,
-                                            IRG3_indices,
-                                            DCMT_ind,
-                                            Un_ind,
-                            ],
-                            sorting_variables=["club", "club", "club", "club", "club"],
-                            axes_names=["IRG1", "IRG2", "IRG3", "DCMT", "Unknown"],
-                            vmins=[0, -0, 0, -10, -10],
-                            vmaxes=[33, 33, 33, 33, 33],
-            )
-
-            #fig = hive_plot_viz_mpl(hp)
-
-            ### axes ###
-
-            axis0 = Axis(axis_id="hi_id", start=1, end=5, angle=-30,
-                                                             long_name="Mr. Hi Faction\n(Sorted by ID)")
-            axis1 = Axis(axis_id="hi_degree", start=1, end=5, angle=30,
-                                                             long_name="Mr. Hi Faction\n(Sorted by Degree)")
-            axis2 = Axis(axis_id="john_degree", start=1, end=5, angle=180 - 30,
-                                                             long_name="John A. Faction\n(Sorted by Degree)")
-            axis3 = Axis(axis_id="john_id", start=1, end=5, angle=180 + 30,
-                                                             long_name="John A. Faction\n(Sorted by ID)")
-            axis4 = Axis(axis_id="irg1_id", start=1, end=5, angle=180,
-                                                             long_name="John A. Faction\n(Sorted by ID)")
-
-            axes = [axis0, axis1, axis2, axis3, axis4]
-
-            karate_hp.add_axes(axes)
-
-            ### node assignments ###
-
-            color_dict = {
-                            "Unknown": "black",
-                            "IRG 3": "green",
-                            "IRG 1": "blue",
-                            "IRG 2": "yellow",
-                            "DCMT": "orange",
-            }
-
-            # partition the nodes into "Mr. Hi" nodes and "John A." nodes
-            IRG1_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 1"]
-            IRG2_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 2"]
-            DCMT_nodes = [node.unique_id for node in nodes if node.data['club'] == "DCMT"]
-            hi_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 3"]
-            john_a_nodes = [node.unique_id for node in nodes if node.data['club'] == "Unknown"]
-            #st.text(hi_nodes[0])
-            # assign nodes and sorting procedure to position nodes on axis
-            karate_hp.place_nodes_on_axis(axis_id="hi_id", unique_ids=hi_nodes,
-                                                                                                                              sorting_feature_to_use="loc", vmin=0, vmax=33)
-            karate_hp.place_nodes_on_axis(axis_id="hi_degree", unique_ids=hi_nodes,
-                                                                                                                              sorting_feature_to_use="degree", vmin=0, vmax=17)
-            karate_hp.place_nodes_on_axis(axis_id="john_degree", unique_ids=john_a_nodes,
-                                                                                                                              sorting_feature_to_use="degree", vmin=0, vmax=17)
-            karate_hp.place_nodes_on_axis(axis_id="john_id", unique_ids=john_a_nodes,
-                                                                                                                              sorting_feature_to_use="loc", vmin=0, vmax=33)
-            karate_hp.place_nodes_on_axis(axis_id="irg1_id", unique_ids=IRG1_nodes,
-                                                                                                                              sorting_feature_to_use="loc", vmin=0, vmax=33)
-
-            ### edges ###
-
-            karate_hp.connect_axes(edges=edges, axis_id_1="hi_degree", axis_id_2="hi_id", c="C0")
-            karate_hp.connect_axes(edges=edges, axis_id_1="john_degree", axis_id_2="john_id", c="C1")
-            karate_hp.connect_axes(edges=edges, axis_id_1="hi_degree", axis_id_2="john_degree", c="C2")
-            karate_hp.connect_axes(edges=edges, axis_id_1="irg1_id", axis_id_2="john_id", c="C3")
-
-            # pull out the location of the John A. and Mr. Hi nodes for visual emphasis later
-            john_a_degree_locations = karate_hp.axes["john_degree"].node_placements
-            john_a_node = john_a_degree_locations.loc[john_a_degree_locations.loc[:, 'unique_id'] == 33,
-                                                                                                                                                                              ['x', 'y']].values.flatten()
-
-            mr_hi_degree_locations = karate_hp.axes["hi_degree"].node_placements
-            mr_hi_node = mr_hi_degree_locations.loc[mr_hi_degree_locations.loc[:, 'unique_id'] == 0,
-                                                                                                                                                                            ['x', 'y']].values.flatten()
-
-            # plot axes
-            fig, ax = axes_viz_mpl(karate_hp,
-                                                                                               axes_labels_buffer=1.4)
-
-            # plot nodes
-            node_viz_mpl(karate_hp,
-                                                             fig=fig, ax=ax, s=80, c="black")
-
-            # highlight Mr. Hi and John. A on the degree axes
-            #ax.scatter(john_a_node[0], john_a_node[1],
-            #           facecolor="red", edgecolor="black", s=150, lw=2)
-            #ax.scatter(mr_hi_node[0], mr_hi_node[1],
-            #           facecolor="yellow", edgecolor="black", s=150, lw=2)
-
-            # plot edges
-            edge_viz_mpl(hive_plot=karate_hp, fig=fig, ax=ax, alpha=0.7, zorder=-1)
-
-            ax.set_title("Odor 2 Action \nHive Plot", fontsize=20, y=0.9)
-
-            ### legend ###
-
-            # edges
-
-            custom_lines = [Line2D([0], [0], color=f'C{i}', lw=3, linestyle='-') for i in range(3)]
-
-
-            ax.legend(custom_lines, ["Within Mr. Hi Faction", "Within John A. Faction",
-                                                                                                             "Between Factions"],
-                                              loc='upper left', bbox_to_anchor=(0.37, 0.35), title="Social Connections")
-            st.pyplot(fig)
-            """
-
     if genre == "Bundle":
         my_expander = st.beta_expander("show labels?")
         labels_ = my_expander.radio("Would you like to label nodes?", ("No", "Yes"))
@@ -1364,8 +1525,139 @@ def main():
 
         fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
         st.pyplot(fig4)
+    #import streamlit as st
+    if genre== "cyto":
+        #from ipycytoscape import CytoscapeWidget
+        #cyto = CytoscapeWidget()
+        #cyto.graph.add_graph_from_networkx(first)
+        #st.text(dir(cyto))
+        #components.html(raw_html)
+        #cyto_data = nx.cytoscape_data(first)
+        #cyto_graph = nx.cytoscape_graph(cyto_data)
+        #st.text(type(cyto_graph))
+        #st.text(cyto_data["elements"])
+        #st.text(cyto_data.keys())
+        #st.text(cyto_data['directed'])
+        #st.text(cyto.cytoscape_style)
+        #st.text(cyto.cytoscape_layout)
+        #st.text(color_dict)
+        #st.text(color_code)
+
+        G = first
+        pos=nx.fruchterman_reingold_layout(G)
+        A = nx.to_pandas_adjacency(first)
+        nodes = [
+            {
+                'data': {'id': node, 'label': node},
+                'position': {'x': 500*pos[node][0], 'y': 500*pos[node][1]},
+                'color':color_code[node]
+                #'locked': 'true'
+            }
+            for node in G.nodes if node in color_code
+        ]
+
+        edges = []
+        for col in A:
+            for row, value in A[col].iteritems():
+                if {'data': {'source': row, 'target': col}} not in edges and row != col:
+                    edges.append({'data': {'source': col, 'target': row}})
+
+        for edge in edges:
+            edge['data']['weight'] = 0.1*A.loc[edge['data']['source'], edge['data']['target']]
+
+        elements1 = nodes + edges
+
+
+        #from streamlit_cytoscapejs import st_cytoscapejs
+
+        #elements = [{"data":cyto_data['elements']}]
+        #st.text(elements)
+
+        import streamlit_bd_cytoscapejs
+        elements = elements1#cyto_data#[{"data":cyto_data['elements']}]
+        #st.text(cyto_data['elements'])
+        layout = {'name': 'random'}
+        layout = {'name': 'preset'}
+        #grid
+        #circle
+        #concentric
+        #breadthfirst
+        #cose
+        stylesheet=[{
+            'selector': 'node',
+            'style': {
+                'label': 'data(id)'
+            }
+        },
+        {
+            'selector': 'edge',
+            'style': {
+                # The default curve style does not work with certain arrows
+                'curve-style': 'bezier'
+            }
+        },
+        {
+            'selector': '#BA',
+            'style': {
+                'source-arrow-color': 'red',
+                'source-arrow-shape': 'triangle',
+                'line-color': 'red'
+            }
+        },
+        {
+            'selector': '#DA',
+            'style': {
+                'target-arrow-color': 'blue',
+                'target-arrow-shape': 'vee',
+                'line-color': 'blue'
+            }
+        },
+        {
+            'selector': '#BC',
+            'style': {
+                'mid-source-arrow-color': 'green',
+                'mid-source-arrow-shape': 'diamond',
+                'mid-source-arrow-fill': 'hollow',
+                'line-color': 'green',
+            }
+        },
+        {
+            'selector': '#CD',
+            'style': {
+                'mid-target-arrow-color': 'black',
+                'mid-target-arrow-shape': 'circle',
+                'arrow-scale': 2,
+                'line-color': 'black',
+            }
+        }
+        ]
+
+        node_id = streamlit_bd_cytoscapejs.st_bd_cytoscape(
+            elements,
+            layout=layout,
+            key='foo'
+        )
+        st.write(node_id)
+
+        import dash_cytoscape as cyto
+        import dash_html_components as html
+
+        #app = dash.Dash(__name__)
+        #layout = html.Div([
+        cyto.Cytoscape(
+            id='cytoscape',
+            elements=elements,
+            layout={'name': 'preset'}
+            )
+        #])
+        #st.text(dir(cyto))
+        #st.write(cyto)
+        #st.text()
+        #st.write(layout.to_plotly_json())
+        #components.html(layout.to_plotly_json())
+
     if genre == "Basic":
-        plt.rcParams['legend.title_fontsize'] = 'xx-large'
+        #'plt.rcParams['legend.title_fontsize'] = 'xx-large'
 
         my_expander = st.beta_expander("show labels?")
 
@@ -1379,6 +1671,8 @@ def main():
             "This is probably not the most informative layout option. Contrast this force directed layout network layout with bundling (wire cost is not economized here)..."
         )
         H = first.to_undirected()
+
+
         centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
         edge_thickness = [v * 20000 for v in centrality.values()]
         node_size = [v * 20000 for v in centrality.values()]
@@ -1500,7 +1794,8 @@ def main():
             figure = dashbio.Clustergram(
                 data=df2.loc[rows].values,
                 column_labels=columns,
-                color_threshold={"row": 250, "col": 700},
+                row_labels=rows,
+                color_threshold={"row": 0, "col": 70},
                 hidden_labels="row",
                 height=800,
                 width=800,

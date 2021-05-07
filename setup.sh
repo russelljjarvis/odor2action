@@ -18,6 +18,7 @@ sudo python3 -m pip install dask plotly tabulate bokeh hiveplotlib hiveplot pygr
 sudo python3 -m pip install streamlit --upgrade --ignore-installed
 sudo pip install hiveplotlib pygraphviz
 # streamlit-agraph
+sudo $(which pip) install python-igraph
 sudo $(which pip) install git+https://github.com/taynaud/python-louvain.git@networkx2
 git clone https://github.com/taynaud/python-louvain.git@networkx2; cd networkx; sudo $(which python) setup.py install; cd -
 python3 -c "from holoviews.operation.datashader import datashade"

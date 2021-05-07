@@ -124,11 +124,11 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     redo = {k: v for k, v in zip(graph.nodes, nodes_ind)}
     # pos = nx.spring_layout(H, k=0.05, seed=4572321, scale=1)
 
-    pos_ = nx.spring_layout(graph, scale=1, k=0.05, seed=4572321)
+    pos_ = nx.spring_layout(graph, scale=2.5, k=0.00015, seed=4572321)
     # node_color = [community_index[n] for n in graph]
     H = graph.to_undirected()
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
-    node_size = [v * 50000 for v in centrality.values()]
+    node_size = [v * 25000 for v in centrality.values()]
 
     coords = []
     for node in graph.nodes:
@@ -882,8 +882,10 @@ def list_centrality(first):
     df.rename(columns={0:'centrality value'},inplace=True)
 
     bc = df
+    st.markdown("Most Connected:")
     st.table(bc.head())
     st.text("...")
+    st.markdown("Least Connected:")
     st.table(bc.tail())
 
     st.markdown("In degree Centrality: (percieved listeners/high authority)")
@@ -894,8 +896,12 @@ def list_centrality(first):
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
     df.rename(columns={0:'centrality value'},inplace=True)
+    st.markdown("Biggest Listeners:")
+
     st.table(df.head())
     st.text("...")
+    st.markdown("Least Listening:")
+
     st.table(df.tail())
 
     #bc = df
@@ -909,8 +915,12 @@ def list_centrality(first):
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
     df.rename(columns={0:'centrality value'},inplace=True)
+    st.markdown("Biggest Talkers:")
+
     st.table(df.head())
     st.text("...")
+    st.markdown("Least Talkative:")
+
     st.table(df.tail())
 
     #bc = df

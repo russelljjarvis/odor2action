@@ -799,7 +799,7 @@ def community(first,color_code,color_dict):
         points = np.array(pointss[i])
         for simplex in hull.simplices:
             #pass
-            plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(whichpkeys[i]), alpha=0.025)
+            plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(whichpkeys[i]), alpha=0.05)
 
 
     nx.draw_networkx_nodes(
@@ -1220,6 +1220,9 @@ def main():
 		The higher the threshold the more you \n reduce connections"""
     )
     my_expander = st.beta_expander("Set threshold")
+    #if genre == "Bundle":
+    #    threshold = my_expander.slider("Select a threshold value", 0.0, 10.0, 5.0, 1.0)
+    #else:
     threshold = my_expander.slider("Select a threshold value", 0.0, 8.0, 5.0, 1.0)
     # st.write("Values:", threshold)
     (
@@ -1344,7 +1347,7 @@ def main():
         For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
         This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities. In otherwords spontaneuosly emerging community groups may be significantly different to formal group assignments.
         The stochastic community detection algorithm uses a differently seeded random number generator every time so the graph appears differently each time the function is called.
-        The algorithm is called Louvain community detection.
+        The algorithm is called Louvain community detection. The Louvain Community algorithm detects 5 communities, but only 2 communities with membership >=3. A grey filled convex hull is drawn around each of the two larger communities.
         """)
 
         community(first,color_code,color_dict)
@@ -1525,9 +1528,8 @@ def main():
         my_expander.markdown(
             """The graph type below is called edge bundling. "Bundling" connecting cables simplifies the visualization.\n \
 			 Think of it like internet cables which are bundled. Internet backbones connect places far \n \
-			 apart as to economize wiring material. Setting high thresholds here: 14-16 leads to some insight.
-			 High thresholds show only intense collaborations, disconnecting the network in meaningful way."""
-        )
+			 apart as to economize wiring material. Conservation of wire material is also seen in the nervous system.
+             In the corpus callosum and spinal column convergent paths are constricted into relatively narrower bundles.""")
 
         fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
         st.pyplot(fig4)

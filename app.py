@@ -942,7 +942,7 @@ def list_centrality(first):
     #st.table(df)
     #edge_thickness = {k: v * 200000 for k, v in centrality.items()}
 
-def physics(first, adj_mat_dicts, color_code,color_code_0):
+def physics(first, adj_mat_dicts, color_code,color_code_0,color_dict):
 
     my_expander = st.beta_expander("physical parameters")
 
@@ -1038,6 +1038,13 @@ def physics(first, adj_mat_dicts, color_code,color_code_0):
     HtmlFile = open("test1.html", "r", encoding="utf-8")
     source_code = HtmlFile.read()
     components.html(source_code, height=750, width=750)
+    #fig = plt.figure()
+    fig, ax = plt.subplots(figsize=(1, 1))
+
+    for k, v in color_dict.items():
+        plt.scatter([], [], c=v, label=k)
+    plt.legend(frameon=False,prop={'size':1.5})
+    st.pyplot(fig)
     if phys_ == "Yes":
         from PIL import Image
         st.markdown("Some parameter sets can prevent static equilibrium states. For example:")
@@ -1439,7 +1446,7 @@ def main():
         fig=go.Figure(data=data, layout=layout)
         st.write(fig)
     if genre == "Physics":
-        physics(first, adj_mat_dicts, color_code,color_code_0)
+        physics(first, adj_mat_dicts, color_code,color_code_0,color_dict)
 
     if genre == "Lumped Population":
         population(cc, popg, color_dict)

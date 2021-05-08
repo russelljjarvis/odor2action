@@ -577,6 +577,37 @@ def get_table_download_link_csv(df):
     b64 = base64.b64encode(csv).decode()
     href = f'<a href="data:file/csv;base64,{b64}" download="captura.csv" target="_blank">Download csv file</a>'
     return href
+from matplotlib.patches import FancyArrowPatch, Circle
+import numpy as np
+
+def draw_network(G,pos,ax,widths,edge_colors,sg=None):
+
+    for n in G.nodes:
+        c=Circle(pos[n],radius=0.05,alpha=0.7)
+        #ax.add_patch(c)
+        G.nodes[n]['patch']=c
+        x,y=pos[n]
+    seen={}
+    for n,(u,v,d) in enumerate(G.edges(data=True)):
+        n1=G.nodes[u]['patch']
+        n2=G.nodes[v]['patch']
+        rad=0.1
+        if (u,v) in seen:
+            rad=seen.get((u,v))
+            rad=(rad+np.sign(rad)*0.1)*-1
+        alpha=0.5
+        color='k'
+
+        e = FancyArrowPatch(n1.center,n2.center,patchA=n1,patchB=n2,
+                            arrowstyle='-|>',
+                            connectionstyle='arc3,rad=%s'%rad,
+                            mutation_scale=10.0,
+                            lw=widths[n],
+                            alpha=alpha,
+                            color=edge_colors[n])
+        seen[(u,v)]=rad
+        ax.add_patch(e)
+    return e
 
 #@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def population(cc, popg, color_dict):
@@ -615,16 +646,25 @@ def population(cc, popg, color_dict):
         widths.append(ee["weight"] * 0.02)
 
     # nx.draw_networkx_edges(G, pos, edgelist=edgelist, arrowstyle="<|-", style="dashed")
+    def dontdo():
+        '''
+        nx.draw_networkx_edges(
+            popg,
+            pos=pos,
+            edgelist=edge_list,
+            edge_color=edge_colors,
+            alpha=0.70,
+            width=widths,
+            arrowstyle="<|-"
+        )
+        '''
 
-    nx.draw_networkx_edges(
-        popg,
-        pos=pos,
-        edgelist=edge_list,
-        edge_color=edge_colors,
-        alpha=0.70,
-        width=widths,
-        arrowstyle="<|-"
-    )
+    ax=plt.gca()
+    draw_network(popg,pos,ax,widths,edge_colors)
+    ax.autoscale()
+    plt.axis('equal')
+    plt.axis('off')
+
     # labels = {v.name:v for v,v in popg.nodes}
     labels = {}
     for node in popg.nodes():

@@ -874,7 +874,7 @@ def community(first,color_code,color_dict):
 
 def list_centrality(first):
     H = first.to_undirected()
-    st.markdown("Betweeness Centrality:")
+    st.markdown("## Betweeness Centrality:")
     st.markdown("Top to bottom node id from most central to least:")
 
     centrality = nx.betweenness_centrality(H, endpoints=True)
@@ -884,13 +884,13 @@ def list_centrality(first):
     df.rename(columns={0:'centrality value'},inplace=True)
 
     bc = df
-    st.markdown("Most Connected:")
-    st.table(bc.head())
+    st.markdown("### Most Connected:")
+    st.write(bc.head())
     st.text("...")
-    st.markdown("Least Connected:")
-    st.table(bc.tail())
+    st.markdown("### Least Connected:")
+    st.write(bc.tail())
 
-    st.markdown("In degree Centrality: (percieved listeners/high authority)")
+    st.markdown("## In degree Centrality: (percieved listeners/high authority)")
     st.markdown("Top to bottom node id from most central to least:")
 
     centrality = nx.in_degree_centrality(first)
@@ -898,32 +898,32 @@ def list_centrality(first):
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
     df.rename(columns={0:'centrality value'},inplace=True)
-    st.markdown("Biggest Listeners:")
+    st.markdown("### Biggest Listeners:")
 
-    st.table(df.head())
+    st.write(df.head())
     st.text("...")
-    st.markdown("Least Listening:")
+    st.markdown("### Least Listening:")
 
-    st.table(df.tail())
+    st.write(df.tail())
 
     #bc = df
     #st.table(df)
 
     #Compute the in-degree centrality for nodes.
-    st.markdown("Out-degree Centrality (percieved talkers), read from top to bottom from most central to least:")
+    st.markdown("## Out-degree Centrality (percieved talkers), read from top to bottom from most central to least:")
 
     centrality = nx.out_degree_centrality(first)
     df = pd.DataFrame([centrality])
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
     df.rename(columns={0:'centrality value'},inplace=True)
-    st.markdown("Biggest Talkers:")
+    st.markdown("### Biggest Talkers:")
 
-    st.table(df.head())
+    st.write(df.head())
     st.text("...")
-    st.markdown("Least Talkative:")
+    st.markdown("### Least Talkative:")
 
-    st.table(df.tail())
+    st.write(df.tail())
 
     #bc = df
     #st.table(df)
@@ -1872,6 +1872,9 @@ def main():
         my_expander.markdown(
             """Clustergrams are re-sorted adjacency matrices, thats why their diaganols do not appear to be zero. \n
 			The sorting maximizes cluster size.
+
+            In all three graphs below, only every second node is labelled on x,y axis. This is so as not over crowd the
+            axis labels. If you look closely at the pixels, pixels vary at double the frequency of the node labels.
 			"""
         )
 

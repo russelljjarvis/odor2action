@@ -2,6 +2,8 @@
 Author: [Russell Jarvis](https://github.com/russelljjarvis)
 
 """
+from community import community_louvain
+
 import igraph as ig
 import plotly.graph_objs as go
 
@@ -1285,7 +1287,8 @@ def main():
         color_dict,
         color_code_0,
         sheet,
-        popg, hc
+        popg,
+        hc
     ) = get_frame(threshold)
 
     fig = plt.figure()
@@ -1301,9 +1304,7 @@ def main():
     my_expander.pyplot(fig)
     inboth = set(names) & set(ratercodes)
     notinboth = set(names) - set(ratercodes)
-
     allcodes = set(names) or set(ratercodes)
-
     first = nx.DiGraph()
 
     for i, row in enumerate(allcodes):
@@ -1369,7 +1370,6 @@ def main():
         my_expander.table(sheet)
 
     #try:
-    from community import community_louvain
     if genre == "Community Mixing":
         my_expander = st.beta_expander("Explanation of Community Partitions")
         my_expander.markdown("""Communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the five inferred communities. \
@@ -1391,13 +1391,27 @@ def main():
           #  into [(0, 1), (0, 2), ...] for igraph
 
         # convert via adjacency matrix
-        G = ig.Graph.Adjacency((nx.to_numpy_matrix(g) > 0).tolist())
+        #G = ig.Graph.Adjacency((nx.to_numpy_matrix(g) > 0).tolist())
 
         #assert G.get_adjacency() == g1.get_adjacency()
+
+        links = copy.copy(adj_mat)
+        links.rename(
+            columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
+        )
+        links = links[links["value"] != 0]
+        #st.write(links)
+        Edges=[(encoded[src],encoded[tgt]) for src,tgt in zip(links['source'], links['target'])]
+        st.text(Edges)
+        labels=[]
+        group=[]
+        for node in first.nodes:
+            labels.append(encoded[node])
+            group.append(color_code_0[node])
+        G=ig.Graph(Edges, directed=False)
+
         layt=G.layout('kk', dim=3) # plot network with the Kamada-Kawai layout algorithm
         print(G)
-        Edges=G.edges#[(data['links'][k]['source'], data['links'][k]['target']) for k in range(L)]
-        print(layt[:3])
         #print(Edges[:3])
 
         #labels=[]
@@ -1409,6 +1423,7 @@ def main():
 
         #print(labels[:3])
         #print(group[:3])
+        #print(layt[:3])
 
         Xn=[]
         Yn=[]
@@ -1431,13 +1446,13 @@ def main():
         trace1=go.Scatter3d(x=Xe, y=Ye, z=Ze, mode='lines', line=dict(color='rgb(125,125,125)', width=1),hoverinfo='none')
 
         trace2=go.Scatter3d(x=Xn, y=Yn, z=Zn, mode='markers', name='actors',
-                           marker=dict(symbol='circle', size=6, color=group, colorscale='Viridis',
-                              line=dict(color='rgb(50,50,50)', width=0.5)), text=labels, hoverinfo='text')
+                           marker=dict(symbol='circle', size=6,colorscale='Viridis',
+                              line=dict(color='rgb(50,50,50)', width=0.5)))
 
         axis=dict(showbackground=False, showline=False, zeroline=False, showgrid=False, showticklabels=False, title='')
 
         layout = go.Layout(
-                 title="Network of coappearances of characters in Victor Hugo's novel<br> Les Miserables (3D visualization)",
+                 title="(3D visualization) Can be rotated",
                  width=1000,
                  height=1000,
                  showlegend=False,
@@ -1979,7 +1994,6 @@ def main():
         t = pd.Series(dic_to_sort)
         df_nodes['sort']=t#pd.Series(df_links.source)
         df_nodes.sort_values(by=['sort'],inplace=True)
-        #st.write(df_nodes)
 
         dic_to_sort = {}
         for i,kk in enumerate(df_links["source"]):
@@ -1989,11 +2003,6 @@ def main():
                 color_code_0[k] = "Unknown"
             df_nodes.loc[kk,"colors"] = color_code_0[k]
             dic_to_sort[i] = color_code_0[k]
-        # Colors = [ (kk,color_code_0[df_nodes.loc[kk,'name']]) for kk in df_links["source"] ]
-        # st.text(Colors)
-        # df_links["colors"] = Colors
-        # st.write(df_links)
-        # st.write(df_nodes)
 
         pd.set_option("display.max_columns", 11)
         hv.extension("bokeh")
@@ -2007,8 +2016,6 @@ def main():
         t = pd.Series(dic_to_sort)
         df_links['sort']=t#pd.Series(df_links.source)
         df_links.sort_values(by=['sort'],inplace=True)
-        #del df_links["colors"]
-        #st.write(df_links)
         chord = hv.Chord((df_links, nodes))  # .select(value=(5, None))
         chord.opts(
             opts.Chord(

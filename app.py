@@ -1,6 +1,13 @@
 """
 Author: [Russell Jarvis](https://github.com/russelljjarvis)
+
 """
+import igraph as ig
+import plotly.graph_objs as go
+
+from matplotlib.patches import FancyArrowPatch, Circle
+import numpy as np
+
 from hiveplotlib import Axis, Node, HivePlot, hive_plot_n_axes
 from hiveplotlib.viz import hive_plot_viz_mpl
 
@@ -16,7 +23,6 @@ import dash_bio as dashbio
 import streamlit as st
 
 st.set_page_config(layout="wide")
-#st.text(dir(st))
 
 import streamlit.components.v1 as components
 import networkx as nx
@@ -332,6 +338,11 @@ def get_frame(threshold=6):
 
         else:
             hard_codes = Path("code_by_IRG.xlsx")
+            hard_codes = openpyxl.load_workbook(hard_codes)
+
+            hard_codes = hard_codes.active
+
+            hard_codes = pd.DataFrame(hard_codes.values)
 
             xlsx_file0 = Path("o2anetmap2021.xlsx")
             xlsx_file1 = Path("o2anetmap.xlsx")
@@ -347,9 +358,28 @@ def get_frame(threshold=6):
 
             df2 = pd.concat([df3, df2])
             sheet = copy.copy(df2)
+            hc = {k:str("IRG ")+str(v) for k,v in zip(hard_codes[0][1::],hard_codes[1][1::])}
+            hc1 = {k:"DCMT" for k,v in hc.items() if v=="IRG DCMT"}
+            #st.text(hc1)
+            hc.update(hc1)
+            hc.pop("Code",None)
+
+            #st.text(hc)
             color_code_0 = {
                 k: v for k, v in zip(df2[0], df2[1]) if k not in "Rater Code"
             }
+            #st.text(hc)
+            #st.text(color_code_0)
+            color_code_0.update(hc)
+
+            #st.write(color_code_0)
+
+
+
+            #for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
+            #    if not reverse[node_id] in color_code_0.keys():
+            #        color_code_0[reverse[node_id]] = hc[reverse[node_id]]
+            #        reverse[node_id] = hc[reverse[node_id]]
             #➜  ~ change yellow to red
             #➜  ~ change orange to purple
 
@@ -357,7 +387,6 @@ def get_frame(threshold=6):
             # source or target.
 
             color_dict = {
-                "Unknown": "black",
                 "IRG 3": "green",
                 "IRG 1": "blue",
                 "IRG 2": "red",
@@ -365,26 +394,18 @@ def get_frame(threshold=6):
             }
             color_code_1 = {}
 
-            # if row[0] != 1 and row[0] != 0:
             popg = nx.DiGraph()
 
             for k, v in color_code_0.items():
 
                 if v not in popg.nodes:
-                    # st.text(v)
                     popg.add_node(v, name=v)
                 color_code_1[k] = color_dict[v]
-            # st.text(color_code_1)
             col_to_rename = df2.columns
-            # st.write(df2)
             ratercodes = df2[0][1::]
             row_names = list(df2.T[0].values)
-            # st.text(row_names[-1])
-            # st.text(list(df2.T[0].values)[-1])
-            # st.write(df2)
             row_names.append(list(df2.T[0].values)[-1])
             row_names = row_names[2::]
-            # st.text(row_names)
             names = [rn[0].split("- ") for rn in row_names]
             names2 = []
             for i in names:
@@ -399,12 +420,7 @@ def get_frame(threshold=6):
 
             row_names = list(range(0, len(df2.columns) + 1, 1))
             to_rename = {k: v for k, v in zip(row_names, names)}
-            #st.text(row_names)
             r_names = list(df2.index.values[:])
-            #st.text(r_names)
-
-
-                    #st.text(rn)
 
             to_rename_ind = {v: k for k, v in zip(df2[0], r_names)}
             del df2[0]
@@ -418,34 +434,17 @@ def get_frame(threshold=6):
             df2.rename(columns=to_rename, inplace=True)
             df2.rename(index=to_rename_ind, inplace=True)
             unk = []
+
             for col in df2.columns:
                 if col in df2.index.values[:]:
                     pass
                 else:
-                    unk.append(col)
-                    #st.text('not in')
+                    pass
+                    #st.text('found')
+                    #st.text(hc[col])
                     #st.text(col)
 
-            #st.text(r_names)
-            #st.write(df2)
 
-            ####
-            #edges_df_full = nx.to_pandas_adjacency(first)
-            #try:
-            #    del edges_df_full["0"]
-            #    del edges_df_full["1"]
-            #except:
-            #    pass
-            #try:
-            #    edges_df_full.drop("0", inplace=True)
-            #    edges_df_full.drop("1", inplace=True)
-            #except:
-            #    pass
-            ############
-
-            # uniq_col = {k: k for k in list(set(df2.columns))}
-            # comm = False
-            # if comm:
             legend = {}
 
             legend.update({"Never": 0.0})
@@ -493,7 +492,8 @@ def get_frame(threshold=6):
         color_dict,
         color_code_0,
         sheet,
-        popg,unk
+        popg,
+        hc
     )
 
 
@@ -577,8 +577,6 @@ def get_table_download_link_csv(df):
     b64 = base64.b64encode(csv).decode()
     href = f'<a href="data:file/csv;base64,{b64}" download="captura.csv" target="_blank">Download csv file</a>'
     return href
-from matplotlib.patches import FancyArrowPatch, Circle
-import numpy as np
 
 def draw_network(G,pos,ax,widths,edge_colors,sg=None):
 
@@ -622,8 +620,6 @@ def population(cc, popg, color_dict):
         else:
             sizes[v] += 1
     temp = list([s * 1000 for s in sizes.values()])
-    # st.text(temp)
-    # st.text(popg.node0s)
     node_color = [color_dict[n] for n in popg]
     nx.draw_networkx_nodes(
         popg,
@@ -789,17 +785,11 @@ def community(first,color_code,color_dict):
 
     from community import community_louvain
     temp = first.to_undirected()
-    ##
-    # partition = community_louvain.best_partition(temp,resolution=2.5)
-    ##
-    #partition = community_louvain.best_partition(temp,resolution=1)
 
     partition = community_louvain.best_partition(temp,resolution=3.5)
     pos, pos_communities = community_layout(temp, partition)
-    #fig = plt.figure()
     diffcc = list(partition.values())
     pkeys = set(partition.values())
-    #for k,v in partion.items():
     partitiondf = pd.DataFrame([partition]).T
     hulls = []
     pointss = []
@@ -1107,8 +1097,6 @@ def dont():
             node_color=dim("index").str(),
         )
     )
-import igraph as ig
-import plotly.graph_objs as go
 
 
 def dontdo():
@@ -1297,7 +1285,7 @@ def main():
         color_dict,
         color_code_0,
         sheet,
-        popg, unk
+        popg, hc
     ) = get_frame(threshold)
 
     fig = plt.figure()
@@ -1328,9 +1316,9 @@ def main():
     for i, idx in enumerate(df2.index):
         for j, col in enumerate(df2.columns):
             if col not in cc.keys():
-                cc[col] = "Unknown"
+                cc[col] = hc[col]
             if idx not in color_code_0.keys():
-                cc[idx] = "Unknown"
+                cc[col] = hc[col]
 
     for i, idx in enumerate(df2.index):
         for j, col in enumerate(df2.columns):
@@ -1364,31 +1352,9 @@ def main():
     adj_mat2 = pd.DataFrame(link)
     adj_mat3 = adj_mat[adj_mat["weight"] != 0]
     unknownids = [k for k,v in cc.items() if v=="Unknown"]
+    st.text(unknownids)
     if genre == "List Centrality":
         list_centrality(first)
-    if genre == "Unknownids":
-        #for un in unknownids:
-        #
-        unk = set(unk)
-        unknownids = set(unknownids)
-        #st.text(unk)
-        st.text(len(unk))
-        #st.text(len(unknownids))
-        st.text(unk)
-        #st.text(len(set(unk)&set(unknownids)))
-
-
-
-        for kk in unk:
-            try:
-                k = df2.loc[kk, kk]
-                st.text('false')
-
-                st.text(kk)
-            except:
-                st.text('confirmed')
-
-            #df2[c]
     if genre == "Spreadsheet":
         st.markdown("Processed anonymized network data that is visualized")
         st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
@@ -1505,11 +1471,18 @@ def main():
         node_ids, degrees = np.unique(edges, return_counts=True)
 
         nodes = []
-        Un_ind = []
+        #Un_ind = []
         IRG1_indices = []
         IRG2_indices = []
         IRG3_indices = []
         DCMT_ind = []  # ,Un_ind
+        #st.text(len(color_code_0))
+        for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
+            if not reverse[node_id] in color_code_0.keys():
+                color_code_0[reverse[node_id]] = hc[reverse[node_id]]
+                reverse[node_id] = hc[reverse[node_id]]
+
+        #st.text(len(color_code_0))
 
         for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
             # store the index number as a way to align the nodes on axes
@@ -1517,6 +1490,7 @@ def main():
             # also store the degree of each node as another way to align nodes on axes
             G.nodes.data()[node_id]["degree"] = degree
             # G.nodes.data()[node_id]['club'] =
+
             if reverse[node_id] in color_code_0.keys():
                 # = color_code_0[reverse[node_id]]
                 if color_code_0[reverse[node_id]] == "IRG 1":
@@ -1540,17 +1514,18 @@ def main():
                     G.nodes.data()[node_id]["club"] = 4
 
             else:
+                st.text("no else")
                 # G.nodes.data()[node_id]['club'] = "Unknown"
-                G.nodes.data()[node_id]["Unknown"] = 5
-                G.nodes.data()[node_id]["club"] = 5
+                #G.nodes.data()[node_id]["Unknown"] = 5
+                #G.nodes.data()[node_id]["club"] = 5
 
-                Un_ind.append(i)
+                #Un_ind.append(i)
 
             temp_node = Node(unique_id=node_id, data=G.nodes.data()[node_id])
             nodes.append(temp_node)
 
         temp = list(set(color_code_0.values()))
-        temp.append("Unknown")
+        #temp.append("Unknown")
         hp = hive_plot_n_axes(
             node_list=nodes,
             edges=edges,
@@ -1559,12 +1534,11 @@ def main():
                 IRG2_indices,
                 IRG3_indices,
                 DCMT_ind,
-                Un_ind,
             ],
-            sorting_variables=["club", "club", "club", "club", "club"],
+            sorting_variables=["club", "club", "club", "club"],
             axes_names=temp,
-            vmins=[0, 0, 0, 0, 0],
-            vmaxes=[2, 2, 2, 2, 2],
+            vmins=[0, 0, 0, 0],
+            vmaxes=[2, 2, 2, 2],
             orient_angle=30,
         )
 
@@ -1605,13 +1579,13 @@ def main():
             vmin=0,
             vmax=33,
         )
-        hp.place_nodes_on_axis(
-            axis_id=temp[3],
-            unique_ids=[nodes[i].data["loc"] for i in Un_ind],
-            sorting_feature_to_use="loc",
-            vmin=0,
-            vmax=33,
-        )
+        #hp.place_nodes_on_axis(
+        #    axis_id=temp[3],
+        #    unique_ids=[nodes[i].data["loc"] for i in Un_ind],
+        #    sorting_feature_to_use="loc",
+        #    vmin=0,
+        #    vmax=33,
+        #)
 
         hp.connect_axes(edges=edges, axis_id_1=temp[0], axis_id_2=temp[1], c="C0")
         hp.connect_axes(edges=edges, axis_id_1=temp[1], axis_id_2=temp[2], c="C1")
@@ -1619,10 +1593,10 @@ def main():
         hp.connect_axes(edges=edges, axis_id_1=temp[2], axis_id_2=temp[3], c="C4")
         hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[1], c="C5")
         hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[0], c="C6")
-        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[0], c="C7")
-        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[1], c="C8")
-        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[2], c="C9")
-        hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[3], c="C10")
+        #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[0], c="C7")
+        #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[1], c="C8")
+        #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[2], c="C9")
+        #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[3], c="C10")
 
         fig, ax = hive_plot_viz_mpl(hive_plot=hp)
         # john_a_degree_locations = \

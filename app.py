@@ -1352,8 +1352,8 @@ def main():
     )
     adj_mat2 = pd.DataFrame(link)
     adj_mat3 = adj_mat[adj_mat["weight"] != 0]
-    unknownids = [k for k,v in cc.items() if v=="Unknown"]
-    st.text(unknownids)
+    #unknownids = [k for k,v in cc.items() if v=="Unknown"]
+    #st.text(unknownids)
     if genre == "List Centrality":
         list_centrality(first)
     if genre == "Spreadsheet":
@@ -1402,28 +1402,24 @@ def main():
         links = links[links["value"] != 0]
         #st.write(links)
         Edges=[(encoded[src],encoded[tgt]) for src,tgt in zip(links['source'], links['target'])]
-        st.text(Edges)
-        labels=[]
-        group=[]
-        for node in first.nodes:
-            labels.append(encoded[node])
-            group.append(color_code_0[node])
+        #st.text(Edges)
+        #labels=[]
+        #group=[]
+        #for node in first.nodes:
+        #    labels.append(node)
+        #    group.append(color_code_0[node])
         G=ig.Graph(Edges, directed=False)
 
         layt=G.layout('kk', dim=3) # plot network with the Kamada-Kawai layout algorithm
-        print(G)
-        #print(Edges[:3])
 
-        #labels=[]
-        #group=[]
+        labels=[]
+        group=[]
 
-        #for node in data['nodes']:
-          #labels.append(node['name'])
-          #group.append(node['group'])
-
-        #print(labels[:3])
-        #print(group[:3])
-        #print(layt[:3])
+        for node in links['source']:
+           labels.append(str(node))
+           group.append(color_code[node])
+           #st.text(node)
+           #st.text(color_code[node])
 
         Xn=[]
         Yn=[]
@@ -1445,9 +1441,9 @@ def main():
 
         trace1=go.Scatter3d(x=Xe, y=Ye, z=Ze, mode='lines', line=dict(color='rgb(125,125,125)', width=1),hoverinfo='none')
 
-        trace2=go.Scatter3d(x=Xn, y=Yn, z=Zn, mode='markers', name='actors',
-                           marker=dict(symbol='circle', size=6,colorscale='Viridis',
-                              line=dict(color='rgb(50,50,50)', width=0.5)))
+        trace2=go.Scatter3d(x=Xn, y=Yn, z=Zn, mode='markers', name='Researchers',
+                           marker=dict(symbol='circle',color=group, size=6,colorscale='Viridis',
+                              line=dict(color='rgb(50,50,50)', width=0.5)))#,text=labels,hoverinfo='text'))
 
         axis=dict(showbackground=False, showline=False, zeroline=False, showgrid=False, showticklabels=False, title='')
 

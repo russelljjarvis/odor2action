@@ -788,7 +788,7 @@ def community(first,color_code,color_dict):
     from community import community_louvain
     temp = first.to_undirected()
 
-    partition = community_louvain.best_partition(temp,resolution=3.5)
+    partition = community_louvain.best_partition(temp,resolution=4.0)
     pos, pos_communities = community_layout(temp, partition)
     diffcc = list(partition.values())
     pkeys = set(partition.values())
@@ -1037,10 +1037,7 @@ def physics(first, adj_mat_dicts, color_code,color_code_0,color_dict):
         mo = False
     #labels = False
     if phys_ == "Yes":
-        from PIL import Image
         nt.show_buttons(filter_=["physics"])
-        #st.image(Image.open("disequilbration.png"))
-
 
     # add neighbor data to node hover data
     for node in nt.nodes:
@@ -1216,6 +1213,9 @@ def dontdo():
     st.pyplot(fig)
     """
 from scipy.spatial import Delaunay, ConvexHull
+from pyveplot import Hiveplot, Axis, Node
+import networkx as nx
+import random
 
 
 def main():
@@ -1233,6 +1233,7 @@ def main():
             (
 
                 "Hive",
+                "hive-degree",
                 "Physics",
                 "Chord",
                 "Bundle",
@@ -1386,28 +1387,12 @@ def main():
         st.markdown("in development")
         g = first
 
-        #g1 = ig.Graph(len(g), zip(*zip(*nx.to_edgelist(g))[:2]))
-          # nx.to_edgelist(g) returns [(0, 1, {}), (0, 2, {}), ...], which is turned
-          #  into [(0, 1), (0, 2), ...] for igraph
-
-        # convert via adjacency matrix
-        #G = ig.Graph.Adjacency((nx.to_numpy_matrix(g) > 0).tolist())
-
-        #assert G.get_adjacency() == g1.get_adjacency()
-
         links = copy.copy(adj_mat)
         links.rename(
             columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
         )
         links = links[links["value"] != 0]
-        #st.write(links)
         Edges=[(encoded[src],encoded[tgt]) for src,tgt in zip(links['source'], links['target'])]
-        #st.text(Edges)
-        #labels=[]
-        #group=[]
-        #for node in first.nodes:
-        #    labels.append(node)
-        #    group.append(color_code_0[node])
         G=ig.Graph(Edges, directed=False)
 
         layt=G.layout('kk', dim=3) # plot network with the Kamada-Kawai layout algorithm
@@ -1467,6 +1452,156 @@ def main():
 
     if genre == "Lumped Population":
         population(cc, popg, color_dict)
+    if genre == "hive-degree":
+        def hub_sort():
+            c = ['#e41a1c', '#377eb8', '#4daf4a',
+                 '#984ea3', '#ff7f00', '#ffff33',
+                 '#a65628', '#f781bf', '#999999',]
+
+            # create hiveplot object
+            h = Hiveplot()
+            fig = plt.figure()
+            # create three axes, spaced at 120 degrees from each other
+            h.axes = [Axis(start=20, angle=0,
+                           stroke=random.choice(c), stroke_width=1.1),
+                      Axis(start=20, angle=120,
+                           stroke=random.choice(c), stroke_width=1.1),
+                      Axis(start=20, angle=120 + 120,
+                           stroke=random.choice(c), stroke_width=1.1)
+                      ]
+
+            # create a random Barabasi-Albert network
+            g = first
+            #g = nx.barabasi_albert_graph(100, 2)
+
+            # sort nodes by degree
+            k = list(nx.degree(g))
+            k.sort(key=lambda tup: tup[1])
+
+            # categorize them as high, medium and low degree
+            hi_deg = [v[0] for v in k if v[1] > 7]
+            md_deg = [v[0] for v in k if v[1] > 3 and v[1] <= 7]
+            lo_deg = [v[0] for v in k if v[1] <= 3]
+
+            # place these nodes into our three axes
+            for axis, nodes in zip(h.axes,
+                                   [hi_deg, md_deg, lo_deg]):
+                circle_color = random.choice(c)
+                for v in nodes:
+                    # create node object
+                    node = Node(radius=g.degree(v),
+                                label="node %s k=%s" % (v, g.degree(v)))
+                    # add it to axis
+                    axis.add_node(v, node)
+                    # once it has x, y coordinates, add a circle
+                    node.add_circle(fill=circle_color, stroke=circle_color,
+                                    stroke_width=0.1, fill_opacity=0.7)
+                    if axis.angle < 180:
+                        orientation = -1
+                        scale = 0.6
+                    else:
+                        orientation = 1
+                        scale = 0.35
+                    # also add a label
+                    node.add_label("node %s k=%s" % (v, g.degree(v)),
+                                   angle=axis.angle + 90 * orientation,
+                                   scale=scale)
+
+            # iterate through axes, from left to right
+            for n in range(-1, len(h.axes) - 1):
+                curve_color = random.choice(c)
+                # draw curves between nodes connected by edges in network
+                h.connect_axes(h.axes[n],
+                               h.axes[n+1],
+                               g.edges,
+                               stroke_width=0.5,
+                               stroke=curve_color)
+            #st.text(dir(h.axes))
+            #st.pyplot(fig)
+
+            # save output
+            h.save('ba_hiveplot.png')
+            from PIL import Image
+
+            st.image(Image.open("ba_hiveplot.png"))
+        def colored_hive_axis(first,color_code_0,reverse):
+            c = ['#e41a1c', '#377eb8', '#4daf4a',
+                 '#984ea3', '#ff7f00', '#ffff33',
+                 '#a65628', '#f781bf', '#999999',]
+            IRG1_indices = []
+            IRG2_indices = []
+            IRG3_indices = []
+            DCMT_ind = []  # ,Un_ind
+
+            for i, (node_id) in enumerate(g.nodes):
+                if reverse[node_id] in color_code_0.keys():
+                    if color_code_0[reverse[node_id]] == "IRG 1":
+                        IRG1_indices.append(i)
+                    if color_code_0[reverse[node_id]] == "IRG 2":
+                        IRG2_indices.append(i)
+                    if color_code_0[reverse[node_id]] == "IRG 3":
+                        IRG3_indices.append(i)
+                    if color_code_0[reverse[node_id]] == "DCMT":
+                        DCMT_indices.append(i)
+
+
+            # create hiveplot object
+            h = Hiveplot()
+            fig = plt.figure()
+            # create three axes, spaced at 120 degrees from each other
+            h.axes = [Axis(start=20, angle=0,
+                           stroke=random.choice(c), stroke_width=1.1),
+                      Axis(start=20, angle=90,
+                           stroke=random.choice(c), stroke_width=1.1),
+                      Axis(start=20, angle=90 + 90,
+                           stroke=random.choice(c), stroke_width=1.1),
+                      Axis(start=20, angle=90 + 90 + 90,
+                           stroke=random.choice(c), stroke_width=1.1)
+                      ]
+            g = first
+
+            # place these nodes into our three axes
+            for axis, nodes in zip(h.axes,
+                                   [IRG1_indices, IRG2_indices, IRG3_indices,DCMT_indices]):
+                circle_color = random.choice(c)
+                for v in nodes:
+                    # create node object
+                    node = Node(radius=g.degree(v),
+                                label="node %s k=%s" % (v, g.degree(v)))
+                    # add it to axis
+                    axis.add_node(v, node)
+                    # once it has x, y coordinates, add a circle
+                    node.add_circle(fill=circle_color, stroke=circle_color,
+                                    stroke_width=0.1, fill_opacity=0.7)
+                    if axis.angle < 180:
+                        orientation = -1
+                        scale = 0.6
+                    else:
+                        orientation = 1
+                        scale = 0.35
+                    # also add a label
+                    node.add_label("node %s k=%s" % (v, g.degree(v)),
+                                   angle=axis.angle + 90 * orientation,
+                                   scale=scale)
+
+            # iterate through axes, from left to right
+            for n in range(-1, len(h.axes) - 1):
+                curve_color = random.choice(c)
+                # draw curves between nodes connected by edges in network
+                h.connect_axes(h.axes[n],
+                               h.axes[n+1],
+                               g.edges,
+                               stroke_width=0.5,
+                               stroke=curve_color)
+            #st.text(dir(h.axes))
+            #st.pyplot(fig)
+
+            # save output
+            h.save('col_ba_hiveplot.png')
+            from PIL import Image
+
+            st.image(Image.open("col_ba_hiveplot.png"))
+        colored_hive_axis(first,color_code_0,reverse)
 
     if genre == "Hive":
 
@@ -1492,8 +1627,6 @@ def main():
             if not reverse[node_id] in color_code_0.keys():
                 color_code_0[reverse[node_id]] = hc[reverse[node_id]]
                 reverse[node_id] = hc[reverse[node_id]]
-
-        #st.text(len(color_code_0))
 
         for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
             # store the index number as a way to align the nodes on axes
@@ -1532,8 +1665,8 @@ def main():
 
                 #Un_ind.append(i)
 
-            temp_node = Node(unique_id=node_id, data=G.nodes.data()[node_id])
-            nodes.append(temp_node)
+            #temp_node = Node(unique_id=node_id, data=G.nodes.data()[node_id])
+            #nodes.append(temp_node)
 
         temp = list(set(color_code_0.values()))
         #temp.append("Unknown")
@@ -1941,6 +2074,19 @@ def main():
         except:
             pass
     if genre == "Chord":
+        # https://docs.bokeh.org/en/0.12.3/docs/gallery/chord_chart.html
+        from bokeh.charts import output_file, Chord
+        nodes = data['nodes']
+        links = data['links']
+
+        nodes_df = pd.DataFrame(nodes)
+        links_df = pd.DataFrame(links)
+
+        source_data = links_df.merge(nodes_df, how='left', left_on='source', right_index=True)
+        source_data = source_data.merge(nodes_df, how='left', left_on='target', right_index=True)
+        source_data = source_data[source_data["value"] > 5]
+
+        chord_from_df = Chord(source_data, source="name_x", target="name_y", value="value")
         st.markdown(""" clicking on a node highlights its direct projections""")
 
         H = first.to_undirected()
@@ -2003,16 +2149,62 @@ def main():
         pd.set_option("display.max_columns", 11)
         hv.extension("bokeh")
         hv.output(size=200)
-
-        nodes = hv.Dataset(df_nodes, "index")
-        # https://geomdata.gitlab.io/hiveplotlib/karate_club.html
-        # Todo make hiveplot
-        #
-
         t = pd.Series(dic_to_sort)
         df_links['sort']=t#pd.Series(df_links.source)
         df_links.sort_values(by=['sort'],inplace=True)
-        chord = hv.Chord((df_links, nodes))  # .select(value=(5, None))
+        #df_links['colors'] = None
+        categories = np.unique(df_links["sort"])
+        colors = np.linspace(0, 1, len(categories))
+        colordicth = dict(zip(categories, colors))
+
+        df_links["Color"] = df_links["sort"].apply(lambda x: float(colordicth[x]))
+        #for i,row in df_links.iterrows():
+        #    st.text(i)
+        #    if row[-1]['sort'] == "IRG 1":
+        #        row[-1]
+            #if row[-2] == "IRG 1":
+                #if df_links.loc[i,'sort'] == "IRG 1":
+                #st.text(df_links.loc[i,'sort'])
+
+            #df_links.loc[i,'colors']
+        #df_nodes["index"] = df_links["Color"]
+        #st.write(df_links)
+        #st.write()
+
+        # https://geomdata.gitlab.io/hiveplotlib/karate_club.html
+        # Todo make hiveplot
+        #
+        #st.text(chord.transform)
+        #colors,y = chord.transform(chord,"Color")
+        #st.text(colors)
+        #st.text(dir(chord))
+        #from bokeh.sampledata.les_mis import data
+
+        #links = pd.DataFrame(data['links'])
+        #nodes = hv.Dataset(pd.DataFrame(data['nodes']), 'index')
+        #hv.Chord((links, nodes)).select(value=(5, None)).opts(
+
+        #st.write(hv.render((chordt), backend="bokeh"))
+
+        #st.text(links.head())
+        #st.text(links.tail())
+        #from chord3 import doCircleRibbonGraph
+        #labels = first.nodes
+        colors = df_links["Color"].values
+        #temp = nx.to_pandas_adjacency(first)
+        #temp = temp[temp!=0]
+        #temp = temp[temp!=np.nan]
+        #st.write(temp)
+        #doCircleRibbonGraph(temp, labels, colors, plot_size=400, title="Phd Country")
+        #(matrix, labels, colors, plot_size=400, title="Phd Country")
+        nodes = hv.Dataset(df_nodes, "index")
+        st.write(nodes)
+        st.write(df_links)
+        df_links["index"] = df_links["Color"]
+        chord = hv.Chord((df_links, nodes))#.opts.Chord(cmap='Category20', edge_color=dim('source').astype(str), node_color=dim('index').astype(str))
+          # .select(value=(5, None))
+
+
         chord.opts(
             opts.Chord(
                 cmap="Category20",
@@ -2020,11 +2212,9 @@ def main():
                 edge_color=dim("sort").str(),
                 width=350,
                 height=350,
-                labels="name",
-                node_color=dim("colors").str(),
+                labels="Color"
             )
         )
-        # st.write(hv.render((chord), backend="bokeh"))
         # st.markdown("Chord layout democratic")
         hv.save(chord, "chord2.html", backend="bokeh")
         HtmlFile2 = open("chord2.html", "r", encoding="utf-8")

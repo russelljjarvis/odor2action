@@ -267,86 +267,92 @@ def doCircleRibbonGraph(matrix, labels, colors, plot_size=400, title="Phd Countr
         sigma = idx_sort[k]
         sigma_inv = invPerm(sigma)
         for j in range(k, L):
+            #matrix[k][j]
             if matrix[k][j] == 0 and matrix[j][k] == 0:
                 continue
-            eta = idx_sort[j]
-            eta_inv = invPerm(eta)
-            l = ribbon_ends[k][sigma_inv[j]]
+            if matrix[k][j] != 0 and matrix[j][k] != 0:
 
-            if j == k:
-                layout["shapes"].append(
-                    make_self_rel(
-                        l, "rgb(175,175,175)", ideo_colors[k], radius=radii_sribb[k]
-                    )
-                )
-                z = 0.9 * np.exp(1j * (l[0] + l[1]) / 2)
-                # the text below will be displayed when hovering the mouse over the ribbon
-                text = (
-                    labels[k]
-                    + " donated $"
-                    + "{0}".format(matrix[k][k])
-                    + " to theirself",
-                )
-                ribbon_info.append(
-                    Scatter(
-                        x=z.real,
-                        y=z.imag,
-                        mode="markers",
-                        marker=Marker(size=0.5, color=ideo_colors[k]),
-                        text=text,
-                        hoverinfo="text",
-                    )
-                )
-            else:
-                r = ribbon_ends[j][eta_inv[k]]
-                zi = 0.9 * np.exp(1j * (l[0] + l[1]) / 2)
-                zf = 0.9 * np.exp(1j * (r[0] + r[1]) / 2)
-                # texti and textf are the strings that will be displayed when hovering the mouse
-                # over the two ribbon ends
-                texti = (
-                    labels[k]
-                    + " co-occurs with "
-                    + "{0}".format(matrix[k][j])
-                    + " of the "
-                    + labels[j]
-                )
-                textf = (
-                    labels[j]
-                    + " co-occurs with "
-                    + "{0}".format(matrix[j][k])
-                    + " of the "
-                    + labels[k]
-                )
+                eta = idx_sort[j]
+                eta_inv = invPerm(eta)
+                l = ribbon_ends[k][sigma_inv[j]]
 
-                ribbon_info.append(
-                    Scatter(
-                        x=zi.real,
-                        y=zi.imag,
-                        mode="markers",
-                        marker=Marker(size=0.5, color="rgb(175,175,175)"),
-                        text=texti,
-                        hoverinfo="text",
+                if j == k:
+                    st.text(type(layout["shapes"]))
+                    layout["shapes"].append(
+                        make_self_rel(
+                            l, "rgb(175,175,175)", ideo_colors[k], radius=radii_sribb[k]
+                        )
                     )
-                ),
-                ribbon_info.append(
-                    Scatter(
-                        x=zf.real,
-                        y=zf.imag,
-                        mode="markers",
-                        marker=Marker(size=0.5, color="rgb(175,175,175)"),
-                        #text=textf,
-                        #hoverinfo="text",
+                    z = 0.9 * np.exp(1j * (l[0] + l[1]) / 2)
+                    # the text below will be displayed when hovering the mouse over the ribbon
+                    text = (
+                        labels[k]
+                        + " donated $"
+                        + "{0}".format(matrix[k][k])
+                        + " to theirself",
                     )
-                )
-                r = (
-                    r[1],
-                    r[0],
-                )  # IMPORTANT!!!  Reverse these arc ends because otherwise you get
-                # a twisted ribbon
-                # append the ribbon shape
-                layout["shapes"].append(
-                    make_ribbon(l, r, "rgb(175,175,175)", "rgb(175,175,175)")
-                )
+                    ribbon_info.append(
+                        Scatter(
+                            x=z.real,
+                            y=z.imag,
+                            mode="markers",
+                            marker=Marker(size=0.5, color=ideo_colors[k]),
+                            text=text,
+                            hoverinfo="text",
+                        )
+                    )
+                else:
+                    r = ribbon_ends[j][eta_inv[k]]
+                    zi = 0.9 * np.exp(1j * (l[0] + l[1]) / 2)
+                    zf = 0.9 * np.exp(1j * (r[0] + r[1]) / 2)
+                    # texti and textf are the strings that will be displayed when hovering the mouse
+                    # over the two ribbon ends
+                    texti = (
+                        labels[k]
+                        + " co-occurs with "
+                        + "{0}".format(matrix[k][j])
+                        + " of the "
+                        + labels[j]
+                    )
+                    import streamlit as st
+                    st.text(texti)
+                    textf = (
+                        labels[j]
+                        + " co-occurs with "
+                        + "{0}".format(matrix[j][k])
+                        + " of the "
+                        + labels[k]
+                    )
+
+                    ribbon_info.append(
+                        Scatter(
+                            x=zi.real,
+                            y=zi.imag,
+                            mode="markers",
+                            marker=Marker(size=0.5, color="rgb(175,175,175)"),
+                            text=texti,
+                            hoverinfo="text",
+                        )
+                    ),
+                    ribbon_info.append(
+                        Scatter(
+                            x=zf.real,
+                            y=zf.imag,
+                            mode="markers",
+                            marker=Marker(size=0.5, color="rgb(175,175,175)"),
+                            #text=textf,
+                            #hoverinfo="text",
+                        )
+                    )
+                    r = (
+                        r[1],
+                        r[0],
+                    )  # IMPORTANT!!!  Reverse these arc ends because otherwise you get
+                    # a twisted ribbon
+                    # append the ribbon shape
+                    layout["shapes"].append(
+                        make_ribbon(l, r, "rgb(175,175,175)", "rgb(175,175,175)")
+                    )
 
     ideograms = []
     for k in range(len(ideo_ends)):

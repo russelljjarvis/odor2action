@@ -980,18 +980,18 @@ def community(first,color_code,color_dict):
         r = 1.25;
         c = (float(centre[0]),float(centre[1]))
         ax.add_patch(plt.Circle(c, r, color='#00ff33', alpha=0.15))
+    plt.axis('off')
 
+    plt.savefig("img1.png")
+
+
+    fig2,ax = plt.subplots(figsize=(20,20))
 
     node_color = [color_code[n] for n in first]
     srcs = []
     for e in temp.edges:
         src = color_code[e[0]]
         srcs.append(src)
-
-    #fig2 = plt.figure()
-    #fig2,ax = plt.subplots()
-    fig2,ax = plt.subplots(figsize=(20,20))
-
 
     nx.draw_networkx_nodes(
         temp,
@@ -1011,18 +1011,36 @@ def community(first,color_code,color_dict):
         temp, pos=pos, edge_color='grey', alpha=0.15, width=widths
     )
     for centre in zip(centrex,centrey):
-        r = 1.25;
+        r = 1.5;
         c = (float(centre[0]),float(centre[1]))
         ax.add_patch(plt.Circle(c, r, color='#00ff33', alpha=0.15))
 
     for k, v in color_dict.items():
         plt.scatter([], [], c=v, label=k)
     plt.legend(frameon=False,prop={'size':29.5})
-    #st.beta_set_page_config(layout="wide")
-    col1, col2 = st.beta_columns(2)
-    col1.pyplot(fig1, use_column_width=True)
+    plt.axis('off')
+    plt.savefig("img2.png")
+    import matplotlib.image as mpimg
+    img1 = mpimg.imread('img1.png')
+    img2 = mpimg.imread('img2.png')
+    #@fig3 = plt.figure(1)
+    #plt.subplot(211)
+    #fig2,ax = plt.subplots()
 
-    col2.pyplot(fig2, use_column_width=True)
+    fig3, (ax1, ax2) = plt.subplots(1, 2,figsize=(40,70))
+
+    ax1.imshow(img1)
+    ax1.axis('off')
+    #plt.subplot(221)
+    ax2.imshow(img2)
+    ax2.axis('off')
+
+    st.pyplot(fig3, use_column_width=True)
+    #st.beta_set_page_config(layout="wide")
+    #col1, col2 = st.beta_columns(2)
+    #col1.pyplot(fig1, use_column_width=True)
+
+    #col2.pyplot(fig2, use_column_width=True)
 
     #plt#.show()
 #@st.cache(allow_output_mutation=True,suppress_st_warning=True)

@@ -1654,10 +1654,19 @@ def main():
         )
         links = links[links["value"] != 0]
         Edges=[(encoded[src],encoded[tgt]) for src,tgt in zip(links['source'], links['target'])]
-        G=ig.Graph(Edges, directed=False)
+        G=ig.Graph(Edges, directed=True)
 
         layt=G.layout('kk', dim=3) # plot network with the Kamada-Kawai layout algorithm
+        #G=ig.Graph(Edges, directed=True)
 
+        estimate = G.betweenness(directed=True)#, cutoff=16)
+        ee = []
+        for i in estimate:
+            if i==0:
+                ee.append(10*0.25)
+            else:
+                ee.append(i*0.25)
+        estimate = ee
         labels=[]
         group=[]
 
@@ -1688,15 +1697,15 @@ def main():
         trace1=go.Scatter3d(x=Xe, y=Ye, z=Ze, mode='lines', line=dict(color='rgb(125,125,125)', width=1),hoverinfo='none')
 
         trace2=go.Scatter3d(x=Xn, y=Yn, z=Zn, mode='markers', name='Researchers',
-                           marker=dict(symbol='circle',color=group, size=6,colorscale='Viridis',
+                           marker=dict(symbol='circle',color=group, size=estimate,colorscale='Viridis',
                               line=dict(color='rgb(50,50,50)', width=0.5)))#,text=labels,hoverinfo='text'))
 
         axis=dict(showbackground=False, showline=False, zeroline=False, showgrid=False, showticklabels=False, title='')
 
         layout = go.Layout(
                  title="(3D visualization) Can be rotated",
-                 width=1000,
-                 height=1000,
+                 width=1200,
+                 height=1200,
                  showlegend=False,
                  scene=dict(
                      xaxis=dict(axis),

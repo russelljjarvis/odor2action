@@ -62,6 +62,7 @@ import networkx as nx
 
 import xlrd
 import matplotlib.pyplot as plt
+from community import community_louvain
 
 
 import dash_bio
@@ -279,8 +280,8 @@ def depricated():
                 db.close()
 
 
-from hiveplotlib import Axis, Node, HivePlot
-from hiveplotlib.viz import axes_viz_mpl, node_viz_mpl, edge_viz_mpl
+#from hiveplotlib import Axis, Node, HivePlot
+#from hiveplotlib.viz import axes_viz_mpl, node_viz_mpl, edge_viz_mpl
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 
@@ -1308,7 +1309,7 @@ def dontdo():
                                       loc='upper left', bbox_to_anchor=(0.37, 0.35), title="Social Connections")
     st.pyplot(fig)
     """
-from scipy.spatial import Delaunay, ConvexHull
+#from scipy.spatial import Delaunay, ConvexHull
 from pyveplot import Hiveplot, Axis, Node
 import networkx as nx
 import random
@@ -1346,6 +1347,7 @@ def hub_sort(first,color_code_1,reverse):
     # create hiveplot object
     h = None
     h = Hiveplot()
+    h.__init__()
     fig = plt.figure()
     # create three axes, spaced at 120 degrees from each other
     h.axes = [Axis(start=20, angle=0,
@@ -1443,6 +1445,9 @@ def hive_two(first,color_code,color_code_0,reverse):
 
     # create hiveplot object
     h = Hiveplot()
+    #h = Hiveplot()
+    h.__init__()
+
     fig = plt.figure()
     # create three axes, spaced at 120 degrees from each other
     h.axes = [Axis(start=20, angle=0,
@@ -1529,7 +1534,9 @@ def hive_two(first,color_code,color_code_0,reverse):
     # save output
     import os
     #os.system('rm ba1_hiveplot.svg')
+    h.draw_axes()
     h.save('ba1_hiveplot.svg')
+    h.__init__()
     del h
     h = None
     with open('ba1_hiveplot.svg',"r") as f:
@@ -1702,12 +1709,6 @@ def main():
 
     st.sidebar.title("Odor To Action: Collaboration Survey Data")
 
-    # st.sidebar.markdown("""I talk or directly email with this person (for any reason)...\n""")
-
-    # st.sidebar.markdown("""Graphs loading first plotting spread sheets...\n""")
-    #try:
-    from community import community_louvain
-
     genre = st.sidebar.radio(
         "Prefered graph layout?",
         (
@@ -1738,11 +1739,7 @@ def main():
 		The higher the threshold the more you \n reduce connections"""
     )
     my_expander = st.beta_expander("Set threshold")
-    #if genre == "Bundle":
-    #    threshold = my_expander.slider("Select a threshold value", 0.0, 10.0, 5.0, 1.0)
-    #else:
     threshold = my_expander.slider("Select a threshold value", 0.0, 8.0, 5.0, 1.0)
-    # st.write("Values:", threshold)
     (
         df2,
         names,
@@ -1756,17 +1753,17 @@ def main():
         hc
     ) = get_frame(threshold)
 
-    #fig = plt.figure()
-    #for k, v in color_dict.items():
-    #    plt.scatter([], [], c=v, label=k)
-    #plt.legend(frameon=False,prop={'size':24})
-    #fig.tight_layout()
-    #plt.axis("off")
-    #my_expander = st.sidebar.beta_expander("Color coding of most plots")
-    #my_expander.markdown(
-    #    """ Excepting for chord and hive, which are time consuming to code"""
-    #)
-    #my_expander.pyplot(fig)
+    fig = plt.figure()
+    for k, v in color_dict.items():
+        plt.scatter([], [], c=v, label=k)
+    plt.legend(frameon=False,prop={'size':24})
+    fig.tight_layout()
+    plt.axis("off")
+    my_expander = st.sidebar.beta_expander("Color coding of most plots")
+    my_expander.markdown(
+        """ Excepting for chord and hive, which are time consuming to code"""
+    )
+    my_expander.pyplot(fig)
     inboth = set(names) & set(ratercodes)
     notinboth = set(names) - set(ratercodes)
     allcodes = set(names) or set(ratercodes)
@@ -1831,8 +1828,6 @@ def main():
             color_code_0[reverse[node_id]] = hc[reverse[node_id]]
             reverse[node_id] = hc[reverse[node_id]]
 
-    #unknownids = [k for k,v in cc.items() if v=="Unknown"]
-    #st.text(unknownids)
     if genre == "List Centrality":
 
         my_expander = st.beta_expander("Explanation of Second Hive")
@@ -1849,7 +1844,6 @@ def main():
         st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
         st.markdown("Anonymized raw survey data")
         st.markdown(get_table_download_link_csv(sheet), unsafe_allow_html=True)
-        #st.beta_expander()
         my_expander = st.beta_expander("Numeric mapping of survery question answers")
         my_expander.write(legend)
         my_expander = st.beta_expander("Collapsed/Expand Numeric Spread sheet")
@@ -1857,7 +1851,6 @@ def main():
         my_expander = st.beta_expander("Collapsed/Expand Raw Spread sheet")
         my_expander.table(sheet)
 
-    #try:
     if genre == "Community Mixing":
         my_expander = st.beta_expander("Explanation of Community Partitions")
         my_expander.markdown("""Communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the five inferred communities. \
@@ -1877,11 +1870,8 @@ def main():
         )
         links = links[links["value"] != 0]
         Edges=[(encoded[src],encoded[tgt]) for src,tgt in zip(links['source'], links['target'])]
-        G=ig.Graph(Edges, directed=True)
-
-        layt=G.layout('kk', dim=3) # plot network with the Kamada-Kawai layout algorithm
-        #G=ig.Graph(Edges, directed=True)
-
+        G = ig.Graph(Edges, directed=True)
+        layt = G.layout('kk', dim=3) # plot network with the Kamada-Kawai layout algorithm
         estimate = G.betweenness(directed=True)#, cutoff=16)
         ee = []
         for i in estimate:
@@ -1900,12 +1890,13 @@ def main():
 
         human_group = []
 
+
         for node in links['source']:
            labels.append(str(node)+str(" ")+str(color_code_0[node]))
            group.append(color_code[node])
            human_group.append(color_code_0[node])
 
-        
+
         Xn=[]
         Yn=[]
         Zn=[]
@@ -1918,13 +1909,15 @@ def main():
         Xe=[]
         Ye=[]
         Ze=[]
-
+        group2=[]
+        decoded = {v:k for k,v in encoded.items()}
         for e in Edges:
+          group2.append(color_code[decoded[e[0]]])
           Xe+=[layt[e[0]][0],layt[e[1]][0],None]# x-coordinates of edge ends
           Ye+=[layt[e[0]][1],layt[e[1]][1],None]
           Ze+=[layt[e[0]][2],layt[e[1]][2],None]
 
-        trace1=go.Scatter3d(x=Xe, y=Ye, z=Ze, mode='lines', line=dict(color='rgb(125,125,125)', width=2))#,text=labels,hoverinfo='text'))
+        trace1=go.Scatter3d(x=Xe, y=Ye, z=Ze, mode='lines', line=dict(color=group2, width=5))#,text=labels,hoverinfo='text'))
 
         trace2=go.Scatter3d(x=Xn, y=Yn, z=Zn, mode='markers', name='Researchers',
                            marker=dict(symbol='circle',color=group, size=estimate,colorscale='Viridis',

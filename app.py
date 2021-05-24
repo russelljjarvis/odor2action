@@ -775,109 +775,93 @@ def _position_nodes(g, partition, **kwargs):
         pos.update(pos_subgraph)
 
     return pos
-
-
-def colored_hive_axis(first,color_code_0,reverse):
-    c = ['#e41a1c', '#377eb8', '#4daf4a',
-         '#984ea3', '#ff7f00', '#ffff33',
-         '#a65628', '#f781bf', '#999999',]
-    IRG1_indices = []
-    IRG2_indices = []
-    IRG3_indices = []
-    DCMT_indices = []  # ,Un_ind
-    g = first
-    forwards = {v:k for k,v in reverse.items()}
-    for i, (node_id) in enumerate(g.nodes):
-        if forwards[node_id] in color_code_0.keys():
-            if color_code_0[forwards[node_id]] == "IRG 1":
-                IRG1_indices.append(node_id)
-            if color_code_0[forwards[node_id]] == "IRG 2":
-                IRG2_indices.append(node_id)
-            if color_code_0[forwards[node_id]] == "IRG 3":
-                IRG3_indices.append(node_id)
-            #if color_code_0[forwards[node_id]] == "DCMT":
-            #    DCMT_indices.append(node_id)
-
-
-    # create hiveplot object
-    h = Hiveplot()
-
-
+def dont():
     '''
-    fig = plt.figure()
-    # create three axes, spaced at 120 degrees from each other
-
-    h.axes = [Axis(start=20, angle=0,
-                   stroke=random.choice(c), stroke_width=1.1),
-              Axis(start=20, angle=90,
-                   stroke=random.choice(c), stroke_width=1.1),
-              Axis(start=20, angle=90 + 90,
-                   stroke=random.choice(c), stroke_width=1.1)]
+    def colored_hive_axis(first,color_code_0,reverse):
+        c = ['#e41a1c', '#377eb8', '#4daf4a',
+             '#984ea3', '#ff7f00', '#ffff33',
+             '#a65628', '#f781bf', '#999999',]
 
 
-              #Axis(start=20, angle=90 + 90 + 90,
-              #        stroke=random.choice(c), stroke_width=1.1)
-              #]
+        # create hiveplot object
+        h = Hiveplot()
+
+
+
+        fig = plt.figure()
+        # create three axes, spaced at 120 degrees from each other
+
+        h.axes = [Axis(start=20, angle=0,
+                       stroke=random.choice(c), stroke_width=1.1),
+                  Axis(start=20, angle=90,
+                       stroke=random.choice(c), stroke_width=1.1),
+                  Axis(start=20, angle=90 + 90,
+                       stroke=random.choice(c), stroke_width=1.1)]
+
+
+                  #Axis(start=20, angle=90 + 90 + 90,
+                  #        stroke=random.choice(c), stroke_width=1.1)
+                  #]
+
+        fig = plt.figure()
+        # create three axes, spaced at 120 degrees from each other
+        h.axes = [Axis(start=20, angle=0,
+                       stroke=random.choice(c), stroke_width=1.1),
+                  Axis(start=20, angle=120,
+                       stroke=random.choice(c), stroke_width=1.1),
+                  Axis(start=20, angle=120 + 120,
+                       stroke=random.choice(c), stroke_width=1.1)
+                  ]
+
+        #g = first
+
+        # place these nodes into our three axes
+        for axis, nodes in zip(h.axes,
+                               [IRG1_indices, IRG2_indices, IRG3_indices]):
+            circle_color = random.choice(c)
+            for v in nodes:
+                st.text(v)
+                # create node object
+                node = Node(radius=15,
+                            label="node %s" % v)
+                # add it to axis
+                st.text(node)
+                axis.add_node(v, node)
+                # once it has x, y coordinates, add a circle
+                node.add_circle(fill=circle_color, stroke=circle_color,
+                                stroke_width=0.1, fill_opacity=0.7)
+                if axis.angle < 180:
+                    orientation = -1
+                    scale = 0.6
+                else:
+                    orientation = 1
+                    scale = 0.35
+                # also add a label
+                node.add_label("node %s" % (v),
+                               angle=axis.angle + 90 * orientation,
+                               scale=scale)
+
+        # iterate through axes, from left to right
+        for n in range(-1, len(h.axes) - 1):
+            curve_color = random.choice(c)
+            # draw curves between nodes connected by edges in network
+            h.connect_axes(h.axes[n],
+                           h.axes[n+1],
+                           g.edges,
+                           stroke_width=0.5,
+                           stroke=curve_color)
+        # save output
+        h.save('col_ba_hiveplot1.svg')
+        #from PIL import Image
+        f = open('col_ba_hiveplot1.svg',"r")
+        lines = f.readlines()
+        line_string=''.join(lines)
+
+        render_svg(line_string)
+
+
+        #st.image(Image.open("col_ba_hiveplot.svg"))
     '''
-    fig = plt.figure()
-    # create three axes, spaced at 120 degrees from each other
-    h.axes = [Axis(start=20, angle=0,
-                   stroke=random.choice(c), stroke_width=1.1),
-              Axis(start=20, angle=120,
-                   stroke=random.choice(c), stroke_width=1.1),
-              Axis(start=20, angle=120 + 120,
-                   stroke=random.choice(c), stroke_width=1.1)
-              ]
-
-    #g = first
-
-    # place these nodes into our three axes
-    for axis, nodes in zip(h.axes,
-                           [IRG1_indices, IRG2_indices, IRG3_indices]):
-        circle_color = random.choice(c)
-        for v in nodes:
-            st.text(v)
-            # create node object
-            node = Node(radius=15,
-                        label="node %s" % v)
-            # add it to axis
-            st.text(node)
-            axis.add_node(v, node)
-            # once it has x, y coordinates, add a circle
-            node.add_circle(fill=circle_color, stroke=circle_color,
-                            stroke_width=0.1, fill_opacity=0.7)
-            if axis.angle < 180:
-                orientation = -1
-                scale = 0.6
-            else:
-                orientation = 1
-                scale = 0.35
-            # also add a label
-            node.add_label("node %s" % (v),
-                           angle=axis.angle + 90 * orientation,
-                           scale=scale)
-
-    # iterate through axes, from left to right
-    for n in range(-1, len(h.axes) - 1):
-        curve_color = random.choice(c)
-        # draw curves between nodes connected by edges in network
-        h.connect_axes(h.axes[n],
-                       h.axes[n+1],
-                       g.edges,
-                       stroke_width=0.5,
-                       stroke=curve_color)
-    # save output
-    h.save('col_ba_hiveplot1.svg')
-    #from PIL import Image
-    f = open('col_ba_hiveplot1.svg',"r")
-    lines = f.readlines()
-    line_string=''.join(lines)
-
-    render_svg(line_string)
-
-
-    #st.image(Image.open("col_ba_hiveplot.svg"))
-
 
 #@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def community(first,color_code,color_dict):
@@ -1393,10 +1377,13 @@ def hub_sort(first,color_code_1,reverse):
     # create three axes, spaced at 120 degrees from each other
     h.axes = [Axis(start=20, angle=0,
                    stroke='black', stroke_width=2.1),
-              Axis(start=20, angle=120,
+              Axis(start=20, angle=90,
                    stroke='black', stroke_width=2.1),
-              Axis(start=20, angle=120 + 120,
+              Axis(start=20, angle=90 + 90,
+                   stroke='black', stroke_width=2.1),
+              Axis(start=20, angle=90 + 90 + 90,
                    stroke='black', stroke_width=2.1)
+
               ]
 
     # create a random Barabasi-Albert network
@@ -1409,13 +1396,14 @@ def hub_sort(first,color_code_1,reverse):
     maxd = np.max([i[1] for i in k])
 
     # categorize them as high, medium and low degree
-    hi_deg = [v[0] for v in k if v[1] > 2*maxd/3]
-    md_deg = [v[0] for v in k if v[1] > maxd/3 and v[1] <= 2*maxd/3]
-    lo_deg = [v[0] for v in k if v[1] <= maxd/3]
+    hi_deg = [v[0] for v in k if v[1] > 3*maxd/4]
+    md_deg = [v[0] for v in k if v[1] > maxd/4 and v[1] <= 2*maxd/4]
+    md_deg2 = [v[0] for v in k if v[1] > 2*maxd/4 and v[1] <= 3*maxd/4]
+    lo_deg = [v[0] for v in k if v[1] <= maxd/4]
 
     # place these nodes into our three axes
     for axis, nodes in zip(h.axes,
-                           [hi_deg, md_deg, lo_deg]):
+                           [hi_deg, md_deg,md_deg2, lo_deg]):
         #random.choice(c)
         for v in nodes:
             circle_color = color_code_1[v]
@@ -1428,11 +1416,15 @@ def hub_sort(first,color_code_1,reverse):
             node.add_circle(fill=circle_color, stroke=circle_color,
                             stroke_width=0.1, fill_opacity=0.65)
             if axis.angle < 180:
-                orientation = -1
-                scale = 6.5
+                orientation = -1 #1#-1
+                scale = 8.5
             else:
                 orientation = 1
                 scale = 1.5
+
+                if axis.angle <5 or axis.angle>355:
+                    orientation = 1
+                    scale = 7.5
             # also add a label
             node.add_label("{0}".format(v),
                            angle=axis.angle + 90 * orientation,
@@ -1457,10 +1449,119 @@ def hub_sort(first,color_code_1,reverse):
     h.save('ba_hiveplot.svg')
     with open('ba_hiveplot.svg',"r") as f:
         lines = f.readlines()
+        f.close()
     line_string=''.join(lines)
 
     render_svg_small(line_string)
+    line_string = None
+    del line_string
+    os.system('rm ba_hiveplot.svg')
 
+
+
+def hive_two(first,color_code,color_code_0,reverse):
+    c = ['#e41a1c', '#377eb8', '#4daf4a',
+         '#984ea3', '#ff7f00', '#ffff33',
+         '#a65628', '#f781bf', '#999999',]
+
+    # create hiveplot object
+    h = Hiveplot()
+    fig = plt.figure()
+    # create three axes, spaced at 120 degrees from each other
+    h.axes = [Axis(start=20, angle=0,
+                   stroke='black', stroke_width=2.1),
+              Axis(start=20, angle=90,
+                   stroke='black', stroke_width=2.1),
+              Axis(start=20, angle=90 + 90,
+                   stroke='black', stroke_width=2.1),
+              Axis(start=20, angle=90 + 90 + 90,
+                   stroke='black', stroke_width=2.1)
+
+              ]
+
+    g = first
+
+    IRG1_indices = []
+    IRG2_indices = []
+    IRG3_indices = []
+    DCMT_indices = []  # ,Un_ind
+    g = first
+    forwards = {v:k for k,v in reverse.items()}
+    #st.text(forwards)
+
+    #st.text(color_code_0)
+    for i, (node_id) in enumerate(g.nodes):
+        #st.text(node_id)
+        if node_id in color_code_0.keys():
+            #st.text(forwards[node_id])
+            if color_code_0[node_id] == "IRG 1":
+                IRG1_indices.append(node_id)
+            if color_code_0[node_id] == "IRG 2":
+                IRG2_indices.append(node_id)
+            if color_code_0[node_id] == "IRG 3":
+                IRG3_indices.append(node_id)
+            if color_code_0[node_id] == "DCMT":
+                DCMT_indices.append(node_id)
+
+
+    # categorize them as high, medium and low degree
+    hi_deg = [v for v in g if v in IRG1_indices]
+    md_deg = [v for v in g if v in IRG2_indices]
+    md_deg2 = [v for v in g if v in IRG3_indices]
+    lo_deg = [v for v in g if v in DCMT_indices]
+
+    # place these nodes into our three axes
+    for axis, nodes in zip(h.axes,
+                           [hi_deg, md_deg,md_deg2, lo_deg]):
+
+        for v in nodes:
+            #st.text(v)
+            circle_color = color_code[v]
+            # create node object
+            node = Node(radius=33.5*g.degree(v),
+                        label="%s" % (v))
+            # add it to axis
+            axis.add_node(v, node)
+            # once it has x, y coordinates, add a circle
+            node.add_circle(fill=circle_color, stroke=circle_color,
+                            stroke_width=0.1, fill_opacity=0.65)
+            if axis.angle < 180:
+                orientation = -1
+                scale = 6.5
+            else:
+                orientation = - 1
+                scale = 6.5
+            # also add a label
+            node.add_label("{0}".format(v),
+                           angle=axis.angle + 90 * orientation,
+                           scale=scale)
+            #st.text("node {0}".format(v))
+
+    # iterate through axes, from left to right
+    for n in range(-1, len(h.axes) - 1):
+
+        curve_color = 'black'#random.choice(c)
+        # draw curves between nodes connected by edges in network
+        h.connect_axes(h.axes[n],
+                       h.axes[n+1],
+                       g.edges,
+                       stroke_width=4.5,
+                       stroke=curve_color)
+    #st.pyplot(fig)
+
+    # save output
+    import os
+    os.system('rm ba1_hiveplot.svg')
+    h.save('ba1_hiveplot.svg')
+    with open('ba1_hiveplot.svg',"r") as f:
+        lines = f.readlines()
+        f.close()
+    line_string=''.join(lines)
+
+    render_svg_small(line_string)
+    line_string = None
+    del line_string
+    os.system('rm ba1_hiveplot.svg')
 
 
 
@@ -1616,7 +1717,6 @@ def main():
     #st.text(unknownids)
     if genre == "List Centrality":
         hub_sort(first,color_code,reverse)
-
         list_centrality(first)
     if genre == "Spreadsheet":
         st.markdown("Processed anonymized network data that is visualized")
@@ -1726,6 +1826,8 @@ def main():
         #colored_hive_axis(first,color_code_0,reverse)
         #agraph_(first)
     if genre == "Hive":
+        hive_two(first,color_code,color_code_0,reverse)
+        
         from hiveplotlib import Axis, Node, HivePlot
 
         # convert `networkx` edges and nodes into `hiveplotlib`-ready structures

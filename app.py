@@ -1306,10 +1306,17 @@ import textwrap
 
 def render_svg_small(svg):
     """Renders the given svg string."""
+    html = None
+    b64 = None
     b64 = base64.b64encode(svg.encode('utf-8')).decode("utf-8")
     html = r'<img src="data:image/svg+xml;base64,%s" width = 900/>' % b64
 
     st.write(html, unsafe_allow_html=True)
+    del html
+    del svg
+    from streamlit import caching
+    caching.clear_cache()
+
 #        hub_sort(first,color_code_0,reverse)
 def render_svg(svg):
     """Renders the given svg string."""
@@ -1318,6 +1325,8 @@ def render_svg(svg):
     st.write(html, unsafe_allow_html=True)
     del html
     del svg
+    from streamlit import caching
+    caching.clear_cache()
 
 def agraph_(first):
     from streamlit_agraph import agraph, Node, Edge, Config
@@ -1326,8 +1335,9 @@ def agraph_(first):
               collapsible=True)
     #st.text(dir(agraph))
     #agraph(list(first.nodes), (first.edges), config)
-
-def hub_sort(first,color_code_1,reverse):
+a = 0
+def hub_sort(first,color_code_1,reverse,a):
+    a += 1
     c = ['#e41a1c', '#377eb8', '#4daf4a',
          '#984ea3', '#ff7f00', '#ffff33',
          '#a65628', '#f781bf', '#999999',]
@@ -1339,7 +1349,7 @@ def hub_sort(first,color_code_1,reverse):
     h = None
     h = Hiveplot()
     h.__init__()
-    fig = plt.figure()
+    #fig = plt.figure()
     # create three axes, spaced at 120 degrees from each other
     h.axes = [Axis(start=20, angle=0,
                    stroke='black', stroke_width=2.1),
@@ -1415,7 +1425,7 @@ def hub_sort(first,color_code_1,reverse):
 
     import os
     os.system('rm ba_hiveplot.svg')
-    h.save('ba_hiveplot.svg')
+    h.save(str(a)+'ba_hiveplot.svg')
     del h
     h = None
     #h = None
@@ -1424,8 +1434,8 @@ def hub_sort(first,color_code_1,reverse):
     fig = plt.figure()
 
 
-
-    with open('ba_hiveplot.svg',"r") as f:
+    #line_string = ''
+    with open(str(a)+'ba_hiveplot.svg',"r") as f:
         lines = f.readlines()
         f.close()
     line_string=''.join(lines)
@@ -1436,19 +1446,19 @@ def hub_sort(first,color_code_1,reverse):
     del line_string
     del lines
     os.system('rm ba_hiveplot.svg')
+    #from streamlit import caching
 
+    #caching.clear_cache()
+a = 0
 
-
-def hive_two(first,color_code,color_code_0,reverse):
+def hive_two(first,color_code,color_code_0,reverse,a):
     c = ['#e41a1c', '#377eb8', '#4daf4a',
          '#984ea3', '#ff7f00', '#ffff33',
          '#a65628', '#f781bf', '#999999',]
 
     # create hiveplot object
     h = Hiveplot()
-    #h = Hiveplot()
     h.__init__()
-
     fig = plt.figure()
     # create three axes, spaced at 120 degrees from each other
     h.axes = [Axis(start=20, angle=0,
@@ -1470,13 +1480,8 @@ def hive_two(first,color_code,color_code_0,reverse):
     DCMT_indices = []  # ,Un_ind
     g = first
     forwards = {v:k for k,v in reverse.items()}
-    #st.text(forwards)
-
-    #st.text(color_code_0)
     for i, (node_id) in enumerate(g.nodes):
-        #st.text(node_id)
         if node_id in color_code_0.keys():
-            #st.text(forwards[node_id])
             if color_code_0[node_id] == "IRG 1":
                 IRG1_indices.append(node_id)
             if color_code_0[node_id] == "IRG 2":
@@ -1518,8 +1523,6 @@ def hive_two(first,color_code,color_code_0,reverse):
             node.add_label("{0}".format(v),
                            angle=axis.angle + 90 * orientation,
                            scale=scale)
-            #st.text("node {0}".format(v))
-
     # iterate through axes, from left to right
     for n in range(-1, len(h.axes) - 1):
 
@@ -1530,17 +1533,15 @@ def hive_two(first,color_code,color_code_0,reverse):
                        g.edges,
                        stroke_width=4.5,
                        stroke=curve_color)
-    #st.pyplot(fig)
-
     # save output
     import os
-    #os.system('rm ba1_hiveplot.svg')
     h.draw_axes()
-    h.save('ba1_hiveplot.svg')
+    h.save(str(a)+'ba1_hiveplot.svg')
     h.__init__()
     del h
     h = None
-    with open('ba1_hiveplot.svg',"r") as f:
+
+    with open(str(a)+'ba1_hiveplot.svg',"r") as f:
         lines = f.readlines()
         f.close()
     line_string=''.join(lines)
@@ -1549,7 +1550,8 @@ def hive_two(first,color_code,color_code_0,reverse):
     line_string = None
     del line_string
     os.system('rm ba1_hiveplot.svg')
-
+    from streamlit import caching
+    caching.clear_cache()
 def no_thanks():
     from hiveplotlib import Axis, Node, HivePlot
 
@@ -1838,7 +1840,7 @@ def main():
 			"""
         )
 
-        hub_sort(first,color_code,reverse)
+        hub_sort(first,color_code,reverse,a)
         list_centrality(first)
     if genre == "Spreadsheet":
         st.markdown("Processed anonymized network data that is visualized")
@@ -1946,22 +1948,7 @@ def main():
 
     if genre == "Lumped Population":
         population(cc, popg, color_dict)
-    #if genre == "hive-degree":
-        #colored_hive_axis(first,color_code_0,reverse)
-        #agraph_(first)
     if genre == "Hive":
-
-
-            # john_a_degree_locations = \
-            # karate_hp.axes["john_degree"].node_placements
-            # [nodes[i]
-            # for i in IRG3_indices:
-            #    st.text(nodes[i].data['loc'])
-            # ax.scatter(x, y,
-            #           facecolor="red", edgecolor="black", s=150, lw=2)
-            # ax.scatter(mr_hi_node[0], mr_hi_node[1],
-            #           facecolor="yellow", edgecolor="black", s=150, lw=2)
-            # my_expander = st.side_bar.beta_expander("Explanation of Hive")
 
         my_expander = st.beta_expander("Explanation of Hive")
 
@@ -1970,9 +1957,7 @@ def main():
 			are shown which can project externally from their respective groups.
 			"""
         )
-        hive_two(first,color_code,color_code_0,reverse)
-
-        #hub_sort(first,color_code,reverse)
+        hive_two(first,color_code,color_code_0,reverse,a)
 
 
     if genre == "Bundle":
@@ -1992,7 +1977,6 @@ def main():
 
         fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
         st.pyplot(fig4)
-    #import streamlit as st
     if genre== "cyto":
         #from ipycytoscape import CytoscapeWidget
         #cyto = CytoscapeWidget()

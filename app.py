@@ -674,13 +674,7 @@ def population(cc, popg, color_dict):
         plt.scatter([], [], c=color_dict[v], label=k)
     plt.legend(frameon=False,prop={'size':34})
 
-    #nx.draw_networkx_labels(popg, pos, labels, font_size=16, font_color="r")
     popgc = copy.copy(popg)
-    #popgc.graph["edge"] = {"arrowsize": "0.6", "splines": "curved"}
-    #popgc.graph["graph"] = {"scale": "3"}
-
-
-    #st.markdown(""" Missing self connections, but node size proportions""")
     st.pyplot(fig)
     try:
         from networkx.drawing.nx_agraph import to_agraph
@@ -691,7 +685,7 @@ def population(cc, popg, color_dict):
         st.graphviz_chart(dot.to_string())
     except:
         pass
-from scipy.spatial import ConvexHull, convex_hull_plot_2d
+#from scipy.spatial import ConvexHull, convex_hull_plot_2d
 
 
 import numpy as np
@@ -1339,6 +1333,9 @@ def hub_sort(first,color_code_1,reverse):
          '#a65628', '#f781bf', '#999999',]
 
     # create hiveplot object
+    import svgwrite
+    dwg = svgwrite.Drawing()
+    del dwg
     h = None
     h = Hiveplot()
     h.__init__()
@@ -1412,11 +1409,21 @@ def hub_sort(first,color_code_1,reverse):
                        stroke=curve_color)
 
     # save output
+    import svgwrite
+    dwg = svgwrite.Drawing()
+    del dwg
+
     import os
     os.system('rm ba_hiveplot.svg')
     h.save('ba_hiveplot.svg')
     del h
     h = None
+    #h = None
+    h = Hiveplot()
+    h.__init__()
+    fig = plt.figure()
+
+
 
     with open('ba_hiveplot.svg',"r") as f:
         lines = f.readlines()

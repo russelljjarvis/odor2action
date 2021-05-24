@@ -20,3 +20,5 @@ bokeh
 -e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=community
 #==2.2.2
 python-igraph
+pyveplot
+streamlit_agraph

@@ -865,8 +865,12 @@ def dont():
 
 #@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def community(first,color_code,color_dict):
+    colors = ['#e41a1c', '#377eb8', '#4daf4a',
+         '#984ea3', '#ff7f00', '#ffff33',
+         '#a65628', '#f781bf', '#999999']
+
     my_expander = st.beta_expander("Toggle node labels")
-    labels_ = my_expander.radio("Would you like to label nodes?", ("Yes", "No"))
+    labels_ = my_expander.radio("Would you like to label nodes?", ("No", "Yes"))
     if labels_ == "Yes":
         labelsx = True
     if labels_ == "No":
@@ -880,7 +884,7 @@ def community(first,color_code,color_dict):
     diffcc = list(partition.values())
     pkeys = set(partition.values())
     partitiondf = pd.DataFrame([partition]).T
-    hulls = []
+    #hulls = []
     pointss = []
     whichpkeys = []
     centrex=[]
@@ -898,20 +902,6 @@ def community(first,color_code,color_dict):
         centrex.append(meanx)
         centrey.append(meany)
 
-        if len(tocvxh) <=2:
-            pass
-
-        if len(tocvxh) >2:
-            hull = ConvexHull(tocvxh)
-            pointss.append(tocvxh)
-            hulls.append(hull)
-            whichpkeys.append(diffcc[k])
-
-    #st.write(partitiondf)
-    centrality = nx.betweenness_centrality(temp, k=10, endpoints=True)
-    #edge_thickness = {k: v * 20000 for k, v in centrality.items()}
-    node_size = [v * 10000 for v in centrality.values()]
-
     #diffccl = list(partition.ite())
 
     srcs = []
@@ -922,27 +912,20 @@ def community(first,color_code,color_dict):
         src = partition[e[0]]
         srcs.append(src)
         ee = temp.get_edge_data(e[0], e[1])
-        widths.append(0.85*ee["weight"])
+        widths.append(1.85*ee["weight"])
     fig1,ax = plt.subplots(figsize=(20,20))
 
-
-
-    #for i,hull in enumerate(hulls):
-    #    points = np.array(pointss[i])
-    #    for simplex in hull.simplices:
-            #pass
-    #        plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(whichpkeys[i]), alpha=0.05)
-
+    recolored = [colors[i] for i in diffcc]
 
     nx.draw_networkx_nodes(
         temp,
         pos=pos,
-        node_color=diffcc,
+        node_color=recolored,
         node_size=550,
         alpha=0.5,
         linewidths=1,
     )
-
+    #st.text(diffcc)
     axx = fig1.gca()  # to get the current axis
     axx.collections[0].set_edgecolor("#FF0000")
     label_pos = copy.deepcopy(pos)
@@ -960,13 +943,13 @@ def community(first,color_code,color_dict):
         temp, pos=pos, edge_color='grey', alpha=0.15, width=widths
     )
     import matplotlib.patches as patches
-    for centre in zip(centrex,centrey):
-        r = 1.25;
+    for centre in zip(centrex,centrey,pkeys):
+        r = 1.5;
         c = (float(centre[0]),float(centre[1]))
-        ax.add_patch(plt.Circle(c, r, color='#00ff33', alpha=0.15))
+        ax.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
     plt.axis('off')
-
-    plt.savefig("img1.png")
+    fig1.tight_layout()
+    fig1.savefig("img1.png")
 
 
     fig2,ax = plt.subplots(figsize=(20,20))
@@ -994,24 +977,24 @@ def community(first,color_code,color_dict):
     nx.draw_networkx_edges(
         temp, pos=pos, edge_color='grey', alpha=0.15, width=widths
     )
-    for centre in zip(centrex,centrey):
+    for centre in zip(centrex,centrey,pkeys):
         r = 1.5;
         c = (float(centre[0]),float(centre[1]))
-        ax.add_patch(plt.Circle(c, r, color='#00ff33', alpha=0.15))
-
-    for k, v in color_dict.items():
-        plt.scatter([], [], c=v, label=k)
-    plt.legend(frameon=False,prop={'size':29.5})
+        #ax.add_patch(plt.Circle(c, r, color='#00ff33', alpha=0.15))
+        ax.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
+    if labelsx:
+        for k, v in color_dict.items():
+            plt.scatter([], [], c=v, label=k)
+        plt.legend(frameon=False,prop={'size':29.5})
     plt.axis('off')
-    plt.savefig("img2.png")
+    fig2.tight_layout()
+
+    fig2.savefig("img2.png")
     import matplotlib.image as mpimg
     img1 = mpimg.imread('img1.png')
     img2 = mpimg.imread('img2.png')
-    #@fig3 = plt.figure(1)
-    #plt.subplot(211)
-    #fig2,ax = plt.subplots()
 
-    fig3, (ax1, ax2) = plt.subplots(1, 2,figsize=(40,70))
+    fig3, (ax1, ax2) = plt.subplots(1, 2,figsize=(70,70))
 
     ax1.imshow(img1)
     ax1.axis('off')
@@ -1020,15 +1003,6 @@ def community(first,color_code,color_dict):
     ax2.axis('off')
 
     st.pyplot(fig3, use_column_width=True)
-    #st.beta_set_page_config(layout="wide")
-    #col1, col2 = st.beta_columns(2)
-    #col1.pyplot(fig1, use_column_width=True)
-
-    #col2.pyplot(fig2, use_column_width=True)
-
-    #plt#.show()
-#@st.cache(allow_output_mutation=True,suppress_st_warning=True)
-
 
 def list_centrality(first):
     H = first.to_undirected()
@@ -1064,10 +1038,6 @@ def list_centrality(first):
 
     st.write(df.tail())
 
-    #bc = df
-    #st.table(df)
-
-    #Compute the in-degree centrality for nodes.
     st.markdown("## Out-degree Centrality (percieved talkers), read from top to bottom from most central to least:")
 
     centrality = nx.out_degree_centrality(first)
@@ -1105,7 +1075,7 @@ def physics(first, adj_mat_dicts, color_code,color_code_0,color_dict):
     my_expander = st.beta_expander("physical parameters")
 
     phys_ = my_expander.radio(
-        "Would you like to change physical parameters?", ("No", "Yes")
+        "Would you like to change physical parameters?", ("Yes","No")
     )
     pos = nx.get_node_attributes(first, "pos")
     # fig = plt.figure()
@@ -1348,7 +1318,8 @@ import textwrap
 def render_svg_small(svg):
     """Renders the given svg string."""
     b64 = base64.b64encode(svg.encode('utf-8')).decode("utf-8")
-    html = r'<img src="data:image/svg+xml;base64,%s" width = 900>' % b64
+    html = r'<img src="data:image/svg+xml;base64,%s" width = 900/>' % b64
+
     st.write(html, unsafe_allow_html=True)
 #        hub_sort(first,color_code_0,reverse)
 def render_svg(svg):
@@ -1356,7 +1327,8 @@ def render_svg(svg):
     b64 = base64.b64encode(svg.encode('utf-8')).decode("utf-8")
     html = r'<img src="data:image/svg+xml;base64,%s"/>' % b64
     st.write(html, unsafe_allow_html=True)
-
+    del html
+    del svg
 
 def agraph_(first):
     from streamlit_agraph import agraph, Node, Edge, Config
@@ -1372,6 +1344,7 @@ def hub_sort(first,color_code_1,reverse):
          '#a65628', '#f781bf', '#999999',]
 
     # create hiveplot object
+    h = None
     h = Hiveplot()
     fig = plt.figure()
     # create three axes, spaced at 120 degrees from each other
@@ -1441,12 +1414,14 @@ def hub_sort(first,color_code_1,reverse):
                        g.edges,
                        stroke_width=4.5,
                        stroke=curve_color)
-    #st.pyplot(fig)
 
     # save output
     import os
     os.system('rm ba_hiveplot.svg')
     h.save('ba_hiveplot.svg')
+    del h
+    h = None
+
     with open('ba_hiveplot.svg',"r") as f:
         lines = f.readlines()
         f.close()
@@ -1454,7 +1429,9 @@ def hub_sort(first,color_code_1,reverse):
 
     render_svg_small(line_string)
     line_string = None
+    lines = None
     del line_string
+    del lines
     os.system('rm ba_hiveplot.svg')
 
 
@@ -1551,8 +1528,10 @@ def hive_two(first,color_code,color_code_0,reverse):
 
     # save output
     import os
-    os.system('rm ba1_hiveplot.svg')
+    #os.system('rm ba1_hiveplot.svg')
     h.save('ba1_hiveplot.svg')
+    del h
+    h = None
     with open('ba1_hiveplot.svg',"r") as f:
         lines = f.readlines()
         f.close()
@@ -1563,6 +1542,160 @@ def hive_two(first,color_code,color_code_0,reverse):
     del line_string
     os.system('rm ba1_hiveplot.svg')
 
+def no_thanks():
+    from hiveplotlib import Axis, Node, HivePlot
+
+    # convert `networkx` edges and nodes into `hiveplotlib`-ready structures
+    G = first
+    encoded = {v: k for k, v in enumerate(first.nodes())}
+    reverse = {v: k for k, v in encoded.items()}
+
+    G = nx.relabel_nodes(G, encoded, copy=True)
+    edges = np.array(G.edges)
+
+    # pull out degree information from nodes for later use
+    node_ids, degrees = np.unique(edges, return_counts=True)
+
+    #nodes = np.array(G.nodes)
+    nodes = []
+
+    IRG1_indices = []
+    IRG2_indices = []
+    IRG3_indices = []
+    DCMT_ind = []  # ,Un_ind
+    #st.text(len(color_code_0))
+    for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
+        if not reverse[node_id] in color_code_0.keys():
+            color_code_0[reverse[node_id]] = hc[reverse[node_id]]
+            reverse[node_id] = hc[reverse[node_id]]
+
+        temp_node = Node(unique_id=node_id, data=G.nodes.data()[node_id])
+        nodes.append(temp_node)
+    for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
+        # store the index number as a way to align the nodes on axes
+        G.nodes.data()[node_id]["loc"] = node_id
+        # also store the degree of each node as another way to align nodes on axes
+        G.nodes.data()[node_id]["degree"] = degree
+        # G.nodes.data()[node_id]['club'] =
+
+        if reverse[node_id] in color_code_0.keys():
+            # = color_code_0[reverse[node_id]]
+            if color_code_0[reverse[node_id]] == "IRG 1":
+                IRG1_indices.append(i)
+                G.nodes.data()[node_id]["IRG 1"] = 1
+                G.nodes.data()[node_id]["club"] = 1
+            if color_code_0[reverse[node_id]] == "IRG 2":
+                IRG2_indices.append(i)
+                G.nodes.data()[node_id]["IRG 2"] = 2
+                G.nodes.data()[node_id]["club"] = 2
+
+            if color_code_0[reverse[node_id]] == "IRG 3":
+                IRG3_indices.append(i)
+                G.nodes.data()[node_id]["IRG 3"] = 3
+                G.nodes.data()[node_id]["club"] = 3
+
+            # st.text(IRG3_indices)
+            if color_code_0[reverse[node_id]] == "DCMT":
+                DCMT_ind.append(i)
+                G.nodes.data()[node_id]["DCMT"] = 4
+                G.nodes.data()[node_id]["club"] = 4
+
+    temp = list(set(color_code_0.values()))
+    hp = hive_plot_n_axes(
+        node_list=nodes,
+        edges=edges,
+        axes_assignments=[
+            IRG1_indices,
+            IRG2_indices,
+            IRG3_indices,
+            DCMT_ind,
+        ],
+        sorting_variables=["club", "club", "club", "club"],
+        axes_names=temp,
+        vmins=[0, 0, 0, 0],
+        vmaxes=[2, 2, 2, 2],
+        orient_angle=30,
+    )
+
+
+    # change the line kwargs for edges in plot
+    hp.add_edge_kwargs(
+        axis_id_1=temp[0], axis_id_2=temp[1], c=f"C0", lw=1.5, alpha=0.5, zorder=10
+    )
+    hp.add_edge_kwargs(
+        axis_id_1=temp[1], axis_id_2=temp[2], c=f"C2", lw=1.5, alpha=0.5, zorder=10
+    )
+    #hp.add_edge_kwargs(
+    ##    axis_id_1=temp[0], axis_id_3=temp[2], c=f"C1", lw=1.5, alpha=0.5, zorder=10
+    #)
+
+    # st.text(temp[2])
+    hp.place_nodes_on_axis(
+        axis_id=temp[0],
+        unique_ids=[nodes[i].data["loc"] for i in IRG1_indices],
+        sorting_feature_to_use="loc",
+        vmin=0,
+        vmax=33,
+    )
+    hp.place_nodes_on_axis(
+        axis_id=temp[1],
+        unique_ids=[nodes[i].data["loc"] for i in IRG2_indices],
+        sorting_feature_to_use="loc",
+        vmin=0,
+        vmax=33,
+    )
+    hp.place_nodes_on_axis(
+        axis_id=temp[2],
+        unique_ids=[nodes[i].data["loc"] for i in IRG3_indices],
+        sorting_feature_to_use="loc",
+        vmin=0,
+        vmax=33,
+    )
+    hp.place_nodes_on_axis(
+        axis_id=temp[3],
+        unique_ids=[nodes[i].data["loc"] for i in DCMT_ind],
+        sorting_feature_to_use="loc",
+        vmin=0,
+        vmax=33,
+    )
+    #hp.place_nodes_on_axis(
+    #    axis_id=temp[3],
+    #    unique_ids=[nodes[i].data["loc"] for i in Un_ind],
+    #    sorting_feature_to_use="loc",
+    #    vmin=0,
+    #    vmax=33,
+    #)
+
+    hp.connect_axes(edges=edges, axis_id_1=temp[0], axis_id_2=temp[1], c="C1")
+    hp.connect_axes(edges=edges, axis_id_1=temp[1], axis_id_2=temp[2], c="C2")
+    hp.connect_axes(edges=edges, axis_id_1=temp[0], axis_id_2=temp[2], c="C2")
+    hp.connect_axes(edges=edges, axis_id_1=temp[2], axis_id_2=temp[3], c="C3")
+    hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[1], c="C1")
+    hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[0], c="C0")
+    #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[0], c="C7")
+    #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[1], c="C8")
+    #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[2], c="C9")
+    #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[3], c="C10")
+
+    fig, ax = hive_plot_viz_mpl(hive_plot=hp)
+    st.pyplot(fig)
+
+def nope():
+
+    genre = st.sidebar.radio(
+        "Prefered graph layout?",
+        (
+            "Hive",
+            "Chord",
+            "Physics",
+            "List Centrality",
+            "Bundle",
+            "Basic",
+            "Lumped Population",
+            "Spreadsheet",
+            "AdjacencyMatrix",
+        ),
+    )
 
 
 def main():
@@ -1572,42 +1705,27 @@ def main():
     # st.sidebar.markdown("""I talk or directly email with this person (for any reason)...\n""")
 
     # st.sidebar.markdown("""Graphs loading first plotting spread sheets...\n""")
-    try:
-        from community import community_louvain
+    #try:
+    from community import community_louvain
 
-        genre = st.sidebar.radio(
-            "Prefered graph layout?",
-            (
+    genre = st.sidebar.radio(
+        "Prefered graph layout?",
+        (
 
-                "Hive",
-                "Physics",
-                "Chord",
-                "Bundle",
-                "List Centrality",
-                "Community Mixing",
-                "Basic",
-                "Lumped Population",
-                "Spreadsheet",
-                "AdjacencyMatrix",
-                "3D"
+            "Hive",
+            "Physics",
+            "Chord",
+            "Bundle",
+            "List Centrality",
+            "Community Mixing",
+            "Basic",
+            "Lumped Population",
+            "Spreadsheet",
+            "AdjacencyMatrix",
+            "3D"
 
-            ),
-        )
-    except:
-        genre = st.sidebar.radio(
-            "Prefered graph layout?",
-            (
-                "Hive",
-                "Chord",
-                "Physics",
-                "List Centrality",
-                "Bundle",
-                "Basic",
-                "Lumped Population",
-                "Spreadsheet",
-                "AdjacencyMatrix",
-            ),
-        )
+        ),
+    )
 
     my_expander = st.sidebar.beta_expander("Explanation of Threshold")
 
@@ -1716,6 +1834,14 @@ def main():
     #unknownids = [k for k,v in cc.items() if v=="Unknown"]
     #st.text(unknownids)
     if genre == "List Centrality":
+
+        my_expander = st.beta_expander("Explanation of Second Hive")
+
+        my_expander.markdown(
+            """This graphically shows network centrality from densely into connected (hub) to sparsely interconnected.
+			"""
+        )
+
         hub_sort(first,color_code,reverse)
         list_centrality(first)
     if genre == "Spreadsheet":
@@ -1742,10 +1868,7 @@ def main():
         """)
 
         community(first,color_code,color_dict)
-    #except:
-    #    pass
     if genre == "3D":
-        st.markdown("in development")
         g = first
 
         links = copy.copy(adj_mat)
@@ -1763,19 +1886,26 @@ def main():
         ee = []
         for i in estimate:
             if i==0:
-                ee.append(10*0.25)
+                ee.append(20*0.5)
             else:
-                ee.append(i*0.25)
+                ee.append(i*0.5)
         estimate = ee
+        widths = []
+        for e in links['value']:
+            widths.append(1.85*e)
+
+
         labels=[]
         group=[]
 
-        for node in links['source']:
-           labels.append(str(node))
-           group.append(color_code[node])
-           #st.text(node)
-           #st.text(color_code[node])
+        human_group = []
 
+        for node in links['source']:
+           labels.append(str(node)+str(" ")+str(color_code_0[node]))
+           group.append(color_code[node])
+           human_group.append(color_code_0[node])
+
+        
         Xn=[]
         Yn=[]
         Zn=[]
@@ -1794,16 +1924,16 @@ def main():
           Ye+=[layt[e[0]][1],layt[e[1]][1],None]
           Ze+=[layt[e[0]][2],layt[e[1]][2],None]
 
-        trace1=go.Scatter3d(x=Xe, y=Ye, z=Ze, mode='lines', line=dict(color='rgb(125,125,125)', width=1),hoverinfo='none')
+        trace1=go.Scatter3d(x=Xe, y=Ye, z=Ze, mode='lines', line=dict(color='rgb(125,125,125)', width=2))#,text=labels,hoverinfo='text'))
 
         trace2=go.Scatter3d(x=Xn, y=Yn, z=Zn, mode='markers', name='Researchers',
                            marker=dict(symbol='circle',color=group, size=estimate,colorscale='Viridis',
-                              line=dict(color='rgb(50,50,50)', width=0.5)))#,text=labels,hoverinfo='text'))
+                              line=dict(color='rgb(50,50,50)', width=2)),text=labels,hoverinfo='text')
 
         axis=dict(showbackground=False, showline=False, zeroline=False, showgrid=False, showticklabels=False, title='')
 
         layout = go.Layout(
-                 title="(3D visualization) Can be rotated",
+                 title="A 3D Visualization which can be rotated",
                  width=1200,
                  height=1200,
                  showlegend=False,
@@ -1826,155 +1956,18 @@ def main():
         #colored_hive_axis(first,color_code_0,reverse)
         #agraph_(first)
     if genre == "Hive":
-        hive_two(first,color_code,color_code_0,reverse)
-        
-        from hiveplotlib import Axis, Node, HivePlot
-
-        # convert `networkx` edges and nodes into `hiveplotlib`-ready structures
-        G = first
-        encoded = {v: k for k, v in enumerate(first.nodes())}
-        reverse = {v: k for k, v in encoded.items()}
-
-        G = nx.relabel_nodes(G, encoded, copy=True)
-        edges = np.array(G.edges)
-
-        # pull out degree information from nodes for later use
-        node_ids, degrees = np.unique(edges, return_counts=True)
-
-        #nodes = np.array(G.nodes)
-        nodes = []
-
-        IRG1_indices = []
-        IRG2_indices = []
-        IRG3_indices = []
-        DCMT_ind = []  # ,Un_ind
-        #st.text(len(color_code_0))
-        for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
-            if not reverse[node_id] in color_code_0.keys():
-                color_code_0[reverse[node_id]] = hc[reverse[node_id]]
-                reverse[node_id] = hc[reverse[node_id]]
-
-            temp_node = Node(unique_id=node_id, data=G.nodes.data()[node_id])
-            nodes.append(temp_node)
-        for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
-            # store the index number as a way to align the nodes on axes
-            G.nodes.data()[node_id]["loc"] = node_id
-            # also store the degree of each node as another way to align nodes on axes
-            G.nodes.data()[node_id]["degree"] = degree
-            # G.nodes.data()[node_id]['club'] =
-
-            if reverse[node_id] in color_code_0.keys():
-                # = color_code_0[reverse[node_id]]
-                if color_code_0[reverse[node_id]] == "IRG 1":
-                    IRG1_indices.append(i)
-                    G.nodes.data()[node_id]["IRG 1"] = 1
-                    G.nodes.data()[node_id]["club"] = 1
-                if color_code_0[reverse[node_id]] == "IRG 2":
-                    IRG2_indices.append(i)
-                    G.nodes.data()[node_id]["IRG 2"] = 2
-                    G.nodes.data()[node_id]["club"] = 2
-
-                if color_code_0[reverse[node_id]] == "IRG 3":
-                    IRG3_indices.append(i)
-                    G.nodes.data()[node_id]["IRG 3"] = 3
-                    G.nodes.data()[node_id]["club"] = 3
-
-                # st.text(IRG3_indices)
-                if color_code_0[reverse[node_id]] == "DCMT":
-                    DCMT_ind.append(i)
-                    G.nodes.data()[node_id]["DCMT"] = 4
-                    G.nodes.data()[node_id]["club"] = 4
-
-        temp = list(set(color_code_0.values()))
-        hp = hive_plot_n_axes(
-            node_list=nodes,
-            edges=edges,
-            axes_assignments=[
-                IRG1_indices,
-                IRG2_indices,
-                IRG3_indices,
-                DCMT_ind,
-            ],
-            sorting_variables=["club", "club", "club", "club"],
-            axes_names=temp,
-            vmins=[0, 0, 0, 0],
-            vmaxes=[2, 2, 2, 2],
-            orient_angle=30,
-        )
 
 
-        # change the line kwargs for edges in plot
-        hp.add_edge_kwargs(
-            axis_id_1=temp[0], axis_id_2=temp[1], c=f"C0", lw=1.5, alpha=0.5, zorder=10
-        )
-        hp.add_edge_kwargs(
-            axis_id_1=temp[1], axis_id_2=temp[2], c=f"C2", lw=1.5, alpha=0.5, zorder=10
-        )
-        #hp.add_edge_kwargs(
-        ##    axis_id_1=temp[0], axis_id_3=temp[2], c=f"C1", lw=1.5, alpha=0.5, zorder=10
-        #)
-
-        # st.text(temp[2])
-        hp.place_nodes_on_axis(
-            axis_id=temp[0],
-            unique_ids=[nodes[i].data["loc"] for i in IRG1_indices],
-            sorting_feature_to_use="loc",
-            vmin=0,
-            vmax=33,
-        )
-        hp.place_nodes_on_axis(
-            axis_id=temp[1],
-            unique_ids=[nodes[i].data["loc"] for i in IRG2_indices],
-            sorting_feature_to_use="loc",
-            vmin=0,
-            vmax=33,
-        )
-        hp.place_nodes_on_axis(
-            axis_id=temp[2],
-            unique_ids=[nodes[i].data["loc"] for i in IRG3_indices],
-            sorting_feature_to_use="loc",
-            vmin=0,
-            vmax=33,
-        )
-        hp.place_nodes_on_axis(
-            axis_id=temp[3],
-            unique_ids=[nodes[i].data["loc"] for i in DCMT_ind],
-            sorting_feature_to_use="loc",
-            vmin=0,
-            vmax=33,
-        )
-        #hp.place_nodes_on_axis(
-        #    axis_id=temp[3],
-        #    unique_ids=[nodes[i].data["loc"] for i in Un_ind],
-        #    sorting_feature_to_use="loc",
-        #    vmin=0,
-        #    vmax=33,
-        #)
-
-        hp.connect_axes(edges=edges, axis_id_1=temp[0], axis_id_2=temp[1], c="C1")
-        hp.connect_axes(edges=edges, axis_id_1=temp[1], axis_id_2=temp[2], c="C2")
-        hp.connect_axes(edges=edges, axis_id_1=temp[0], axis_id_2=temp[2], c="C2")
-        hp.connect_axes(edges=edges, axis_id_1=temp[2], axis_id_2=temp[3], c="C3")
-        hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[1], c="C1")
-        hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[0], c="C0")
-        #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[0], c="C7")
-        #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[1], c="C8")
-        #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[2], c="C9")
-        #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[3], c="C10")
-
-        fig, ax = hive_plot_viz_mpl(hive_plot=hp)
-
-
-        # john_a_degree_locations = \
-        # karate_hp.axes["john_degree"].node_placements
-        # [nodes[i]
-        # for i in IRG3_indices:
-        #    st.text(nodes[i].data['loc'])
-        # ax.scatter(x, y,
-        #           facecolor="red", edgecolor="black", s=150, lw=2)
-        # ax.scatter(mr_hi_node[0], mr_hi_node[1],
-        #           facecolor="yellow", edgecolor="black", s=150, lw=2)
-        # my_expander = st.side_bar.beta_expander("Explanation of Hive")
+            # john_a_degree_locations = \
+            # karate_hp.axes["john_degree"].node_placements
+            # [nodes[i]
+            # for i in IRG3_indices:
+            #    st.text(nodes[i].data['loc'])
+            # ax.scatter(x, y,
+            #           facecolor="red", edgecolor="black", s=150, lw=2)
+            # ax.scatter(mr_hi_node[0], mr_hi_node[1],
+            #           facecolor="yellow", edgecolor="black", s=150, lw=2)
+            # my_expander = st.side_bar.beta_expander("Explanation of Hive")
 
         my_expander = st.beta_expander("Explanation of Hive")
 
@@ -1983,16 +1976,9 @@ def main():
 			are shown which can project externally from their respective groups.
 			"""
         )
+        hive_two(first,color_code,color_code_0,reverse)
 
-        st.pyplot(fig)
-        my_expander = st.beta_expander("Explanation of Second Hive")
-
-        my_expander.markdown(
-            """This graphically shows network centrality from densely into connected (hub) to sparsely interconnected.
-			"""
-        )
-
-        hub_sort(first,color_code,reverse)
+        #hub_sort(first,color_code,reverse)
 
 
     if genre == "Bundle":

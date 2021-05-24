@@ -899,13 +899,21 @@ def community(first,color_code,color_dict):
     hulls = []
     pointss = []
     whichpkeys = []
-    for k in pkeys:
-        #st.text(k)
+    centrex=[]
+    centrey=[]
+
+    for k in pkeys: # iterate over communities
         list_of_nodes = partitiondf[partitiondf.values==k].index.values[:]
         tocvxh = []
         for node in list_of_nodes:
             x,y = pos[node]
             tocvxh.append((x,y))
+
+        meanx = np.mean([i[0] for i in tocvxh])
+        meany = np.mean([i[1] for i in tocvxh])
+        centrex.append(meanx)
+        centrey.append(meany)
+
         if len(tocvxh) <=2:
             pass
 
@@ -932,11 +940,14 @@ def community(first,color_code,color_dict):
         ee = temp.get_edge_data(e[0], e[1])
         widths.append(0.85*ee["weight"])
     fig1,ax = plt.subplots(figsize=(20,20))
-    for i,hull in enumerate(hulls):
-        points = np.array(pointss[i])
-        for simplex in hull.simplices:
+
+
+
+    #for i,hull in enumerate(hulls):
+    #    points = np.array(pointss[i])
+    #    for simplex in hull.simplices:
             #pass
-            plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(whichpkeys[i]), alpha=0.05)
+    #        plt.fill(points[hull.vertices,0], points[hull.vertices,1], color=str(whichpkeys[i]), alpha=0.05)
 
 
     nx.draw_networkx_nodes(
@@ -964,6 +975,11 @@ def community(first,color_code,color_dict):
     nx.draw_networkx_edges(
         temp, pos=pos, edge_color='grey', alpha=0.15, width=widths
     )
+    import matplotlib.patches as patches
+    for centre in zip(centrex,centrey):
+        r = 1.25;
+        c = (float(centre[0]),float(centre[1]))
+        ax.add_patch(plt.Circle(c, r, color='#00ff33', alpha=0.15))
 
 
     node_color = [color_code[n] for n in first]
@@ -994,6 +1010,11 @@ def community(first,color_code,color_dict):
     nx.draw_networkx_edges(
         temp, pos=pos, edge_color='grey', alpha=0.15, width=widths
     )
+    for centre in zip(centrex,centrey):
+        r = 1.25;
+        c = (float(centre[0]),float(centre[1]))
+        ax.add_patch(plt.Circle(c, r, color='#00ff33', alpha=0.15))
+
     for k, v in color_dict.items():
         plt.scatter([], [], c=v, label=k)
     plt.legend(frameon=False,prop={'size':29.5})

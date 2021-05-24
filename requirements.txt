@@ -21,4 +21,4 @@ bokeh
 #==2.2.2
 python-igraph
 pyveplot
-streamlit_agraph
+#streamlit_agraph

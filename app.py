@@ -863,6 +863,8 @@ def dont():
 
         #st.image(Image.open("col_ba_hiveplot.svg"))
     '''
+import matplotlib.patches as patches
+from community import community_louvain
 
 #@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def community(first,color_code,color_dict):
@@ -877,7 +879,6 @@ def community(first,color_code,color_dict):
     if labels_ == "No":
         labelsx = False
 
-    from community import community_louvain
     temp = first.to_undirected()
 
     partition = community_louvain.best_partition(temp,resolution=4.0)
@@ -885,11 +886,10 @@ def community(first,color_code,color_dict):
     diffcc = list(partition.values())
     pkeys = set(partition.values())
     partitiondf = pd.DataFrame([partition]).T
-    #hulls = []
     pointss = []
     whichpkeys = []
-    centrex=[]
-    centrey=[]
+    centrex = []
+    centrey = []
 
     for k in pkeys: # iterate over communities
         list_of_nodes = partitiondf[partitiondf.values==k].index.values[:]
@@ -903,8 +903,6 @@ def community(first,color_code,color_dict):
         centrex.append(meanx)
         centrey.append(meany)
 
-    #diffccl = list(partition.ite())
-
     srcs = []
     widths = []
 
@@ -914,8 +912,8 @@ def community(first,color_code,color_dict):
         srcs.append(src)
         ee = temp.get_edge_data(e[0], e[1])
         widths.append(1.85*ee["weight"])
-    fig1,ax = plt.subplots(figsize=(20,20))
 
+    fig1,ax1 = plt.subplots(1, 1,figsize=(20,20))
     recolored = [colors[i] for i in diffcc]
 
     nx.draw_networkx_nodes(
@@ -926,9 +924,8 @@ def community(first,color_code,color_dict):
         alpha=0.5,
         linewidths=1,
     )
-    #st.text(diffcc)
-    axx = fig1.gca()  # to get the current axis
-    axx.collections[0].set_edgecolor("#FF0000")
+    #axx = ax1.gca()  # to get the current axis
+    #axx.collections[0].set_edgecolor("#FF0000")
     label_pos = copy.deepcopy(pos)
     for k,v in label_pos.items():
         label_pos[k][0] = v[0]+0.5
@@ -943,17 +940,11 @@ def community(first,color_code,color_dict):
     nx.draw_networkx_edges(
         temp, pos=pos, edge_color='grey', alpha=0.15, width=widths
     )
-    import matplotlib.patches as patches
     for centre in zip(centrex,centrey,pkeys):
         r = 1.5;
         c = (float(centre[0]),float(centre[1]))
-        ax.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
-    plt.axis('off')
-    fig1.tight_layout()
-    fig1.savefig("img1.png")
-
-
-    fig2,ax = plt.subplots(figsize=(20,20))
+        ax1.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
+    fig2,ax2 = plt.subplots(1, 1,figsize=(20,20))
 
     node_color = [color_code[n] for n in first]
     srcs = []
@@ -969,41 +960,44 @@ def community(first,color_code,color_dict):
         alpha=0.5,
         linewidths=1,
     )
-    axx = fig2.gca()  # to get the current axis
-    axx.collections[0].set_edgecolor("#FF0000")
-    #if labelsx:
-    #    nx.draw_networkx_labels(temp, label_pos, labels, font_size=9.5, font_color="b")
-
-    #nx.draw(temp, pos, node_color=node_color)
+    #axx = ax2.gca()  # to get the current axis
+    #axx.collections[0].set_edgecolor("#FF0000")
     nx.draw_networkx_edges(
         temp, pos=pos, edge_color='grey', alpha=0.15, width=widths
     )
     for centre in zip(centrex,centrey,pkeys):
         r = 1.5;
         c = (float(centre[0]),float(centre[1]))
-        #ax.add_patch(plt.Circle(c, r, color='#00ff33', alpha=0.15))
-        ax.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
+        ax2.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
     if labelsx:
         for k, v in color_dict.items():
             plt.scatter([], [], c=v, label=k)
         plt.legend(frameon=False,prop={'size':29.5})
-    plt.axis('off')
-    fig2.tight_layout()
+    #plt.axis('off')
+    #fig1.tight_layout()
+    col1, col2 = st.beta_columns(2)
 
-    fig2.savefig("img2.png")
-    import matplotlib.image as mpimg
-    img1 = mpimg.imread('img1.png')
-    img2 = mpimg.imread('img2.png')
+    col1.pyplot(fig1, use_column_width=True)
+    col2.pyplot(fig2, use_column_width=True)
 
-    fig3, (ax1, ax2) = plt.subplots(1, 2,figsize=(70,70))
+    #try:
+    #    st.pyplot(fig1, use_column_width=True)
+    #    st.pyplot(fig2, use_column_width=True)
 
-    ax1.imshow(img1)
-    ax1.axis('off')
-    #plt.subplot(221)
-    ax2.imshow(img2)
-    ax2.axis('off')
 
-    st.pyplot(fig3, use_column_width=True)
+    #except:
+
+
+    #    fig2.savefig("img2.png")
+    #    import matplotlib.image as mpimg
+    #    img1 = mpimg.imread('img1.png')
+    #    img2 = mpimg.imread('img2.png')
+
+    #    ax1.imshow(img1)
+    #    ax1.axis('off')
+    #    ax2.imshow(img2)
+    #    ax2.axis('off')
+
 
 def list_centrality(first):
     H = first.to_undirected()
@@ -2170,8 +2164,6 @@ def main():
             src = color_code[e[0]]
             srcs.append(src)
 
-        # for ind,seg in enumerate(segments):
-        # 	 ax.plot(seg[:,0], seg[:,1],c=color_code[srcs[ind]],alpha=0.35,linewidth=0.25*widths[ind])
 
         nx.draw_networkx_nodes(
             H,

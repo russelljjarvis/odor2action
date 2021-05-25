@@ -1999,7 +1999,7 @@ def main():
             Ze += [layt[e[0]][2], layt[e[1]][2], None]
         # ,colorscale='Viridis'
         trace1 = go.Scatter3d(
-            x=Xe, y=Ye, z=Ze, mode="lines", line=dict(color='black', width=5)
+            x=Xe, y=Ye, z=Ze, mode="lines", line=dict(color="black", width=5)
         )  # ,text=labels,hoverinfo='text'))
 
         trace2 = go.Scatter3d(

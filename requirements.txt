@@ -2,21 +2,22 @@ openpyxl==3.0.0
 numpy
 xlrd==1.2.0
 colorlover==0.3.0
-#dash_bio==0.7.0
 plotly==4.5.2
 streamlit
-#hiveplot
-#hiveplotlib
 datashader==0.12.0
 holoviews
 pyvis==0.1.9
 matplotlib==2.2.5
-#seaborn==0.9.1
 scikit-image
 -e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=community
 python-igraph
 pyveplot
+
 #bokeh
 #streamlit_agraph
 #==2.2.2
 #-e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=networkx==2.5.1
+#dash_bio==0.7.0
+#seaborn==0.9.1
+#hiveplot
+#hiveplotlib

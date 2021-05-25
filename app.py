@@ -42,7 +42,7 @@ from collections import Iterable
 import networkx
 
 # import holoviews as hv
-import chord2
+#import chord2
 import shelve
 
 import plotly.graph_objects as go
@@ -1077,13 +1077,13 @@ def physics(first, adj_mat_dicts, color_code,color_code_0,color_dict):
     nt = Network(
         notebook=True,
         directed=True,
-        height="500px",
-        width="100%",
+        height="600px",
+        width="150%",
         font_color="black",  # , bgcolor='#222222'
     )  # bgcolor='#222222',
 
     nt = Network(
-        "500px", "500px", notebook=True
+        "600px", "600px", notebook=True
     )
 
     nt.barnes_hut()
@@ -1306,10 +1306,15 @@ import textwrap
 
 def render_svg_small(svg):
     """Renders the given svg string."""
-    html = None
-    b64 = None
+    #html = None
+    #b64 = None
     b64 = base64.b64encode(svg.encode('utf-8')).decode("utf-8")
     html = r'<img src="data:image/svg+xml;base64,%s" width = 900/>' % b64
+    #from cairosvg import svg2png
+    #bytestring=bytes(svg,'UTF-8')
+    #svg2png(bytestring=bytestring,write_to='output.png')
+    #from PIL import Image
+    #st.image(Image.open("output.png"))
 
     st.write(html, unsafe_allow_html=True)
     del html
@@ -1322,6 +1327,15 @@ def render_svg(svg):
     """Renders the given svg string."""
     b64 = base64.b64encode(svg.encode('utf-8')).decode("utf-8")
     html = r'<img src="data:image/svg+xml;base64,%s"/>' % b64
+
+
+
+    #from cairosvg import svg2png
+    #svg2png(bytestring=svg,write_to='output.png')
+    #from PIL import Image
+    #st.image(Image.open("output.png"))
+
+    #st.pyplot()
     st.write(html, unsafe_allow_html=True)
     del html
     del svg
@@ -1337,6 +1351,7 @@ def agraph_(first):
     #agraph(list(first.nodes), (first.edges), config)
 a = 0
 def hub_sort(first,color_code_1,reverse,a):
+    '''
     a += 1
     c = ['#e41a1c', '#377eb8', '#4daf4a',
          '#984ea3', '#ff7f00', '#ffff33',
@@ -1350,6 +1365,7 @@ def hub_sort(first,color_code_1,reverse,a):
     h = Hiveplot()
     h.__init__()
     #fig = plt.figure()
+    h.axes = None
     # create three axes, spaced at 120 degrees from each other
     h.axes = [Axis(start=20, angle=0,
                    stroke='black', stroke_width=2.1),
@@ -1432,10 +1448,11 @@ def hub_sort(first,color_code_1,reverse,a):
     h = Hiveplot()
     h.__init__()
     fig = plt.figure()
+    '''
 
 
     #line_string = ''
-    with open(str(a)+'ba_hiveplot.svg',"r") as f:
+    with open('1ba_hiveplot.svg',"r") as f:
         lines = f.readlines()
         f.close()
     line_string=''.join(lines)
@@ -1445,13 +1462,15 @@ def hub_sort(first,color_code_1,reverse,a):
     lines = None
     del line_string
     del lines
-    os.system('rm ba_hiveplot.svg')
+    return None
+    #os.system('rm ba_hiveplot.svg')
     #from streamlit import caching
 
     #caching.clear_cache()
-a = 0
+#a = 0
 
 def hive_two(first,color_code,color_code_0,reverse,a):
+    '''
     c = ['#e41a1c', '#377eb8', '#4daf4a',
          '#984ea3', '#ff7f00', '#ffff33',
          '#a65628', '#f781bf', '#999999',]
@@ -1460,6 +1479,7 @@ def hive_two(first,color_code,color_code_0,reverse,a):
     h = Hiveplot()
     h.__init__()
     fig = plt.figure()
+    h.axes = None
     # create three axes, spaced at 120 degrees from each other
     h.axes = [Axis(start=20, angle=0,
                    stroke='black', stroke_width=2.1),
@@ -1540,8 +1560,9 @@ def hive_two(first,color_code,color_code_0,reverse,a):
     h.__init__()
     del h
     h = None
+    '''
 
-    with open(str(a)+'ba1_hiveplot.svg',"r") as f:
+    with open('0ba1_hiveplot.svg',"r") as f:
         lines = f.readlines()
         f.close()
     line_string=''.join(lines)
@@ -1552,6 +1573,7 @@ def hive_two(first,color_code,color_code_0,reverse,a):
     os.system('rm ba1_hiveplot.svg')
     from streamlit import caching
     caching.clear_cache()
+    return None
 def no_thanks():
     from hiveplotlib import Axis, Node, HivePlot
 
@@ -1698,7 +1720,7 @@ def nope():
             "Hive",
             "Chord",
             "Physics",
-            "List Centrality",
+            "Visualize Centrality",
             "Bundle",
             "Basic",
             "Lumped Population",
@@ -1720,7 +1742,7 @@ def main():
             "Physics",
             "Chord",
             "Bundle",
-            "List Centrality",
+            "Visualize Centrality",
             "Community Mixing",
             "Basic",
             "Lumped Population",
@@ -1831,7 +1853,7 @@ def main():
             color_code_0[reverse[node_id]] = hc[reverse[node_id]]
             reverse[node_id] = hc[reverse[node_id]]
 
-    if genre == "List Centrality":
+    if genre == "Visualize Centrality":
 
         my_expander = st.beta_expander("Explanation of Second Hive")
 
@@ -2282,6 +2304,7 @@ def main():
         #st.markdown(""" clicking on a node highlights its direct projections""")
 
         H = first.to_undirected()
+        T = nx.minimum_spanning_tree(first)
         st.markdown("Betweeness Centrality:")
         st.markdown("Top to bottom node id from most central to least:")
 
@@ -2390,8 +2413,8 @@ def main():
         #doCircleRibbonGraph(temp, labels, colors, plot_size=400, title="Phd Country")
         #(matrix, labels, colors, plot_size=400, title="Phd Country")
         nodes = hv.Dataset(df_nodes, "index")
-        st.write(nodes)
-        st.write(df_links)
+        #st.write(nodes)
+        #st.write(df_links)
         df_links["index"] = df_links["Color"]
         chord = hv.Chord((df_links, nodes))#.opts.Chord(cmap='Category20', edge_color=dim('source').astype(str), node_color=dim('index').astype(str))
           # .select(value=(5, None))
@@ -2408,10 +2431,14 @@ def main():
             )
         )
         # st.markdown("Chord layout democratic")
+        #sankey = hv.Sankey(df_links, label='Energy Diagram')
+        #sankey.opts(label_position='left', edge_color='target', node_color='index', cmap='tab20')
+
         hv.save(chord, "chord2.html", backend="bokeh")
         HtmlFile2 = open("chord2.html", "r", encoding="utf-8")
         source_code2 = HtmlFile2.read()
         components.html(source_code2, height=750, width=750)
+
 
     def dontdo():
 

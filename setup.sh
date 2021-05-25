@@ -36,6 +36,9 @@ $(which pip) install python-igraph
 
 $(which pip) install git+https://github.com/taynaud/python-louvain.git@networkx2
 git clone https://github.com/taynaud/python-louvain.git@networkx2; cd networkx2; $(which python) setup.py install; cd -
+python3 make_serial_plots0.py
+python3 make_serial_plots1.py
+
 #python3 -c "from holoviews.operation.datashader import datashade"
 #python3 -m pip install git+https://github.com/pyviz/holoviews.git
 #git clone https://github.com/pyviz/holoviews.git

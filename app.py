@@ -10,8 +10,8 @@ import plotly.graph_objs as go
 from matplotlib.patches import FancyArrowPatch, Circle
 import numpy as np
 
-from hiveplotlib import Axis, Node, HivePlot, hive_plot_n_axes
-from hiveplotlib.viz import hive_plot_viz_mpl
+#from hiveplotlib import Axis, Node, HivePlot, hive_plot_n_axes
+#from hiveplotlib.viz import hive_plot_viz_mpl
 
 import holoviews as hv
 from holoviews import opts, dim
@@ -1413,97 +1413,6 @@ def hub_sort(first, color_code_1, reverse):
 
 
 def hive_two(first, color_code, color_code_0, reverse):
-    """
-    c = ['#e41a1c', '#377eb8', '#4daf4a',
-         '#984ea3', '#ff7f00', '#ffff33',
-         '#a65628', '#f781bf', '#999999',]
-
-    # create hiveplot object
-    h = Hiveplot()
-    h.__init__()
-    fig = plt.figure()
-    h.axes = None
-    # create three axes, spaced at 120 degrees from each other
-    h.axes = [Axis(start=20, angle=0,
-                   stroke='black', stroke_width=2.1),
-              Axis(start=20, angle=90,
-                   stroke='black', stroke_width=2.1),
-              Axis(start=20, angle=90 + 90,
-                   stroke='black', stroke_width=2.1),
-              Axis(start=20, angle=90 + 90 + 90,
-                   stroke='black', stroke_width=2.1)
-
-              ]
-
-    g = first
-
-    IRG1_indices = []
-    IRG2_indices = []
-    IRG3_indices = []
-    DCMT_indices = []  # ,Un_ind
-    g = first
-    forwards = {v:k for k,v in reverse.items()}
-    for i, (node_id) in enumerate(g.nodes):
-        if node_id in color_code_0.keys():
-            if color_code_0[node_id] == "IRG 1":
-                IRG1_indices.append(node_id)
-            if color_code_0[node_id] == "IRG 2":
-                IRG2_indices.append(node_id)
-            if color_code_0[node_id] == "IRG 3":
-                IRG3_indices.append(node_id)
-            if color_code_0[node_id] == "DCMT":
-                DCMT_indices.append(node_id)
-
-
-    # categorize them as high, medium and low degree
-    hi_deg = [v for v in g if v in IRG1_indices]
-    md_deg = [v for v in g if v in IRG2_indices]
-    md_deg2 = [v for v in g if v in IRG3_indices]
-    lo_deg = [v for v in g if v in DCMT_indices]
-
-    # place these nodes into our three axes
-    for axis, nodes in zip(h.axes,
-                           [hi_deg, md_deg,md_deg2, lo_deg]):
-
-        for v in nodes:
-            #st.text(v)
-            circle_color = color_code[v]
-            # create node object
-            node = Node(radius=33.5*g.degree(v),
-                        label="%s" % (v))
-            # add it to axis
-            axis.add_node(v, node)
-            # once it has x, y coordinates, add a circle
-            node.add_circle(fill=circle_color, stroke=circle_color,
-                            stroke_width=0.1, fill_opacity=0.65)
-            if axis.angle < 180:
-                orientation = -1
-                scale = 6.5
-            else:
-                orientation = - 1
-                scale = 6.5
-            # also add a label
-            node.add_label("{0}".format(v),
-                           angle=axis.angle + 90 * orientation,
-                           scale=scale)
-    # iterate through axes, from left to right
-    for n in range(-1, len(h.axes) - 1):
-
-        curve_color = 'black'#random.choice(c)
-        # draw curves between nodes connected by edges in network
-        h.connect_axes(h.axes[n],
-                       h.axes[n+1],
-                       g.edges,
-                       stroke_width=4.5,
-                       stroke=curve_color)
-    # save output
-    import os
-    h.draw_axes()
-    h.save(str(a)+'ba1_hiveplot.svg')
-    h.__init__()
-    del h
-    h = None
-    """
 
     with open("0ba1_hiveplot.svg", "r") as f:
         lines = f.readlines()
@@ -1683,17 +1592,17 @@ def main():
     genre = st.sidebar.radio(
         "Prefered graph layout?",
         (
-            "Hive",
             "Physics",
-            "Chord",
-            "Bundle",
+            "3D",
+            "Lumped Population",
             "Visualize Centrality",
+            "Hive",
             "Community Mixing",
             "Basic",
-            "Lumped Population",
             "Spreadsheet",
+            "Bundle",
             "AdjacencyMatrix",
-            "3D",
+            "Chord"
         ),
     )
 

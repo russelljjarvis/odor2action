@@ -2,7 +2,7 @@
 apt-get update
 #apt-get upgrade
 
-python -m pip install -U pip
+#python -m pip install -U pip
 #apt-get install graphviz graphviz-dev
 #conda install -c cython# bokeh graphviz_layout
 python -m pip install numpy --upgrade --ignore-installed
@@ -14,7 +14,7 @@ python -m pip install -r requirements.txt
 #python -m pip install bokeh# holoviews==1.14.1 seaborn
 python -m pip install pyvis cython scikit-image #dash_bio dask
 python -m pip install plotly tabulate # hiveplotlib hiveplot pygraphviz#==2.0.0#2.2
-python -m pip install streamlit --upgrade --ignore-installed
+#python -m pip install streamlit --upgrade --ignore-installed
 #python -m pip install pygraphviz
 # streamlit-agraph
 python -m pip install python-igraph
@@ -24,9 +24,9 @@ python -m pip install python-igraph
 
 
 python -m pip install git+https://github.com/taynaud/python-louvain.git@networkx2
-git clone https://github.com/taynaud/python-louvain.git@networkx2; cd networkx2; python setup.py install; cd -
-python make_serial_plots0.py
-python make_serial_plots1.py
+#git clone https://github.com/taynaud/python-louvain.git@networkx2; cd networkx2; python setup.py install; cd -
+#python make_serial_plots0.py
+#python make_serial_plots1.py
 #python -c "from holoviews.operation.datashader import datashade"
 #python -m pip install git+https://github.com/pyviz/holoviews.git
 #git clone https://github.com/pyviz/holoviews.git

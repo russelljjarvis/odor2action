@@ -1,6 +1,16 @@
 
 apt-get update
 apt-get upgrade
+apt-get install -y graphviz #| grep http | awk '{print $1}' | tr -d "'"
+# Create .profile.d script (sourced by dyno) setting PATH and LD_LIBRARY_PATH
+mkdir -p .profile.d
+echo "PATH=/app/$install_dir/usr/bin:\$PATH" >.profile.d/graphviz.sh
+echo "export LD_LIBRARY_PATH=/app/$libs_dir:\$LD_LIBRARY_PATH" >>.profile.d/graphviz.sh
+
+# Run dot -c to configure plugins (creates config6a file)
+LD_LIBRARY_PATH=$libs_dir "$install_dir"/usr/bin/dot -c
+
+
 python -m pip install -U pip
 #apt-get install graphviz graphviz-dev
 #conda install -c cython# bokeh graphviz_layout
@@ -27,6 +37,8 @@ git clone https://github.com/pygraphviz/pygraphviz; cd pygraphviz; python3 setup
 #git clone https://github.com/pyviz/holoviews.git
 #cd holoviews; pip install -e .; cd ..;
 #python3 -m pip install pygraphviz
+
+
 mkdir -p ~/.streamlit/
 echo "\
 [general]\n\

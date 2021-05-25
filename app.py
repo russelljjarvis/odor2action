@@ -21,7 +21,7 @@ import copy
 import argparse
 import numpy as np
 import networkx as nx
-import dash_bio as dashbio
+#import dash_bio as dashbio
 import streamlit as st
 
 # st.set_page_config(layout="wide")
@@ -66,7 +66,15 @@ import matplotlib.pyplot as plt
 from community import community_louvain
 
 
-import dash_bio
+#import dash_bio
+import numpy as np
+import matplotlib.pyplot as plt
+import networkx as nx
+from pyveplot import Hiveplot, Axis, Node
+import networkx as nx
+import random
+import base64
+import textwrap
 
 
 def disable_logo(plot, element):
@@ -700,9 +708,6 @@ def population(cc, popg, color_dict):
 # from scipy.spatial import ConvexHull, convex_hull_plot_2d
 
 
-import numpy as np
-import matplotlib.pyplot as plt
-import networkx as nx
 
 
 def community_layout(g, partition):
@@ -1220,128 +1225,9 @@ def dont():
     )
 
 
-def dontdo():
-    """
-    sorting_feature = "club"
-    hp = hive_plot_n_axes(
-                    node_list=nodes,
-                    edges=edges,
-                    axes_assignments=[
-                                    IRG1_indices,
-                                    IRG2_indices,
-                                    IRG3_indices,
-                                    DCMT_ind,
-                                    Un_ind,
-                    ],
-                    sorting_variables=["club", "club", "club", "club", "club"],
-                    axes_names=["IRG1", "IRG2", "IRG3", "DCMT", "Unknown"],
-                    vmins=[0, -0, 0, -10, -10],
-                    vmaxes=[33, 33, 33, 33, 33],
-    )
-
-    #fig = hive_plot_viz_mpl(hp)
-
-    ### axes ###
-
-    axis0 = Axis(axis_id="hi_id", start=1, end=5, angle=-30,
-                                                     long_name="Mr. Hi Faction\n(Sorted by ID)")
-    axis1 = Axis(axis_id="hi_degree", start=1, end=5, angle=30,
-                                                     long_name="Mr. Hi Faction\n(Sorted by Degree)")
-    axis2 = Axis(axis_id="john_degree", start=1, end=5, angle=180 - 30,
-                                                     long_name="John A. Faction\n(Sorted by Degree)")
-    axis3 = Axis(axis_id="john_id", start=1, end=5, angle=180 + 30,
-                                                     long_name="John A. Faction\n(Sorted by ID)")
-    axis4 = Axis(axis_id="irg1_id", start=1, end=5, angle=180,
-                                                     long_name="John A. Faction\n(Sorted by ID)")
-
-    axes = [axis0, axis1, axis2, axis3, axis4]
-
-    karate_hp.add_axes(axes)
-
-    ### node assignments ###
-
-    color_dict = {
-                    "Unknown": "black",
-                    "IRG 3": "green",
-                    "IRG 1": "blue",
-                    "IRG 2": "yellow",
-                    "DCMT": "orange",
-    }
-
-    # partition the nodes into "Mr. Hi" nodes and "John A." nodes
-    IRG1_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 1"]
-    IRG2_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 2"]
-    DCMT_nodes = [node.unique_id for node in nodes if node.data['club'] == "DCMT"]
-    hi_nodes = [node.unique_id for node in nodes if node.data['club'] == "IRG 3"]
-    john_a_nodes = [node.unique_id for node in nodes if node.data['club'] == "Unknown"]
-    #st.text(hi_nodes[0])
-    # assign nodes and sorting procedure to position nodes on axis
-    karate_hp.place_nodes_on_axis(axis_id="hi_id", unique_ids=hi_nodes,
-                                                                                                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
-    karate_hp.place_nodes_on_axis(axis_id="hi_degree", unique_ids=hi_nodes,
-                                                                                                                      sorting_feature_to_use="degree", vmin=0, vmax=17)
-    karate_hp.place_nodes_on_axis(axis_id="john_degree", unique_ids=john_a_nodes,
-                                                                                                                      sorting_feature_to_use="degree", vmin=0, vmax=17)
-    karate_hp.place_nodes_on_axis(axis_id="john_id", unique_ids=john_a_nodes,
-                                                                                                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
-    karate_hp.place_nodes_on_axis(axis_id="irg1_id", unique_ids=IRG1_nodes,
-                                                                                                                      sorting_feature_to_use="loc", vmin=0, vmax=33)
-
-    ### edges ###
-
-    karate_hp.connect_axes(edges=edges, axis_id_1="hi_degree", axis_id_2="hi_id", c="C0")
-    karate_hp.connect_axes(edges=edges, axis_id_1="john_degree", axis_id_2="john_id", c="C1")
-    karate_hp.connect_axes(edges=edges, axis_id_1="hi_degree", axis_id_2="john_degree", c="C2")
-    karate_hp.connect_axes(edges=edges, axis_id_1="irg1_id", axis_id_2="john_id", c="C3")
-
-    # pull out the location of the John A. and Mr. Hi nodes for visual emphasis later
-    john_a_degree_locations = karate_hp.axes["john_degree"].node_placements
-    john_a_node = john_a_degree_locations.loc[john_a_degree_locations.loc[:, 'unique_id'] == 33,
-                                                                                                                                                                      ['x', 'y']].values.flatten()
-
-    mr_hi_degree_locations = karate_hp.axes["hi_degree"].node_placements
-    mr_hi_node = mr_hi_degree_locations.loc[mr_hi_degree_locations.loc[:, 'unique_id'] == 0,
-                                                                                                                                                                    ['x', 'y']].values.flatten()
-
-    # plot axes
-    fig, ax = axes_viz_mpl(karate_hp,
-                                                                                       axes_labels_buffer=1.4)
-
-    # plot nodes
-    node_viz_mpl(karate_hp,
-                                                     fig=fig, ax=ax, s=80, c="black")
-
-    # highlight Mr. Hi and John. A on the degree axes
-    #ax.scatter(john_a_node[0], john_a_node[1],
-    #           facecolor="red", edgecolor="black", s=150, lw=2)
-    #ax.scatter(mr_hi_node[0], mr_hi_node[1],
-    #           facecolor="yellow", edgecolor="black", s=150, lw=2)
-
-    # plot edges
-    edge_viz_mpl(hive_plot=karate_hp, fig=fig, ax=ax, alpha=0.7, zorder=-1)
-
-    ax.set_title("Odor 2 Action \nHive Plot", fontsize=20, y=0.9)
-
-    ### legend ###
-
-    # edges
-
-    custom_lines = [Line2D([0], [0], color=f'C{i}', lw=3, linestyle='-') for i in range(3)]
-
-
-    ax.legend(custom_lines, ["Within Mr. Hi Faction", "Within John A. Faction",
-                                                                                                     "Between Factions"],
-                                      loc='upper left', bbox_to_anchor=(0.37, 0.35), title="Social Connections")
-    st.pyplot(fig)
-    """
 
 
 # from scipy.spatial import Delaunay, ConvexHull
-from pyveplot import Hiveplot, Axis, Node
-import networkx as nx
-import random
-import base64
-import textwrap
 
 
 def render_svg_small(svg):
@@ -1359,9 +1245,10 @@ def render_svg_small(svg):
     st.write(html, unsafe_allow_html=True)
     del html
     del svg
-    from streamlit import caching
+    #from streamlit import caching
 
-    caching.clear_cache()
+    #caching.clear_cache()
+    return None
 
 
 #        hub_sort(first,color_code_0,reverse)
@@ -1379,9 +1266,10 @@ def render_svg(svg):
     st.write(html, unsafe_allow_html=True)
     del html
     del svg
-    from streamlit import caching
+    return None
+    #from streamlit import caching
 
-    caching.clear_cache()
+    #caching.clear_cache()
 
 
 def agraph_(first):
@@ -1399,10 +1287,22 @@ def agraph_(first):
     # agraph(list(first.nodes), (first.edges), config)
 
 
-a = 0
+#a = 0
 
 
-def hub_sort(first, color_code_1, reverse, a):
+def hub_sort(first, color_code_1, reverse):
+    with open("1ba_hiveplot.svg", "r") as f:
+        lines = f.readlines()
+        f.close()
+    line_string = "".join(lines)
+
+    render_svg_small(line_string)
+    line_string = None
+    lines = None
+    del line_string
+    del lines
+    return None
+
     """
     a += 1
     c = ['#e41a1c', '#377eb8', '#4daf4a',
@@ -1503,17 +1403,6 @@ def hub_sort(first, color_code_1, reverse, a):
     """
 
     # line_string = ''
-    with open("1ba_hiveplot.svg", "r") as f:
-        lines = f.readlines()
-        f.close()
-    line_string = "".join(lines)
-
-    render_svg_small(line_string)
-    line_string = None
-    lines = None
-    del line_string
-    del lines
-    return None
     # os.system('rm ba_hiveplot.svg')
     # from streamlit import caching
 
@@ -1523,7 +1412,7 @@ def hub_sort(first, color_code_1, reverse, a):
 # a = 0
 
 
-def hive_two(first, color_code, color_code_0, reverse, a):
+def hive_two(first, color_code, color_code_0, reverse):
     """
     c = ['#e41a1c', '#377eb8', '#4daf4a',
          '#984ea3', '#ff7f00', '#ffff33',
@@ -1624,10 +1513,10 @@ def hive_two(first, color_code, color_code_0, reverse, a):
     render_svg_small(line_string)
     line_string = None
     del line_string
-    os.system("rm ba1_hiveplot.svg")
-    from streamlit import caching
+    #os.system("rm ba1_hiveplot.svg")
+    #from streamlit import caching
 
-    caching.clear_cache()
+    #caching.clear_cache()
     return None
 
 
@@ -1915,7 +1804,7 @@ def main():
 			"""
         )
 
-        hub_sort(first, color_code, reverse, a)
+        hub_sort(first, color_code, reverse)
         list_centrality(first)
     if genre == "Spreadsheet":
         st.markdown("Processed anonymized network data that is visualized")
@@ -2057,7 +1946,7 @@ def main():
 			are shown which can project externally from their respective groups.
 			"""
         )
-        hive_two(first, color_code, color_code_0, reverse, a)
+        hive_two(first, color_code, color_code_0, reverse)
 
     if genre == "Bundle":
         my_expander = st.beta_expander("show labels?")
@@ -2342,6 +2231,7 @@ def main():
 
         columns = list(df2.columns.values)
         rows = list(df2.index)
+        '''
         try:
             figure = dashbio.Clustergram(
                 data=df2.loc[rows].values,
@@ -2356,6 +2246,7 @@ def main():
             st.write(figure)
         except:
             pass
+        '''
     if genre == "Chord":
         # https://docs.bokeh.org/en/0.12.3/docs/gallery/chord_chart.html
         # from bokeh import Chord

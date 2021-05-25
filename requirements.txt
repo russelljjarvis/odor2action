@@ -7,18 +7,16 @@ plotly==4.5.2
 streamlit
 hiveplot
 hiveplotlib
-#==0.79.0
 datashader==0.12.0
 holoviews
-#==1.14.1
 pyvis==0.1.9
 matplotlib==2.2.5
 seaborn==0.9.1
 scikit-image
-bokeh
-#-e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=networkx==2.5.1
 -e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=community
-#==2.2.2
 python-igraph
 pyveplot
+#bokeh
 #streamlit_agraph
+#==2.2.2
+#-e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=networkx==2.5.1

@@ -90,7 +90,6 @@ from typing import List
 import pandas as pd
 
 # import holoviews as hv
-import seaborn as sns
 
 
 def generate_sankey_figure(
@@ -2089,6 +2088,7 @@ def main():
             axis labels. If you look closely at the pixels, pixels vary at double the frequency of the node labels.
 			"""
         )
+        import seaborn as sns
 
         g = sns.clustermap(df2)
         st.pyplot(g)

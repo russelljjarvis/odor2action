@@ -135,7 +135,7 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     pos_ = nx.spring_layout(graph, scale=2.5, k=0.00015, seed=4572321)
     # node_color = [community_index[n] for n in graph]
     H = graph.to_undirected()
-    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+    centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
     node_size = [v * 25000 for v in centrality.values()]
 
     coords = []
@@ -1014,7 +1014,7 @@ def list_centrality(first):
     st.markdown("## Betweeness Centrality:")
     st.markdown("Top to bottom node id from most central to least:")
 
-    centrality = nx.betweenness_centrality(H, endpoints=True)
+    centrality = nx.betweenness_centrality(H)#, endpoints=True)
     df = pd.DataFrame([centrality])
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
@@ -1114,7 +1114,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     )
 
     H = first.to_undirected()
-    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+    centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
     edge_thickness = {k: v * 90000000 for k, v in centrality.items()}
     node_size = {k: v * 90000000 for k, v in centrality.items()}
 
@@ -1702,6 +1702,8 @@ def main():
 
         community(first, color_code, color_dict)
     if genre == "3D":
+        st.markdown("""Note this visualization uses (a different library) python I-Graph (normally networkx) to determine the betweeness centrality
+        with the interesting consequence that a DCMT node is now second most central""")
         #g = first
 
         #links = copy.copy(adj_mat)
@@ -1720,6 +1722,10 @@ def main():
             "kk", dim=3
         )  # plot network with the Kamada-Kawai layout algorithm
         estimate = G.betweenness(directed=True)  # , cutoff=16)
+        #H = first.to_undirected()
+
+        #estimate = nx.betweenness_centrality(H)#, k=10, endpoints=True)
+        #estimate = list(estimate.values())
         ee = []
         for i in estimate:
             if i == 0:
@@ -1754,14 +1760,16 @@ def main():
         Ze = []
         group2 = []
         decoded = {v: k for k, v in encoded.items()}
-        for e in Edges:
-            group2.append(color_code[decoded[e[0]]])
-            Xe += [layt[e[0]][0], layt[e[1]][0], None]  # x-coordinates of edge ends
-            Ye += [layt[e[0]][1], layt[e[1]][1], None]
-            Ze += [layt[e[0]][2], layt[e[1]][2], None]
+        for e in G.es:
+            Xe += [layt[e.source][0], layt[e.target][0], None]  # x-coordinates of edge ends
+            Ye += [layt[e.source][1], layt[e.target][1], None]
+            Ze += [layt[e.source][2], layt[e.target][2], None]
         # ,colorscale='Viridis'
+        for e in G.es:
+            group2.append(color_code[e.source])
+
         trace1 = go.Scatter3d(
-            x=Xe, y=Ye, z=Ze, mode="lines", line=dict(color=group2, width=2.4)
+            x=Xe, y=Ye, z=Ze, mode="lines", line=dict(color=group2, width=1.9)
         )  # ,text=labels,hoverinfo='text'))
 
         trace2 = go.Scatter3d(
@@ -1790,7 +1798,7 @@ def main():
         )
 
         layout = go.Layout(
-            title="A 3D Visualization which can be rotated",
+            title="A 3D Visualization (can be rotated)",
             width=1200,
             height=1200,
             showlegend=False,
@@ -1805,6 +1813,8 @@ def main():
 
         fig = go.Figure(data=data, layout=layout)
         st.write(fig,use_column_width=True)
+
+
     if genre == "Physics":
         physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
 
@@ -1987,7 +1997,7 @@ def main():
         )
         H = first.to_undirected()
 
-        centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+        centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
         edge_thickness = [v * 20000 for v in centrality.values()]
         node_size = [v * 20000 for v in centrality.values()]
 
@@ -2142,7 +2152,7 @@ def main():
         st.markdown("Betweeness Centrality:")
         st.markdown("Top to bottom node id from most central to least:")
 
-        centrality = nx.betweenness_centrality(H, endpoints=True)
+        centrality = nx.betweenness_centrality(H)#, endpoints=True)
         df = pd.DataFrame([centrality])
         df = df.T
         df.sort_values(0, axis=0, ascending=False, inplace=True)

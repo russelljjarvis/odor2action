@@ -961,39 +961,59 @@ def community(first, color_code, color_dict):
         r = 1.5
         c = (float(centre[0]), float(centre[1]))
         ax1.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
-    fig2, ax2 = plt.subplots(1, 1, figsize=(20, 20))
 
-    node_color = [color_code[n] for n in first]
-    srcs = []
-    for e in temp.edges:
-        src = color_code[e[0]]
-        srcs.append(src)
+    def last_fig(color_code,first,temp,pos,pkeys,centrex,centrey,color_dict,labelsx=False):
+        fig2, ax2 = plt.subplots(1, 1, figsize=(20, 20))
 
-    nx.draw_networkx_nodes(
-        temp,
-        pos=pos,
-        node_color=node_color,
-        node_size=550,
-        alpha=0.5,
-        linewidths=1,
-    )
-    # axx = ax2.gca()  # to get the current axis
-    # axx.collections[0].set_edgecolor("#FF0000")
-    nx.draw_networkx_edges(temp, pos=pos, edge_color="grey", alpha=0.15, width=widths)
-    for centre in zip(centrex, centrey, pkeys):
-        r = 1.5
-        c = (float(centre[0]), float(centre[1]))
-        ax2.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
-    if labelsx:
-        for k, v in color_dict.items():
-            plt.scatter([], [], c=v, label=k)
-        plt.legend(frameon=False, prop={"size": 29.5})
+        node_color = [color_code[n] for n in first]
+        srcs = []
+        for e in temp.edges:
+            src = color_code[e[0]]
+            srcs.append(src)
+
+        nx.draw_networkx_nodes(
+            temp,
+            pos=pos,
+            node_color=node_color,
+            node_size=550,
+            alpha=0.5,
+            linewidths=1,
+        )
+        label_pos = copy.deepcopy(pos)
+        for k, v in label_pos.items():
+            label_pos[k][0] = v[0] + 0.5
+
+        if labelsx:
+            labels = {}
+            for node in temp.nodes():
+                # set the node name as the key and the label as its value
+                labels[node] = node
+            nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
+
+        # axx = ax2.gca()  # to get the current axis
+        # axx.collections[0].set_edgecolor("#FF0000")
+        nx.draw_networkx_edges(temp, pos=pos, edge_color="grey", alpha=0.15, width=widths)
+        for centre in zip(centrex, centrey, pkeys):
+            r = 1.5
+            c = (float(centre[0]), float(centre[1]))
+            ax2.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
+            #    if labelsx:
+            #for k, v in color_dict.items():
+            #    plt.scatter([], [], c=v, label=k)
+            #plt.legend(frameon=False, prop={"size": 29.5})
+        return fig2
+    fig2 = last_fig(color_code,first,temp,pos,pkeys,centrex,centrey,color_dict,labelsx=False)
     # plt.axis('off')
     # fig1.tight_layout()
     col1, col2 = st.beta_columns(2)
 
     col1.pyplot(fig1, use_column_width=True)
     col2.pyplot(fig2, use_column_width=True)
+    fig2 = last_fig(color_code,first,temp,pos,pkeys,centrex,centrey,color_dict,labelsx=True)
+
+    st.pyplot(fig2, use_column_width=True)
+
+
 
     # try:
     #    st.pyplot(fig1, use_column_width=True)
@@ -2064,10 +2084,7 @@ def main():
         my_expander = st.beta_expander("Explanation of Hive")
 
         my_expander.markdown(
-            """This predominantly shows between group connectivity. The total node number in each category is reduced compared to other graphs.
-
-            Unlike other hive implementations nodes
-			are shown that don't connect outside of their assigned group (eg IRG-1), but they are visualized with no prominent interconnection.
+            """This predominantly shows between group connectivity. The total node number in each category is reduced compared to other graphs. Unlike other hive implementations nodes are shown that don't connect outside of their assigned group (eg IRG-1), but they are visualized with no prominent interconnection.
             Connection within their class (eg IRG-1 is implied by being positioned on a vertical or horizontal axis, which connects all nodes.
 			"""
         )

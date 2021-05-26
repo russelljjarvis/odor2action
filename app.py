@@ -1668,6 +1668,8 @@ def main():
             reverse[node_id] = hc[reverse[node_id]]
     if genre == "View Source Code":
         st.markdown("""https://github.com/russelljjarvis/odor2action""")
+
+        st.markdown("""[mostly in this file](https://github.com/russelljjarvis/odor2action/blob/master/app.py)""")
     if genre == "Visualize Centrality":
 
         my_expander = st.beta_expander("Explanation of Second Hive")

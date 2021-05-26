@@ -3,16 +3,10 @@ Author: [Russell Jarvis](https://github.com/russelljjarvis)
 
 """
 from community import community_louvain
-
 import igraph as ig
 import plotly.graph_objs as go
-
 from matplotlib.patches import FancyArrowPatch, Circle
 import numpy as np
-
-#from hiveplotlib import Axis, Node, HivePlot, hive_plot_n_axes
-#from hiveplotlib.viz import hive_plot_viz_mpl
-
 import holoviews as hv
 from holoviews import opts, dim
 from bokeh.plotting import show, output_file
@@ -21,10 +15,7 @@ import copy
 import argparse
 import numpy as np
 import networkx as nx
-#import dash_bio as dashbio
 import streamlit as st
-
-# st.set_page_config(layout="wide")
 
 import streamlit.components.v1 as components
 import networkx as nx
@@ -66,7 +57,7 @@ import matplotlib.pyplot as plt
 from community import community_louvain
 
 
-#import dash_bio
+
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -1100,7 +1091,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     d = nx.degree(first)
     temp = first.to_undirected()
     cen = nx.betweenness_centrality(temp)
-    d = [((d[node] + 1) * 50000) for node in first.nodes()]
+    d = [((cen[node] + 1) * 5000000) for node in first.nodes()]
     G = first  # ead_graph()
 
     nt = Network(
@@ -1125,13 +1116,13 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     H = first.to_undirected()
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
-    edge_thickness = {k: v * 200000 for k, v in centrality.items()}
-    node_size = {k: v * 200000 for k, v in centrality.items()}
+    edge_thickness = {k: v * 90000000 for k, v in centrality.items()}
+    node_size = {k: v * 90000000 for k, v in centrality.items()}
 
     for e in edge_data:
         src = e[0]
         dst = e[1]
-        w = e[2] * 1350.0
+        w = e[2] * 193500.0
         src = str(src)
         dst = str(dst)
         w = float(w)
@@ -1174,7 +1165,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         #
         if node["id"] in node_size.keys():
             # if not labels:
-            node["size"] = 1250.0 * node_size[node["id"]]
+            node["size"] = 92500.0 * node_size[node["id"]]
         node["label"] = str(node["id"])
         node["value"] = len(neighbor_map[node["id"]])
         # st.text(node["id"])
@@ -1190,14 +1181,14 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     nt.show("test1.html")
     HtmlFile = open("test1.html", "r", encoding="utf-8")
     source_code = HtmlFile.read()
-    components.html(source_code, height=750, width=750)
-    fig = plt.figure()
+    components.html(source_code, height=750, width=750)#,use_column_width=True)
+    #fig = plt.figure()
     # fig, ax = plt.subplots(figsize=(3, 3))
 
-    for k, v in color_dict.items():
-        plt.scatter([], [], c=v, label=k)
-    plt.legend(frameon=False, prop={"size": 4.0})
-    st.pyplot(fig)
+    #for k, v in color_dict.items():
+    #    plt.scatter([], [], c=v, label=k)
+    #plt.legend(frameon=False, prop={"size": 4.0})
+    #st.pyplot(fig)
     if phys_ == "Yes":
         from PIL import Image
 
@@ -1224,30 +1215,19 @@ def dont():
         )
     )
 
-
-
-
-# from scipy.spatial import Delaunay, ConvexHull
+from scipy.spatial import Delaunay, ConvexHull
+from pyveplot import Hiveplot, Axis, Node
+import networkx as nx
+import random
+import base64
+import textwrap
 
 
 def render_svg_small(svg):
     """Renders the given svg string."""
-    # html = None
-    # b64 = None
     b64 = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
     html = r'<img src="data:image/svg+xml;base64,%s" width = 900/>' % b64
-    # from cairosvg import svg2png
-    # bytestring=bytes(svg,'UTF-8')
-    # svg2png(bytestring=bytestring,write_to='output.png')
-    # from PIL import Image
-    # st.image(Image.open("output.png"))
-
-    st.write(html, unsafe_allow_html=True)
-    del html
-    del svg
-    #from streamlit import caching
-
-    #caching.clear_cache()
+    st.write(html, unsafe_allow_html=True, use_column_width=True)
     return None
 
 
@@ -1255,22 +1235,9 @@ def render_svg_small(svg):
 def render_svg(svg):
     """Renders the given svg string."""
     b64 = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
-    html = r'<img src="data:image/svg+xml;base64,%s"/>' % b64
-
-    # from cairosvg import svg2png
-    # svg2png(bytestring=svg,write_to='output.png')
-    # from PIL import Image
-    # st.image(Image.open("output.png"))
-
-    # st.pyplot()
-    st.write(html, unsafe_allow_html=True)
-    del html
-    del svg
+    html = r'<img src="data:image/svg+xml;base64,%s" width = 900/>' % b64
+    st.write(html, unsafe_allow_html=True, use_column_width=True)
     return None
-    #from streamlit import caching
-
-    #caching.clear_cache()
-
 
 def agraph_(first):
     from streamlit_agraph import agraph, Node, Edge, Config
@@ -1287,9 +1254,6 @@ def agraph_(first):
     # agraph(list(first.nodes), (first.edges), config)
 
 
-#a = 0
-
-
 def hub_sort(first, color_code_1, reverse):
     with open("1ba_hiveplot.svg", "r") as f:
         lines = f.readlines()
@@ -1304,7 +1268,6 @@ def hub_sort(first, color_code_1, reverse):
     return None
 
     """
-    a += 1
     c = ['#e41a1c', '#377eb8', '#4daf4a',
          '#984ea3', '#ff7f00', '#ffff33',
          '#a65628', '#f781bf', '#999999',]
@@ -1578,7 +1541,7 @@ def nope():
             "Visualize Centrality",
             "Bundle",
             "Basic",
-            "Lumped Population",
+            "Population View",
             "Spreadsheet",
             "AdjacencyMatrix",
         ),
@@ -1590,11 +1553,11 @@ def main():
     st.sidebar.title("Odor To Action: Collaboration Survey Data")
 
     genre = st.sidebar.radio(
-        "Prefered graph layout?",
+        "Choose Graph Layout:",
         (
             "Physics",
             "3D",
-            "Lumped Population",
+            "Population View",
             "Visualize Centrality",
             "Hive",
             "Community Mixing",
@@ -1633,15 +1596,15 @@ def main():
 
     fig = plt.figure()
     for k, v in color_dict.items():
-        plt.scatter([], [], c=v, label=k)
-    plt.legend(frameon=False, prop={"size": 24})
+        plt.scatter([], [], c=v, label=k, s =350)
+    plt.legend(frameon=False, prop={"size": 35})
     fig.tight_layout()
     plt.axis("off")
-    my_expander = st.sidebar.beta_expander("Color coding of most plots")
-    my_expander.markdown(
-        """ Excepting for chord and hive, which are time consuming to code"""
-    )
-    my_expander.pyplot(fig)
+    st.sidebar.markdown("Color coding of most plots")
+    #my_expander.markdown(
+    #    """ Excepting for chord and hive, which are time consuming to code"""
+    #)
+    st.sidebar.pyplot(fig)
     inboth = set(names) & set(ratercodes)
     notinboth = set(names) - set(ratercodes)
     allcodes = set(names) or set(ratercodes)
@@ -1712,6 +1675,9 @@ def main():
             """This graphically shows network centrality from densely into connected (hub) to sparsely interconnected.
 			"""
         )
+        import os
+        os.system("python make_serial_plots0.py")
+        os.system("python make_serial_plots1.py")
 
         hub_sort(first, color_code, reverse)
         list_centrality(first)
@@ -1840,11 +1806,11 @@ def main():
         data = [trace1, trace2]
 
         fig = go.Figure(data=data, layout=layout)
-        st.write(fig)
+        st.write(fig,use_column_width=True)
     if genre == "Physics":
         physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
 
-    if genre == "Lumped Population":
+    if genre == "Population View":
         population(cc, popg, color_dict)
     if genre == "Hive":
 
@@ -1874,7 +1840,7 @@ def main():
         )
 
         fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
-        st.pyplot(fig4)
+        st.pyplot(fig4, use_column_width=True)
     if genre == "cyto":
         # from ipycytoscape import CytoscapeWidget
         # cyto = CytoscapeWidget()
@@ -2093,7 +2059,7 @@ def main():
         plt.legend(frameon=False, prop={"size": 24})
         # leg = ax.legend()
         # leg.set_title()
-        st.pyplot(fig)
+        st.pyplot(fig, use_column_width=True)
 
     adj_mat = pd.DataFrame(adj_mat_dicts)
     narr = nx.to_pandas_adjacency(first)
@@ -2173,7 +2139,7 @@ def main():
         # st.markdown(""" clicking on a node highlights its direct projections""")
 
         H = first.to_undirected()
-        T = nx.minimum_spanning_tree(H)
+        #T = nx.minimum_spanning_tree(H)
         st.markdown("Betweeness Centrality:")
         st.markdown("Top to bottom node id from most central to least:")
 

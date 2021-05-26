@@ -716,8 +716,8 @@ def community_layout(g, partition):
     pos -- dict mapping int node -> (float x, float y)
         node positions
     """
-    pos_communities = _position_communities(g, partition, k=0.04, scale=5.0)
-    pos_nodes = _position_nodes(g, partition, k=0.04, scale=1.0)
+    pos_communities = _position_communities(g, partition, k=0.04, scale=5.0, seed=4572321)
+    pos_nodes = _position_nodes(g, partition, k=0.04, scale=1.0, seed=4572321)
     # combine positions
     pos = dict()
     for node in g.nodes():
@@ -1727,6 +1727,7 @@ def main():
         #]
         #G = ig.Graph(Edges, directed=True)
         G = ig.Graph.from_networkx(first)#, directed=True)
+        #local_reverse = {k:v for k,v in zip(G.vs(),first.nodes)}
 
         layt = G.layout(
             "kk", dim=3
@@ -1750,8 +1751,10 @@ def main():
         labels = []
         group = []
         human_group = []
+        local_reverse = {i:e.source for e,i in zip(G.es,first.edges)}
 
-        for node in first.nodes:#links["source"]:
+        #for node in first.nodes:#G.vs():#links["source"]:
+        for node in first.nodes:
             labels.append(str(node) + str(" ") + str(color_code_0[node]))
             group.append(color_code[node])
             human_group.append(color_code_0[node])
@@ -1761,7 +1764,7 @@ def main():
         Zn = []
         N = len(first.nodes)
         for k in range(N):
-            Xn += [layt[k][0]-250]
+            Xn += [layt[k][0]-350]
             Yn += [layt[k][1]]
             Zn += [layt[k][2]]
 
@@ -1771,7 +1774,7 @@ def main():
         group2 = []
         decoded = {v: k for k, v in encoded.items()}
         for e in G.es:
-            Xe += [layt[e.source][0]-250, layt[e.target][0]-250, None]  # x-coordinates of edge ends
+            Xe += [layt[e.source][0]-350, layt[e.target][0]-350, None]  # x-coordinates of edge ends
             Ye += [layt[e.source][1], layt[e.target][1], None]
             Ze += [layt[e.source][2], layt[e.target][2], None]
         # ,colorscale='Viridis'
@@ -1779,7 +1782,7 @@ def main():
             group2.append(color_code[reverse[e.target]])
 
         trace1 = go.Scatter3d(
-            x=Xe, y=Ye, z=Ze, mode="lines", line=dict(color=group2, width=2.9)
+            x=Xe, y=Ye, z=Ze, mode="lines", line=dict(color="black", width=2.9)
         )  # ,text=labels,hoverinfo='text'))
 
         trace2 = go.Scatter3d(
@@ -2131,7 +2134,7 @@ def main():
 
         columns = list(df2.columns.values)
         rows = list(df2.index)
-        '''
+
         try:
             figure = dashbio.Clustergram(
                 data=df2.loc[rows].values,
@@ -2146,7 +2149,7 @@ def main():
             st.write(figure)
         except:
             pass
-        '''
+
     if genre == "Chord":
         # https://docs.bokeh.org/en/0.12.3/docs/gallery/chord_chart.html
         # from bokeh import Chord

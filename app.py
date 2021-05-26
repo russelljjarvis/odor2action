@@ -1680,9 +1680,7 @@ def main():
         my_expander = st.beta_expander("Explanation of Centrality Hive")
 
         my_expander.markdown(
-            """Nodes are layed out from ascending to descending contributions of centrality
-
-            This graphically shows network centrality from densely into connected (hub) to sparsely interconnected.
+            """Nodes are layed out from ascending to descending contributions of centrality. This shows network centrality from densely inter-connected (hub) to sparsely interconnected leaf.
 			"""
         )
 

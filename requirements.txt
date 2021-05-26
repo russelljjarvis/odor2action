@@ -9,7 +9,7 @@ holoviews
 pyvis==0.1.9
 matplotlib==2.2.5
 scikit-image
--e git+https://github.com/taynaud/python-louvain.git@networkx2
+-e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=python-louvain
 python-igraph
 pyveplot
 #egg=community

@@ -1,2 +1,4 @@
-graphviz
 graphviz-dev
+graphviz
+python-pydot
+python-pydot-ng

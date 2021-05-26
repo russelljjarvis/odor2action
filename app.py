@@ -331,161 +331,161 @@ import copy
 # @st.cache(allow_output_mutation=True)
 def get_frame(threshold=6):
 
-    with shelve.open("fast_graphs_splash.p") as store:
-        flag = "df" in store
-        if False:
-            df = store["df"]  # load it
+    #with shelve.open("fast_graphs_splash.p") as store:
+    #flag = "df" in store
+    #if False:
+    #    df = store["df"]  # load it
+    #
+    #            df2 = store["df2"]  # load it
+    #            names = store["names"]  # = names  # save it
+    #            ratercodes = store["ratercodes"]  # =   # save it
+    #            legend = store["legend"]  # = legend  # save it
 
-            df2 = store["df2"]  # load it
-            names = store["names"]  # = names  # save it
-            ratercodes = store["ratercodes"]  # =   # save it
-            legend = store["legend"]  # = legend  # save it
+    #        else:
+    hard_codes = Path("code_by_IRG.xlsx")
+    hard_codes = openpyxl.load_workbook(hard_codes)
 
+    hard_codes = hard_codes.active
+
+    hard_codes = pd.DataFrame(hard_codes.values)
+
+    xlsx_file0 = Path("o2anetmap2021.xlsx")
+    xlsx_file1 = Path("o2anetmap.xlsx")
+    wb_obj0 = openpyxl.load_workbook(xlsx_file0)
+    wb_obj1 = openpyxl.load_workbook(xlsx_file1)
+
+    # Read the active sheet:
+    worksheet0 = wb_obj0.active
+    worksheet1 = wb_obj1.active
+
+    df3 = pd.DataFrame(worksheet0.values)
+    df2 = pd.DataFrame(worksheet1.values)
+
+    df2 = pd.concat([df3, df2])
+    sheet = copy.copy(df2)
+    hc = {
+        k: str("IRG ") + str(v)
+        for k, v in zip(hard_codes[0][1::], hard_codes[1][1::])
+    }
+    hc1 = {k: "DCMT" for k, v in hc.items() if v == "IRG DCMT"}
+    # st.text(hc1)
+    hc.update(hc1)
+    hc.pop("Code", None)
+
+    # st.text(hc)
+    color_code_0 = {
+        k: v for k, v in zip(df2[0], df2[1]) if k not in "Rater Code"
+    }
+    # st.text(hc)
+    # st.text(color_code_0)
+    color_code_0.update(hc)
+
+    # st.write(color_code_0)
+
+    # for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
+    #    if not reverse[node_id] in color_code_0.keys():
+    #        color_code_0[reverse[node_id]] = hc[reverse[node_id]]
+    #        reverse[node_id] = hc[reverse[node_id]]
+    # ➜  ~ change yellow to red
+    # ➜  ~ change orange to purple
+
+    # Ribbon color code needs to labeled as to or from.
+    # source or target.
+
+    color_dict = {
+        "IRG 3": "green",
+        "IRG 1": "blue",
+        "IRG 2": "red",
+        "DCMT": "purple",
+    }
+    color_code_1 = {}
+
+    popg = nx.DiGraph()
+
+    for k, v in color_code_0.items():
+
+        if v not in popg.nodes:
+            popg.add_node(v, name=v)
+        color_code_1[k] = color_dict[v]
+    col_to_rename = df2.columns
+    ratercodes = df2[0][1::]
+    row_names = list(df2.T[0].values)
+    row_names.append(list(df2.T[0].values)[-1])
+    row_names = row_names[2::]
+    names = [rn[0].split("- ") for rn in row_names]
+    names2 = []
+    for i in names:
+        if len(i) == 2:
+            names2.append(i[1])
         else:
-            hard_codes = Path("code_by_IRG.xlsx")
-            hard_codes = openpyxl.load_workbook(hard_codes)
+            names2.append(i)
+    names = names2
+    for nm in names:
+        if nm not in color_code_1.keys():
+            color_code_1[nm] = "black"
 
-            hard_codes = hard_codes.active
+    row_names = list(range(0, len(df2.columns) + 1, 1))
+    to_rename = {k: v for k, v in zip(row_names, names)}
+    r_names = list(df2.index.values[:])
 
-            hard_codes = pd.DataFrame(hard_codes.values)
+    to_rename_ind = {v: k for k, v in zip(df2[0], r_names)}
+    del df2[0]
+    del df2[1]
+    # del df2[112]
+    del df2[113]
+    df2.drop(0, inplace=True)
+    df2.drop(1, inplace=True)
 
-            xlsx_file0 = Path("o2anetmap2021.xlsx")
-            xlsx_file1 = Path("o2anetmap.xlsx")
-            wb_obj0 = openpyxl.load_workbook(xlsx_file0)
-            wb_obj1 = openpyxl.load_workbook(xlsx_file1)
+    df2.rename(columns=to_rename, inplace=True)
+    df2.rename(index=to_rename_ind, inplace=True)
+    unk = []
 
-            # Read the active sheet:
-            worksheet0 = wb_obj0.active
-            worksheet1 = wb_obj1.active
+    for col in df2.columns:
+        if col in df2.index.values[:]:
+            pass
+        else:
+            pass
+            # st.text('found')
+            # st.text(hc[col])
+            # st.text(col)
 
-            df3 = pd.DataFrame(worksheet0.values)
-            df2 = pd.DataFrame(worksheet1.values)
+    legend = {}
 
-            df2 = pd.concat([df3, df2])
-            sheet = copy.copy(df2)
-            hc = {
-                k: str("IRG ") + str(v)
-                for k, v in zip(hard_codes[0][1::], hard_codes[1][1::])
-            }
-            hc1 = {k: "DCMT" for k, v in hc.items() if v == "IRG DCMT"}
-            # st.text(hc1)
-            hc.update(hc1)
-            hc.pop("Code", None)
+    legend.update({"Never": 0.0})
+    legend.update({"Barely or never": 1})
+    legend.update({"Occasionally in a minor way": 2})
+    legend.update({"Less than once a month": 3})
+    legend.update({"More than once a month (But not weekly)": 4})
+    legend.update({"Occasionally but substantively": 5})
+    legend.update({"More than twice a week": 6})
+    legend.update({"Often": 7})
+    legend.update({"Much or all of the time": 8})
+    legend.update({"1-2 times a week": 9.0})
+    df2.replace({"": 0.0}, inplace=True)
+    df2.replace({" ": 0.0}, inplace=True)
+    df2.replace({"\t": 0.0}, inplace=True)
+    df2.replace({"\n": 0.0}, inplace=True)
 
-            # st.text(hc)
-            color_code_0 = {
-                k: v for k, v in zip(df2[0], df2[1]) if k not in "Rater Code"
-            }
-            # st.text(hc)
-            # st.text(color_code_0)
-            color_code_0.update(hc)
+    df2.replace({"Never": 0.0}, inplace=True)
+    df2.replace({"Barely or never": 1}, inplace=True)
+    df2.replace({"Occasionally in a minor way": 2}, inplace=True)
+    df2.replace({"Less than once a month": 3}, inplace=True)
+    df2.replace({"More than once a month (But not weekly)": 4}, inplace=True)
+    df2.replace({"Occasionally but substantively": 5}, inplace=True)
+    df2.replace({"More than twice a week": 6}, inplace=True)
+    df2.replace({"Often": 7}, inplace=True)
+    df2.replace({"Much or all of the time": 8}, inplace=True)
+    df2.replace({"1-2 times a week": 9.0}, inplace=True)
 
-            # st.write(color_code_0)
-
-            # for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
-            #    if not reverse[node_id] in color_code_0.keys():
-            #        color_code_0[reverse[node_id]] = hc[reverse[node_id]]
-            #        reverse[node_id] = hc[reverse[node_id]]
-            # ➜  ~ change yellow to red
-            # ➜  ~ change orange to purple
-
-            # Ribbon color code needs to labeled as to or from.
-            # source or target.
-
-            color_dict = {
-                "IRG 3": "green",
-                "IRG 1": "blue",
-                "IRG 2": "red",
-                "DCMT": "purple",
-            }
-            color_code_1 = {}
-
-            popg = nx.DiGraph()
-
-            for k, v in color_code_0.items():
-
-                if v not in popg.nodes:
-                    popg.add_node(v, name=v)
-                color_code_1[k] = color_dict[v]
-            col_to_rename = df2.columns
-            ratercodes = df2[0][1::]
-            row_names = list(df2.T[0].values)
-            row_names.append(list(df2.T[0].values)[-1])
-            row_names = row_names[2::]
-            names = [rn[0].split("- ") for rn in row_names]
-            names2 = []
-            for i in names:
-                if len(i) == 2:
-                    names2.append(i[1])
-                else:
-                    names2.append(i)
-            names = names2
-            for nm in names:
-                if nm not in color_code_1.keys():
-                    color_code_1[nm] = "black"
-
-            row_names = list(range(0, len(df2.columns) + 1, 1))
-            to_rename = {k: v for k, v in zip(row_names, names)}
-            r_names = list(df2.index.values[:])
-
-            to_rename_ind = {v: k for k, v in zip(df2[0], r_names)}
-            del df2[0]
-            del df2[1]
-            # del df2[112]
-            del df2[113]
-            df2.drop(0, inplace=True)
-            df2.drop(1, inplace=True)
-
-            df2.rename(columns=to_rename, inplace=True)
-            df2.rename(index=to_rename_ind, inplace=True)
-            unk = []
-
-            for col in df2.columns:
-                if col in df2.index.values[:]:
-                    pass
-                else:
-                    pass
-                    # st.text('found')
-                    # st.text(hc[col])
-                    # st.text(col)
-
-            legend = {}
-
-            legend.update({"Never": 0.0})
-            legend.update({"Barely or never": 1})
-            legend.update({"Occasionally in a minor way": 2})
-            legend.update({"Less than once a month": 3})
-            legend.update({"More than once a month (But not weekly)": 4})
-            legend.update({"Occasionally but substantively": 5})
-            legend.update({"More than twice a week": 6})
-            legend.update({"Often": 7})
-            legend.update({"Much or all of the time": 8})
-            legend.update({"1-2 times a week": 9.0})
-            df2.replace({"": 0.0}, inplace=True)
-            df2.replace({" ": 0.0}, inplace=True)
-            df2.replace({"\t": 0.0}, inplace=True)
-            df2.replace({"\n": 0.0}, inplace=True)
-
-            df2.replace({"Never": 0.0}, inplace=True)
-            df2.replace({"Barely or never": 1}, inplace=True)
-            df2.replace({"Occasionally in a minor way": 2}, inplace=True)
-            df2.replace({"Less than once a month": 3}, inplace=True)
-            df2.replace({"More than once a month (But not weekly)": 4}, inplace=True)
-            df2.replace({"Occasionally but substantively": 5}, inplace=True)
-            df2.replace({"More than twice a week": 6}, inplace=True)
-            df2.replace({"Often": 7}, inplace=True)
-            df2.replace({"Much or all of the time": 8}, inplace=True)
-            df2.replace({"1-2 times a week": 9.0}, inplace=True)
-
-            # This sums columns under the same name
-            df2.groupby(df2.columns, axis=1).sum()
-            df2.groupby(level=0, axis=1).sum()
-            # df2 = df4
-            store["df2"] = df2  # save it
-            # st.write(df2)
-            store["names"] = names  # save it
-            store["ratercodes"] = ratercodes  # save it
-            store["legend"] = legend  # save it
+    # This sums columns under the same name
+    df2.groupby(df2.columns, axis=1).sum()
+    df2.groupby(level=0, axis=1).sum()
+    # df2 = df4
+    store["df2"] = df2  # save it
+    # st.write(df2)
+    store["names"] = names  # save it
+    store["ratercodes"] = ratercodes  # save it
+    store["legend"] = legend  # save it
 
     return (
         df2,

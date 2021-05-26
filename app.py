@@ -57,7 +57,6 @@ import matplotlib.pyplot as plt
 from community import community_louvain
 
 
-
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -137,7 +136,7 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     H = graph.to_undirected()
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
 
-    #centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
+    # centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
     node_size = [v * 25000 for v in centrality.values()]
 
     coords = []
@@ -333,9 +332,9 @@ import copy
 # @st.cache(allow_output_mutation=True)
 def get_frame(threshold=6):
 
-    #with shelve.open("fast_graphs_splash.p") as store:
-    #flag = "df" in store
-    #if False:
+    # with shelve.open("fast_graphs_splash.p") as store:
+    # flag = "df" in store
+    # if False:
     #    df = store["df"]  # load it
     #
     #            df2 = store["df2"]  # load it
@@ -366,8 +365,7 @@ def get_frame(threshold=6):
     df2 = pd.concat([df3, df2])
     sheet = copy.copy(df2)
     hc = {
-        k: str("IRG ") + str(v)
-        for k, v in zip(hard_codes[0][1::], hard_codes[1][1::])
+        k: str("IRG ") + str(v) for k, v in zip(hard_codes[0][1::], hard_codes[1][1::])
     }
     hc1 = {k: "DCMT" for k, v in hc.items() if v == "IRG DCMT"}
     # st.text(hc1)
@@ -375,9 +373,7 @@ def get_frame(threshold=6):
     hc.pop("Code", None)
 
     # st.text(hc)
-    color_code_0 = {
-        k: v for k, v in zip(df2[0], df2[1]) if k not in "Rater Code"
-    }
+    color_code_0 = {k: v for k, v in zip(df2[0], df2[1]) if k not in "Rater Code"}
     # st.text(hc)
     # st.text(color_code_0)
     color_code_0.update(hc)
@@ -483,11 +479,11 @@ def get_frame(threshold=6):
     df2.groupby(df2.columns, axis=1).sum()
     df2.groupby(level=0, axis=1).sum()
     # df2 = df4
-    #store["df2"] = df2  # save it
+    # store["df2"] = df2  # save it
     # st.write(df2)
-    #store["names"] = names  # save it
-    #store["ratercodes"] = ratercodes  # save it
-    #store["legend"] = legend  # save it
+    # store["names"] = names  # save it
+    # store["ratercodes"] = ratercodes  # save it
+    # store["legend"] = legend  # save it
 
     return (
         df2,
@@ -700,8 +696,6 @@ def population(cc, popg, color_dict):
 # from scipy.spatial import ConvexHull, convex_hull_plot_2d
 
 
-
-
 def community_layout(g, partition):
     """
     Compute the layout for a modular graph.
@@ -716,7 +710,9 @@ def community_layout(g, partition):
     pos -- dict mapping int node -> (float x, float y)
         node positions
     """
-    pos_communities = _position_communities(g, partition, k=0.04, scale=5.0, seed=4572321)
+    pos_communities = _position_communities(
+        g, partition, k=0.04, scale=5.0, seed=4572321
+    )
     pos_nodes = _position_nodes(g, partition, k=0.04, scale=1.0, seed=4572321)
     # combine positions
     pos = dict()
@@ -1017,7 +1013,7 @@ def list_centrality(first):
     st.markdown("Top to bottom node id from most central to least:")
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
 
-    #centrality = nx.betweenness_centrality(H)#, endpoints=True)
+    # centrality = nx.betweenness_centrality(H)#, endpoints=True)
     df = pd.DataFrame([centrality])
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
@@ -1117,7 +1113,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     )
 
     H = first.to_undirected()
-    #centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
+    # centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
 
     edge_thickness = {k: v * 90000000 for k, v in centrality.items()}
@@ -1185,14 +1181,14 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     nt.show("test1.html")
     HtmlFile = open("test1.html", "r", encoding="utf-8")
     source_code = HtmlFile.read()
-    components.html(source_code, height=750, width=750)#,use_column_width=True)
-    #fig = plt.figure()
+    components.html(source_code, height=750, width=750)  # ,use_column_width=True)
+    # fig = plt.figure()
     # fig, ax = plt.subplots(figsize=(3, 3))
 
-    #for k, v in color_dict.items():
+    # for k, v in color_dict.items():
     #    plt.scatter([], [], c=v, label=k)
-    #plt.legend(frameon=False, prop={"size": 4.0})
-    #st.pyplot(fig)
+    # plt.legend(frameon=False, prop={"size": 4.0})
+    # st.pyplot(fig)
     if phys_ == "Yes":
         from PIL import Image
 
@@ -1219,6 +1215,7 @@ def dont():
         )
     )
 
+
 from scipy.spatial import Delaunay, ConvexHull
 from pyveplot import Hiveplot, Axis, Node
 import networkx as nx
@@ -1242,6 +1239,7 @@ def render_svg(svg):
     html = r'<img src="data:image/svg+xml;base64,%s" width = 900/>' % b64
     st.write(html, unsafe_allow_html=True, use_column_width=True)
     return None
+
 
 def agraph_(first):
     from streamlit_agraph import agraph, Node, Edge, Config
@@ -1389,10 +1387,10 @@ def hive_two(first, color_code, color_code_0, reverse):
     render_svg_small(line_string)
     line_string = None
     del line_string
-    #os.system("rm ba1_hiveplot.svg")
-    #from streamlit import caching
+    # os.system("rm ba1_hiveplot.svg")
+    # from streamlit import caching
 
-    #caching.clear_cache()
+    # caching.clear_cache()
     return None
 
 
@@ -1570,7 +1568,7 @@ def main():
             "Bundle",
             "AdjacencyMatrix",
             "Chord",
-            "View Source Code"
+            "View Source Code",
         ),
     )
 
@@ -1601,14 +1599,14 @@ def main():
 
     fig = plt.figure()
     for k, v in color_dict.items():
-        plt.scatter([], [], c=v, label=k, s =350)
+        plt.scatter([], [], c=v, label=k, s=350)
     plt.legend(frameon=False, prop={"size": 35})
     fig.tight_layout()
     plt.axis("off")
     st.sidebar.markdown("Color coding of most plots")
-    #my_expander.markdown(
+    # my_expander.markdown(
     #    """ Excepting for chord and hive, which are time consuming to code"""
-    #)
+    # )
     st.sidebar.pyplot(fig)
     inboth = set(names) & set(ratercodes)
     notinboth = set(names) - set(ratercodes)
@@ -1674,7 +1672,9 @@ def main():
     if genre == "View Source Code":
         st.markdown("""https://github.com/russelljjarvis/odor2action""")
 
-        st.markdown("""[mostly in this file](https://github.com/russelljjarvis/odor2action/blob/master/app.py)""")
+        st.markdown(
+            """[mostly in this file](https://github.com/russelljjarvis/odor2action/blob/master/app.py)"""
+        )
     if genre == "Visualize Centrality":
 
         my_expander = st.beta_expander("Explanation of Centrality Hive")
@@ -1712,31 +1712,118 @@ def main():
         community(first, color_code, color_dict)
     if genre == "3D":
         my_expander = st.beta_expander("Explanation of different Node sizes for 3D")
-        my_expander.markdown("""Note this visualization uses a different library (I-Graph, however normally networkx is used) to determine the betweeness centrality
-        with the interesting consequence that a DCMT node is now second most central""")
-        #g = first
+        my_expander.markdown(
+            """Note this visualization uses a different library (I-Graph, however normally networkx is used) to determine the betweeness centrality
+        with the interesting consequence that a DCMT node is now second most central"""
+        )
+        # g = first
 
-        #links = copy.copy(adj_mat)
-        #links.rename(
+        # links = copy.copy(adj_mat)
+        # links.rename(
         #    columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
-        #)
-        #links = links[links["value"] != 0]
-        #Edges = [
+        # )
+        # links = links[links["value"] != 0]
+        # Edges = [
         #    (encoded[src], encoded[tgt])
         #    for src, tgt in zip(links["source"], links["target"])
-        #]
-        #G = ig.Graph(Edges, directed=True)
-        G = ig.Graph.from_networkx(first)#, directed=True)
-        #local_reverse = {k:v for k,v in zip(G.vs(),first.nodes)}
+        # ]
+        # G = ig.Graph(Edges, directed=True)
+        G = ig.Graph.from_networkx(first)  # , directed=True)
+        # local_reverse = {k:v for k,v in zip(G.vs(),first.nodes)}
+        # spring_3D = nx.spring_layout(G, dim = 3, k = 0.5) # k regulates the distance between nodes
+        edges = first.edges()
+
+        # ## update to 3d dimension
+        spring_3D = nx.spring_layout(
+            first, dim=3, scale=2.5, k=0.0005
+        )  # k regulates the distance between nodes
+        # weights = [G[u][v]['weight'] for u,v in edges]
+        # nx.draw(G, with_labels=True, node_color='skyblue', font_weight='bold',  width=weights, pos=pos)
+
+        # we need to seperate the X,Y,Z coordinates for Plotly
+        # NOTE: spring_3D is a dictionary where the keys are 1,...,6
+        x_nodes = [
+            spring_3D[key][0] for key in spring_3D.keys()
+        ]  # x-coordinates of nodes
+        y_nodes = [spring_3D[key][1] for key in spring_3D.keys()]  # y-coordinates
+        z_nodes = [spring_3D[key][2] for key in spring_3D.keys()]  # z-coordinates
+
+        # we need to create lists that contain the starting and ending coordinates of each edge.
+        x_edges = []
+        y_edges = []
+        z_edges = []
+
+        # create lists holding midpoints that we will use to anchor text
+        xtp = []
+        ytp = []
+        ztp = []
+
+        # need to fill these with all of the coordinates
+        for edge in edges:
+            # format: [beginning,ending,None]
+            x_coords = [spring_3D[edge[0]][0], spring_3D[edge[1]][0], None]
+            x_edges += x_coords
+            xtp.append(0.5 * (spring_3D[edge[0]][0] + spring_3D[edge[1]][0]))
+
+            y_coords = [spring_3D[edge[0]][1], spring_3D[edge[1]][1], None]
+            y_edges += y_coords
+            ytp.append(0.5 * (spring_3D[edge[0]][1] + spring_3D[edge[1]][1]))
+
+            z_coords = [spring_3D[edge[0]][2], spring_3D[edge[1]][2], None]
+            z_edges += z_coords
+            ztp.append(0.5 * (spring_3D[edge[0]][2] + spring_3D[edge[1]][2]))
+        labels = []
+        group = []
+        human_group = []
+        # local_reverse = {i:e.source for e,i in zip(G.es,first.edges)}
+
+        # for node in first.nodes:#G.vs():#links["source"]:
+        for node in first.nodes:
+            labels.append(str(node) + str(" ") + str(color_code_0[node]))
+            group.append(color_code[node])
+            human_group.append(color_code_0[node])
+
+        # etext = [f'weight={w}' for w in edge_weights]
+
+        trace_weights = go.Scatter3d(
+            x=xtp,
+            y=ytp,
+            z=ztp,
+            mode="markers",
+            marker=dict(color="rgb(125,125,125)", size=1),
+        )  # set the same color as for the edge lines
+        # )
+
+        # create a trace for the edges
+        trace_edges = go.Scatter3d(
+            x=x_edges,
+            y=y_edges,
+            z=z_edges,
+            mode="lines",
+            line=dict(color="black", width=2),
+            hoverinfo="none",
+        )
+
+        # create a trace for the nodes
+        trace_nodes = go.Scatter3d(
+            x=x_nodes,
+            y=y_nodes,
+            z=z_nodes,
+            mode="markers",
+            marker=dict(symbol="circle", size=10, color="skyblue"),
+        )
+
+        # Include the traces we want to plot and create a figure
+        data = [trace_edges, trace_nodes, trace_weights]
 
         layt = G.layout(
             "kk", dim=3
         )  # plot network with the Kamada-Kawai layout algorithm
         estimate = G.betweenness(directed=True)  # , cutoff=16)
-        #H = first.to_undirected()
+        H = first.to_undirected()
 
-        #estimate = nx.betweenness_centrality(H)#, k=10, endpoints=True)
-        #estimate = list(estimate.values())
+        # estimate = nx.betweenness_centrality(H)  # , k=10, endpoints=True)
+        # estimate = list(estimate.values())
         ee = []
         for i in estimate:
             if i == 0:
@@ -1744,16 +1831,16 @@ def main():
             else:
                 ee.append(i * 0.45)
         estimate = ee
-        #widths = []
-        #for e in links["value"]:
+        # widths = []
+        # for e in links["value"]:
         #    widths.append(1.85 * e)
 
         labels = []
         group = []
         human_group = []
-        local_reverse = {i:e.source for e,i in zip(G.es,first.edges)}
+        # local_reverse = {i:e.source for e,i in zip(G.es,first.edges)}
 
-        #for node in first.nodes:#G.vs():#links["source"]:
+        # for node in first.nodes:#G.vs():#links["source"]:
         for node in first.nodes:
             labels.append(str(node) + str(" ") + str(color_code_0[node]))
             group.append(color_code[node])
@@ -1764,7 +1851,7 @@ def main():
         Zn = []
         N = len(first.nodes)
         for k in range(N):
-            Xn += [layt[k][0]-350]
+            Xn += [layt[k][0] - 350]
             Yn += [layt[k][1]]
             Zn += [layt[k][2]]
 
@@ -1774,7 +1861,11 @@ def main():
         group2 = []
         decoded = {v: k for k, v in encoded.items()}
         for e in G.es:
-            Xe += [layt[e.source][0]-350, layt[e.target][0]-350, None]  # x-coordinates of edge ends
+            Xe += [
+                layt[e.source][0] - 350,
+                layt[e.target][0] - 350,
+                None,
+            ]  # x-coordinates of edge ends
             Ye += [layt[e.source][1], layt[e.target][1], None]
             Ze += [layt[e.source][2], layt[e.target][2], None]
         # ,colorscale='Viridis'
@@ -1824,16 +1915,20 @@ def main():
 
         data = [trace1, trace2]
 
-        fig = go.Figure(data=data, layout=layout)
-        st.write(fig,use_column_width=True)
-
+        fig0 = go.Figure(data=data, layout=layout)
+        st.write(fig0, use_column_width=True)
+        # st.markdown("To ultimately be replaced with something in centre of page and networkx derived like below:")
+        # fig1 = go.Figure(data=data, layout=layout)
+        # st.write(fig1, use_column_width=True)
 
     if genre == "Physics":
         physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
 
     if genre == "Population View":
         my_expander = st.beta_expander("Explanation of population")
-        my_expander.markdown("""Here node size does not reflect centrality or connectivity. Node size reflects number of participants in group, therefore DCMT is small, but it is not sparsely connected (it is densely connected) as you can see in 3D""")
+        my_expander.markdown(
+            """Here node size does not reflect centrality or connectivity. Node size reflects number of participants in group, therefore DCMT is small, but it is not sparsely connected (it is densely connected) as you can see in 3D"""
+        )
 
         population(cc, popg, color_dict)
     if genre == "Hive":
@@ -2167,18 +2262,18 @@ def main():
         # st.markdown(""" clicking on a node highlights its direct projections""")
 
         H = first.to_undirected()
-        #T = nx.minimum_spanning_tree(H)
+        # T = nx.minimum_spanning_tree(H)
         st.markdown("Betweeness Centrality:")
         st.markdown("Top to bottom node id from most central to least:")
         centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
 
-        #centrality = nx.betweenness_centrality(H)#, endpoints=True)
+        # centrality = nx.betweenness_centrality(H)#, endpoints=True)
         df = pd.DataFrame([centrality])
         df = df.T
         df.sort_values(0, axis=0, ascending=False, inplace=True)
         bc = df
         bc.rename(columns={0: "centrality value"}, inplace=True)
-        #st.write(bc.head())
+        # st.write(bc.head())
         # st.markdown("In degree Centrality:")
         # st.markdown("Top to bottom node id from most central to least:")
 
@@ -2386,9 +2481,9 @@ def main():
 
 
 if __name__ == "__main__":
-    #import os
-    #os.system("python make_serial_plots0.py")
-    #os.system("python make_serial_plots1.py")
+    # import os
+    # os.system("python make_serial_plots0.py")
+    # os.system("python make_serial_plots1.py")
 
     main()
 

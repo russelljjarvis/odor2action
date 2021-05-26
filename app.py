@@ -1702,18 +1702,20 @@ def main():
 
         community(first, color_code, color_dict)
     if genre == "3D":
-        g = first
+        #g = first
 
-        links = copy.copy(adj_mat)
-        links.rename(
-            columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
-        )
-        links = links[links["value"] != 0]
-        Edges = [
-            (encoded[src], encoded[tgt])
-            for src, tgt in zip(links["source"], links["target"])
-        ]
-        G = ig.Graph(Edges, directed=True)
+        #links = copy.copy(adj_mat)
+        #links.rename(
+        #    columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
+        #)
+        #links = links[links["value"] != 0]
+        #Edges = [
+        #    (encoded[src], encoded[tgt])
+        #    for src, tgt in zip(links["source"], links["target"])
+        #]
+        #G = ig.Graph(Edges, directed=True)
+        G = ig.Graph.from_networkx(first)#, directed=True)
+
         layt = G.layout(
             "kk", dim=3
         )  # plot network with the Kamada-Kawai layout algorithm
@@ -1725,15 +1727,15 @@ def main():
             else:
                 ee.append(i * 0.45)
         estimate = ee
-        widths = []
-        for e in links["value"]:
-            widths.append(1.85 * e)
+        #widths = []
+        #for e in links["value"]:
+        #    widths.append(1.85 * e)
 
         labels = []
         group = []
         human_group = []
 
-        for node in links["source"]:
+        for node in first.nodes:#links["source"]:
             labels.append(str(node) + str(" ") + str(color_code_0[node]))
             group.append(color_code[node])
             human_group.append(color_code_0[node])
@@ -1741,7 +1743,7 @@ def main():
         Xn = []
         Yn = []
         Zn = []
-        N = len(g.nodes)
+        N = len(first.nodes)
         for k in range(N):
             Xn += [layt[k][0]]
             Yn += [layt[k][1]]
@@ -1759,7 +1761,7 @@ def main():
             Ze += [layt[e[0]][2], layt[e[1]][2], None]
         # ,colorscale='Viridis'
         trace1 = go.Scatter3d(
-            x=Xe, y=Ye, z=Ze, mode="lines", line=dict(color="black", width=5)
+            x=Xe, y=Ye, z=Ze, mode="lines", line=dict(color=group2, width=2.4)
         )  # ,text=labels,hoverinfo='text'))
 
         trace2 = go.Scatter3d(
@@ -2354,9 +2356,9 @@ def main():
 
 
 if __name__ == "__main__":
-    #import os
-    #os.system("python make_serial_plots0.py")
-    #os.system("python make_serial_plots1.py")
+    import os
+    os.system("python make_serial_plots0.py")
+    os.system("python make_serial_plots1.py")
 
     main()
 

@@ -1674,9 +1674,6 @@ def main():
             """This graphically shows network centrality from densely into connected (hub) to sparsely interconnected.
 			"""
         )
-        import os
-        os.system("python make_serial_plots0.py")
-        os.system("python make_serial_plots1.py")
 
         hub_sort(first, color_code, reverse)
         list_centrality(first)
@@ -2357,6 +2354,9 @@ def main():
 
 
 if __name__ == "__main__":
+    #import os
+    #os.system("python make_serial_plots0.py")
+    #os.system("python make_serial_plots1.py")
 
     main()
 

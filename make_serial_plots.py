@@ -2,11 +2,17 @@
 Author: [Russell Jarvis](https://github.com/russelljjarvis)
 
 """
-from community import community_louvain
+#from community import community_louvain
+
 import igraph as ig
 import plotly.graph_objs as go
+
 from matplotlib.patches import FancyArrowPatch, Circle
 import numpy as np
+
+from hiveplotlib import Axis, Node, HivePlot, hive_plot_n_axes
+from hiveplotlib.viz import hive_plot_viz_mpl
+
 import holoviews as hv
 from holoviews import opts, dim
 from bokeh.plotting import show, output_file
@@ -15,15 +21,17 @@ import copy
 import argparse
 import numpy as np
 import networkx as nx
+import dash_bio as dashbio
 import streamlit as st
+
+#st.set_page_config(layout="wide")
 
 import streamlit.components.v1 as components
 import networkx as nx
 import matplotlib.pyplot as plt
 from pyvis.network import Network
 import shelve
-
-# import streamlit as st
+#import streamlit as st
 import os
 import pandas as pd
 import pickle
@@ -34,7 +42,7 @@ from collections import Iterable
 import networkx
 
 # import holoviews as hv
-# import chord2
+#import chord2
 import shelve
 
 import plotly.graph_objects as go
@@ -54,18 +62,10 @@ import networkx as nx
 
 import xlrd
 import matplotlib.pyplot as plt
-from community import community_louvain
+#from community import community_louvain
 
 
-
-import numpy as np
-import matplotlib.pyplot as plt
-import networkx as nx
-from pyveplot import Hiveplot, Axis, Node
-import networkx as nx
-import random
-import base64
-import textwrap
+#import dash_bio
 
 
 def disable_logo(plot, element):
@@ -90,6 +90,7 @@ from typing import List
 import pandas as pd
 
 # import holoviews as hv
+import seaborn as sns
 
 
 def generate_sankey_figure(
@@ -135,7 +136,7 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     pos_ = nx.spring_layout(graph, scale=2.5, k=0.00015, seed=4572321)
     # node_color = [community_index[n] for n in graph]
     H = graph.to_undirected()
-    centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
+    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
     node_size = [v * 25000 for v in centrality.values()]
 
     coords = []
@@ -214,7 +215,7 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     plt.axis("off")
     for k, v in color_dict.items():
         plt.scatter([], [], c=v, label=k)
-    plt.legend(frameon=False, prop={"size": 24})
+    plt.legend(frameon=False,prop={'size':24})
 
     def dontdo(segments, pos_, graph):
         fig.show()
@@ -268,7 +269,6 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
 
     # return fig
 
-
 def depricated():
     def plot_stuff(df2, edges_df_full, first, adj_mat_dicts):
         with shelve.open("fast_graphs_splash.p") as db:
@@ -280,8 +280,8 @@ def depricated():
                 db.close()
 
 
-# from hiveplotlib import Axis, Node, HivePlot
-# from hiveplotlib.viz import axes_viz_mpl, node_viz_mpl, edge_viz_mpl
+#from hiveplotlib import Axis, Node, HivePlot
+#from hiveplotlib.viz import axes_viz_mpl, node_viz_mpl, edge_viz_mpl
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 
@@ -299,6 +299,7 @@ class renamer:
             return "%s_%d" % (x, self.d[x])
 
 
+
 def dontdo():
     df2.rename(columns=renamer(), inplace=True)
 
@@ -311,7 +312,6 @@ def dontdo():
         else:
             df4[col] = df2[col]
 
-
 def dontdo():
     """
     for col in df2.columns:
@@ -323,169 +323,168 @@ def dontdo():
                     else:
                                     df4[col] = df2[col]
     """
-
-
 import copy
 
 # @st.cache(persist=True)
-# @st.cache(allow_output_mutation=True)
+#@st.cache(allow_output_mutation=True)
 def get_frame(threshold=6):
 
-    #with shelve.open("fast_graphs_splash.p") as store:
-    #flag = "df" in store
-    #if False:
-    #    df = store["df"]  # load it
-    #
-    #            df2 = store["df2"]  # load it
-    #            names = store["names"]  # = names  # save it
-    #            ratercodes = store["ratercodes"]  # =   # save it
-    #            legend = store["legend"]  # = legend  # save it
+    with shelve.open("fast_graphs_splash.p") as store:
+        flag = "df" in store
+        if False:
+            df = store["df"]  # load it
 
-    #        else:
-    hard_codes = Path("code_by_IRG.xlsx")
-    hard_codes = openpyxl.load_workbook(hard_codes)
+            df2 = store["df2"]  # load it
+            names = store["names"]  # = names  # save it
+            ratercodes = store["ratercodes"]  # =   # save it
+            legend = store["legend"]  # = legend  # save it
 
-    hard_codes = hard_codes.active
-
-    hard_codes = pd.DataFrame(hard_codes.values)
-
-    xlsx_file0 = Path("o2anetmap2021.xlsx")
-    xlsx_file1 = Path("o2anetmap.xlsx")
-    wb_obj0 = openpyxl.load_workbook(xlsx_file0)
-    wb_obj1 = openpyxl.load_workbook(xlsx_file1)
-
-    # Read the active sheet:
-    worksheet0 = wb_obj0.active
-    worksheet1 = wb_obj1.active
-
-    df3 = pd.DataFrame(worksheet0.values)
-    df2 = pd.DataFrame(worksheet1.values)
-
-    df2 = pd.concat([df3, df2])
-    sheet = copy.copy(df2)
-    hc = {
-        k: str("IRG ") + str(v)
-        for k, v in zip(hard_codes[0][1::], hard_codes[1][1::])
-    }
-    hc1 = {k: "DCMT" for k, v in hc.items() if v == "IRG DCMT"}
-    # st.text(hc1)
-    hc.update(hc1)
-    hc.pop("Code", None)
-
-    # st.text(hc)
-    color_code_0 = {
-        k: v for k, v in zip(df2[0], df2[1]) if k not in "Rater Code"
-    }
-    # st.text(hc)
-    # st.text(color_code_0)
-    color_code_0.update(hc)
-
-    # st.write(color_code_0)
-
-    # for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
-    #    if not reverse[node_id] in color_code_0.keys():
-    #        color_code_0[reverse[node_id]] = hc[reverse[node_id]]
-    #        reverse[node_id] = hc[reverse[node_id]]
-    # ➜  ~ change yellow to red
-    # ➜  ~ change orange to purple
-
-    # Ribbon color code needs to labeled as to or from.
-    # source or target.
-
-    color_dict = {
-        "IRG 3": "green",
-        "IRG 1": "blue",
-        "IRG 2": "red",
-        "DCMT": "purple",
-    }
-    color_code_1 = {}
-
-    popg = nx.DiGraph()
-
-    for k, v in color_code_0.items():
-
-        if v not in popg.nodes:
-            popg.add_node(v, name=v)
-        color_code_1[k] = color_dict[v]
-    col_to_rename = df2.columns
-    ratercodes = df2[0][1::]
-    row_names = list(df2.T[0].values)
-    row_names.append(list(df2.T[0].values)[-1])
-    row_names = row_names[2::]
-    names = [rn[0].split("- ") for rn in row_names]
-    names2 = []
-    for i in names:
-        if len(i) == 2:
-            names2.append(i[1])
         else:
-            names2.append(i)
-    names = names2
-    for nm in names:
-        if nm not in color_code_1.keys():
-            color_code_1[nm] = "black"
+            hard_codes = Path("code_by_IRG.xlsx")
+            hard_codes = openpyxl.load_workbook(hard_codes)
 
-    row_names = list(range(0, len(df2.columns) + 1, 1))
-    to_rename = {k: v for k, v in zip(row_names, names)}
-    r_names = list(df2.index.values[:])
+            hard_codes = hard_codes.active
 
-    to_rename_ind = {v: k for k, v in zip(df2[0], r_names)}
-    del df2[0]
-    del df2[1]
-    # del df2[112]
-    del df2[113]
-    df2.drop(0, inplace=True)
-    df2.drop(1, inplace=True)
+            hard_codes = pd.DataFrame(hard_codes.values)
 
-    df2.rename(columns=to_rename, inplace=True)
-    df2.rename(index=to_rename_ind, inplace=True)
-    unk = []
+            xlsx_file0 = Path("o2anetmap2021.xlsx")
+            xlsx_file1 = Path("o2anetmap.xlsx")
+            wb_obj0 = openpyxl.load_workbook(xlsx_file0)
+            wb_obj1 = openpyxl.load_workbook(xlsx_file1)
 
-    for col in df2.columns:
-        if col in df2.index.values[:]:
-            pass
-        else:
-            pass
-            # st.text('found')
-            # st.text(hc[col])
-            # st.text(col)
+            # Read the active sheet:
+            worksheet0 = wb_obj0.active
+            worksheet1 = wb_obj1.active
 
-    legend = {}
+            df3 = pd.DataFrame(worksheet0.values)
+            df2 = pd.DataFrame(worksheet1.values)
 
-    legend.update({"Never": 0.0})
-    legend.update({"Barely or never": 1})
-    legend.update({"Occasionally in a minor way": 2})
-    legend.update({"Less than once a month": 3})
-    legend.update({"More than once a month (But not weekly)": 4})
-    legend.update({"Occasionally but substantively": 5})
-    legend.update({"More than twice a week": 6})
-    legend.update({"Often": 7})
-    legend.update({"Much or all of the time": 8})
-    legend.update({"1-2 times a week": 9.0})
-    df2.replace({"": 0.0}, inplace=True)
-    df2.replace({" ": 0.0}, inplace=True)
-    df2.replace({"\t": 0.0}, inplace=True)
-    df2.replace({"\n": 0.0}, inplace=True)
+            df2 = pd.concat([df3, df2])
+            sheet = copy.copy(df2)
+            hc = {k:str("IRG ")+str(v) for k,v in zip(hard_codes[0][1::],hard_codes[1][1::])}
+            hc1 = {k:"DCMT" for k,v in hc.items() if v=="IRG DCMT"}
+            #st.text(hc1)
+            hc.update(hc1)
+            hc.pop("Code",None)
 
-    df2.replace({"Never": 0.0}, inplace=True)
-    df2.replace({"Barely or never": 1}, inplace=True)
-    df2.replace({"Occasionally in a minor way": 2}, inplace=True)
-    df2.replace({"Less than once a month": 3}, inplace=True)
-    df2.replace({"More than once a month (But not weekly)": 4}, inplace=True)
-    df2.replace({"Occasionally but substantively": 5}, inplace=True)
-    df2.replace({"More than twice a week": 6}, inplace=True)
-    df2.replace({"Often": 7}, inplace=True)
-    df2.replace({"Much or all of the time": 8}, inplace=True)
-    df2.replace({"1-2 times a week": 9.0}, inplace=True)
+            #st.text(hc)
+            color_code_0 = {
+                k: v for k, v in zip(df2[0], df2[1]) if k not in "Rater Code"
+            }
+            #st.text(hc)
+            #st.text(color_code_0)
+            color_code_0.update(hc)
 
-    # This sums columns under the same name
-    df2.groupby(df2.columns, axis=1).sum()
-    df2.groupby(level=0, axis=1).sum()
-    # df2 = df4
-    #store["df2"] = df2  # save it
-    # st.write(df2)
-    #store["names"] = names  # save it
-    #store["ratercodes"] = ratercodes  # save it
-    #store["legend"] = legend  # save it
+            #st.write(color_code_0)
+
+
+
+            #for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
+            #    if not reverse[node_id] in color_code_0.keys():
+            #        color_code_0[reverse[node_id]] = hc[reverse[node_id]]
+            #        reverse[node_id] = hc[reverse[node_id]]
+            #➜  ~ change yellow to red
+            #➜  ~ change orange to purple
+
+            # Ribbon color code needs to labeled as to or from.
+            # source or target.
+
+            color_dict = {
+                "IRG 3": "green",
+                "IRG 1": "blue",
+                "IRG 2": "red",
+                "DCMT": "purple",
+            }
+            color_code_1 = {}
+
+            popg = nx.DiGraph()
+
+            for k, v in color_code_0.items():
+
+                if v not in popg.nodes:
+                    popg.add_node(v, name=v)
+                color_code_1[k] = color_dict[v]
+            col_to_rename = df2.columns
+            ratercodes = df2[0][1::]
+            row_names = list(df2.T[0].values)
+            row_names.append(list(df2.T[0].values)[-1])
+            row_names = row_names[2::]
+            names = [rn[0].split("- ") for rn in row_names]
+            names2 = []
+            for i in names:
+                if len(i) == 2:
+                    names2.append(i[1])
+                else:
+                    names2.append(i)
+            names = names2
+            for nm in names:
+                if nm not in color_code_1.keys():
+                    color_code_1[nm] = "black"
+
+            row_names = list(range(0, len(df2.columns) + 1, 1))
+            to_rename = {k: v for k, v in zip(row_names, names)}
+            r_names = list(df2.index.values[:])
+
+            to_rename_ind = {v: k for k, v in zip(df2[0], r_names)}
+            del df2[0]
+            del df2[1]
+            # del df2[112]
+            del df2[113]
+            df2.drop(0, inplace=True)
+            df2.drop(1, inplace=True)
+
+
+            df2.rename(columns=to_rename, inplace=True)
+            df2.rename(index=to_rename_ind, inplace=True)
+            unk = []
+
+            for col in df2.columns:
+                if col in df2.index.values[:]:
+                    pass
+                else:
+                    pass
+                    #st.text('found')
+                    #st.text(hc[col])
+                    #st.text(col)
+
+
+            legend = {}
+
+            legend.update({"Never": 0.0})
+            legend.update({"Barely or never": 1})
+            legend.update({"Occasionally in a minor way": 2})
+            legend.update({"Less than once a month": 3})
+            legend.update({"More than once a month (But not weekly)": 4})
+            legend.update({"Occasionally but substantively": 5})
+            legend.update({"More than twice a week": 6})
+            legend.update({"Often": 7})
+            legend.update({"Much or all of the time": 8})
+            legend.update({"1-2 times a week": 9.0})
+            df2.replace({"": 0.0}, inplace=True)
+            df2.replace({" ": 0.0}, inplace=True)
+            df2.replace({"\t": 0.0}, inplace=True)
+            df2.replace({"\n": 0.0}, inplace=True)
+
+            df2.replace({"Never": 0.0}, inplace=True)
+            df2.replace({"Barely or never": 1}, inplace=True)
+            df2.replace({"Occasionally in a minor way": 2}, inplace=True)
+            df2.replace({"Less than once a month": 3}, inplace=True)
+            df2.replace({"More than once a month (But not weekly)": 4}, inplace=True)
+            df2.replace({"Occasionally but substantively": 5}, inplace=True)
+            df2.replace({"More than twice a week": 6}, inplace=True)
+            df2.replace({"Often": 7}, inplace=True)
+            df2.replace({"Much or all of the time": 8}, inplace=True)
+            df2.replace({"1-2 times a week": 9.0}, inplace=True)
+
+            # This sums columns under the same name
+            df2.groupby(df2.columns, axis=1).sum()
+            df2.groupby(level=0, axis=1).sum()
+            # df2 = df4
+            store["df2"] = df2  # save it
+            # st.write(df2)
+            store["names"] = names  # save it
+            store["ratercodes"] = ratercodes  # save it
+            store["legend"] = legend  # save it
 
     return (
         df2,
@@ -497,7 +496,7 @@ def get_frame(threshold=6):
         color_code_0,
         sheet,
         popg,
-        hc,
+        hc
     )
 
 
@@ -571,7 +570,7 @@ def learn_embeddings(walks):
     return
 
 
-# @st.cache(persist=True)
+#@st.cache(persist=True)
 def get_table_download_link_csv(df):
     import base64
 
@@ -582,43 +581,36 @@ def get_table_download_link_csv(df):
     href = f'<a href="data:file/csv;base64,{b64}" download="captura.csv" target="_blank">Download csv file</a>'
     return href
 
-
-def draw_network(G, pos, ax, widths, edge_colors, sg=None):
+def draw_network(G,pos,ax,widths,edge_colors,sg=None):
 
     for n in G.nodes:
-        c = Circle(pos[n], radius=0.05, alpha=0.7)
-        # ax.add_patch(c)
-        G.nodes[n]["patch"] = c
-        x, y = pos[n]
-    seen = {}
-    for n, (u, v, d) in enumerate(G.edges(data=True)):
-        n1 = G.nodes[u]["patch"]
-        n2 = G.nodes[v]["patch"]
-        rad = 0.1
-        if (u, v) in seen:
-            rad = seen.get((u, v))
-            rad = (rad + np.sign(rad) * 0.1) * -1
-        alpha = 0.5
-        color = "k"
+        c=Circle(pos[n],radius=0.05,alpha=0.7)
+        #ax.add_patch(c)
+        G.nodes[n]['patch']=c
+        x,y=pos[n]
+    seen={}
+    for n,(u,v,d) in enumerate(G.edges(data=True)):
+        n1=G.nodes[u]['patch']
+        n2=G.nodes[v]['patch']
+        rad=0.1
+        if (u,v) in seen:
+            rad=seen.get((u,v))
+            rad=(rad+np.sign(rad)*0.1)*-1
+        alpha=0.5
+        color='k'
 
-        e = FancyArrowPatch(
-            n1.center,
-            n2.center,
-            patchA=n1,
-            patchB=n2,
-            arrowstyle="-|>",
-            connectionstyle="arc3,rad=%s" % rad,
-            mutation_scale=10.0,
-            lw=widths[n],
-            alpha=alpha,
-            color=edge_colors[n],
-        )
-        seen[(u, v)] = rad
+        e = FancyArrowPatch(n1.center,n2.center,patchA=n1,patchB=n2,
+                            arrowstyle='-|>',
+                            connectionstyle='arc3,rad=%s'%rad,
+                            mutation_scale=10.0,
+                            lw=widths[n],
+                            alpha=alpha,
+                            color=edge_colors[n])
+        seen[(u,v)]=rad
         ax.add_patch(e)
     return e
 
-
-# @st.cache(allow_output_mutation=True,suppress_st_warning=True)
+#@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def population(cc, popg, color_dict):
 
     fig, ax = plt.subplots(figsize=(20, 15))
@@ -654,7 +646,7 @@ def population(cc, popg, color_dict):
 
     # nx.draw_networkx_edges(G, pos, edgelist=edgelist, arrowstyle="<|-", style="dashed")
     def dontdo():
-        """
+        '''
         nx.draw_networkx_edges(
             popg,
             pos=pos,
@@ -664,13 +656,13 @@ def population(cc, popg, color_dict):
             width=widths,
             arrowstyle="<|-"
         )
-        """
+        '''
 
-    ax = plt.gca()
-    draw_network(popg, pos, ax, widths, edge_colors)
+    ax=plt.gca()
+    draw_network(popg,pos,ax,widths,edge_colors)
     ax.autoscale()
-    plt.axis("equal")
-    plt.axis("off")
+    plt.axis('equal')
+    plt.axis('off')
 
     # labels = {v.name:v for v,v in popg.nodes}
     labels = {}
@@ -680,7 +672,7 @@ def population(cc, popg, color_dict):
 
     for k, v in labels.items():
         plt.scatter([], [], c=color_dict[v], label=k)
-    plt.legend(frameon=False, prop={"size": 34})
+    plt.legend(frameon=False,prop={'size':34})
 
     popgc = copy.copy(popg)
     st.pyplot(fig)
@@ -693,12 +685,12 @@ def population(cc, popg, color_dict):
         st.graphviz_chart(dot.to_string())
     except:
         pass
+#from scipy.spatial import ConvexHull, convex_hull_plot_2d
 
 
-# from scipy.spatial import ConvexHull, convex_hull_plot_2d
-
-
-
+import numpy as np
+import matplotlib.pyplot as plt
+import networkx as nx
 
 def community_layout(g, partition):
     """
@@ -714,15 +706,14 @@ def community_layout(g, partition):
     pos -- dict mapping int node -> (float x, float y)
         node positions
     """
-    pos_communities = _position_communities(g, partition, k=0.04, scale=5.0)
-    pos_nodes = _position_nodes(g, partition, k=0.04, scale=1.0)
+    pos_communities = _position_communities(g, partition, k=0.04, scale=5.)
+    pos_nodes = _position_nodes(g, partition, k=0.04, scale=1.)
     # combine positions
     pos = dict()
     for node in g.nodes():
         pos[node] = pos_communities[node] + pos_nodes[node]
 
     return pos, pos_communities
-
 
 def _position_communities(g, partition, **kwargs):
     # create a weighted graph, in which each node corresponds to a community,
@@ -744,7 +735,6 @@ def _position_communities(g, partition, **kwargs):
 
     return pos
 
-
 def _find_between_community_edges(g, partition):
 
     edges = dict()
@@ -760,7 +750,6 @@ def _find_between_community_edges(g, partition):
                 edges[(ci, cj)] = [(ni, nj)]
 
     return edges
-
 
 def _position_nodes(g, partition, **kwargs):
     """
@@ -781,10 +770,8 @@ def _position_nodes(g, partition, **kwargs):
         pos.update(pos_subgraph)
 
     return pos
-
-
 def dont():
-    """
+    '''
     def colored_hive_axis(first,color_code_0,reverse):
         c = ['#e41a1c', '#377eb8', '#4daf4a',
              '#984ea3', '#ff7f00', '#ffff33',
@@ -869,25 +856,15 @@ def dont():
 
 
         #st.image(Image.open("col_ba_hiveplot.svg"))
-    """
-
-
+    '''
 import matplotlib.patches as patches
-from community import community_louvain
+#from community import community_louvain
 
-# @st.cache(allow_output_mutation=True,suppress_st_warning=True)
-def community(first, color_code, color_dict):
-    colors = [
-        "#e41a1c",
-        "#377eb8",
-        "#4daf4a",
-        "#984ea3",
-        "#ff7f00",
-        "#ffff33",
-        "#a65628",
-        "#f781bf",
-        "#999999",
-    ]
+#@st.cache(allow_output_mutation=True,suppress_st_warning=True)
+def community(first,color_code,color_dict):
+    colors = ['#e41a1c', '#377eb8', '#4daf4a',
+         '#984ea3', '#ff7f00', '#ffff33',
+         '#a65628', '#f781bf', '#999999']
 
     my_expander = st.beta_expander("Toggle node labels")
     labels_ = my_expander.radio("Would you like to label nodes?", ("No", "Yes"))
@@ -898,7 +875,7 @@ def community(first, color_code, color_dict):
 
     temp = first.to_undirected()
 
-    partition = community_louvain.best_partition(temp, resolution=4.0)
+    partition = community_louvain.best_partition(temp,resolution=4.0)
     pos, pos_communities = community_layout(temp, partition)
     diffcc = list(partition.values())
     pkeys = set(partition.values())
@@ -908,12 +885,12 @@ def community(first, color_code, color_dict):
     centrex = []
     centrey = []
 
-    for k in pkeys:  # iterate over communities
-        list_of_nodes = partitiondf[partitiondf.values == k].index.values[:]
+    for k in pkeys: # iterate over communities
+        list_of_nodes = partitiondf[partitiondf.values==k].index.values[:]
         tocvxh = []
         for node in list_of_nodes:
-            x, y = pos[node]
-            tocvxh.append((x, y))
+            x,y = pos[node]
+            tocvxh.append((x,y))
 
         meanx = np.mean([i[0] for i in tocvxh])
         meany = np.mean([i[1] for i in tocvxh])
@@ -923,13 +900,14 @@ def community(first, color_code, color_dict):
     srcs = []
     widths = []
 
+
     for e in temp.edges:
         src = partition[e[0]]
         srcs.append(src)
         ee = temp.get_edge_data(e[0], e[1])
-        widths.append(1.85 * ee["weight"])
+        widths.append(1.85*ee["weight"])
 
-    fig1, ax1 = plt.subplots(1, 1, figsize=(20, 20))
+    fig1,ax1 = plt.subplots(1, 1,figsize=(20,20))
     recolored = [colors[i] for i in diffcc]
 
     nx.draw_networkx_nodes(
@@ -940,11 +918,11 @@ def community(first, color_code, color_dict):
         alpha=0.5,
         linewidths=1,
     )
-    # axx = ax1.gca()  # to get the current axis
-    # axx.collections[0].set_edgecolor("#FF0000")
+    #axx = ax1.gca()  # to get the current axis
+    #axx.collections[0].set_edgecolor("#FF0000")
     label_pos = copy.deepcopy(pos)
-    for k, v in label_pos.items():
-        label_pos[k][0] = v[0] + 0.5
+    for k,v in label_pos.items():
+        label_pos[k][0] = v[0]+0.5
 
     if labelsx:
         labels = {}
@@ -953,12 +931,14 @@ def community(first, color_code, color_dict):
             labels[node] = node
         nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
 
-    nx.draw_networkx_edges(temp, pos=pos, edge_color="grey", alpha=0.15, width=widths)
-    for centre in zip(centrex, centrey, pkeys):
-        r = 1.5
-        c = (float(centre[0]), float(centre[1]))
+    nx.draw_networkx_edges(
+        temp, pos=pos, edge_color='grey', alpha=0.15, width=widths
+    )
+    for centre in zip(centrex,centrey,pkeys):
+        r = 1.5;
+        c = (float(centre[0]),float(centre[1]))
         ax1.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
-    fig2, ax2 = plt.subplots(1, 1, figsize=(20, 20))
+    fig2,ax2 = plt.subplots(1, 1,figsize=(20,20))
 
     node_color = [color_code[n] for n in first]
     srcs = []
@@ -974,29 +954,33 @@ def community(first, color_code, color_dict):
         alpha=0.5,
         linewidths=1,
     )
-    # axx = ax2.gca()  # to get the current axis
-    # axx.collections[0].set_edgecolor("#FF0000")
-    nx.draw_networkx_edges(temp, pos=pos, edge_color="grey", alpha=0.15, width=widths)
-    for centre in zip(centrex, centrey, pkeys):
-        r = 1.5
-        c = (float(centre[0]), float(centre[1]))
+    #axx = ax2.gca()  # to get the current axis
+    #axx.collections[0].set_edgecolor("#FF0000")
+    nx.draw_networkx_edges(
+        temp, pos=pos, edge_color='grey', alpha=0.15, width=widths
+    )
+    for centre in zip(centrex,centrey,pkeys):
+        r = 1.5;
+        c = (float(centre[0]),float(centre[1]))
         ax2.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
     if labelsx:
         for k, v in color_dict.items():
             plt.scatter([], [], c=v, label=k)
-        plt.legend(frameon=False, prop={"size": 29.5})
-    # plt.axis('off')
-    # fig1.tight_layout()
+        plt.legend(frameon=False,prop={'size':29.5})
+    #plt.axis('off')
+    #fig1.tight_layout()
     col1, col2 = st.beta_columns(2)
 
     col1.pyplot(fig1, use_column_width=True)
     col2.pyplot(fig2, use_column_width=True)
 
-    # try:
+    #try:
     #    st.pyplot(fig1, use_column_width=True)
     #    st.pyplot(fig2, use_column_width=True)
 
-    # except:
+
+    #except:
+
 
     #    fig2.savefig("img2.png")
     #    import matplotlib.image as mpimg
@@ -1014,11 +998,11 @@ def list_centrality(first):
     st.markdown("## Betweeness Centrality:")
     st.markdown("Top to bottom node id from most central to least:")
 
-    centrality = nx.betweenness_centrality(H)#, endpoints=True)
+    centrality = nx.betweenness_centrality(H, endpoints=True)
     df = pd.DataFrame([centrality])
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
-    df.rename(columns={0: "centrality value"}, inplace=True)
+    df.rename(columns={0:'centrality value'},inplace=True)
 
     bc = df
     st.markdown("### Most Connected:")
@@ -1034,7 +1018,7 @@ def list_centrality(first):
     df = pd.DataFrame([centrality])
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
-    df.rename(columns={0: "centrality value"}, inplace=True)
+    df.rename(columns={0:'centrality value'},inplace=True)
     st.markdown("### Biggest Listeners:")
 
     st.write(df.head())
@@ -1043,15 +1027,13 @@ def list_centrality(first):
 
     st.write(df.tail())
 
-    st.markdown(
-        "## Out-degree Centrality (percieved talkers), read from top to bottom from most central to least:"
-    )
+    st.markdown("## Out-degree Centrality (percieved talkers), read from top to bottom from most central to least:")
 
     centrality = nx.out_degree_centrality(first)
     df = pd.DataFrame([centrality])
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
-    df.rename(columns={0: "centrality value"}, inplace=True)
+    df.rename(columns={0:'centrality value'},inplace=True)
     st.markdown("### Biggest Talkers:")
 
     st.write(df.head())
@@ -1060,48 +1042,49 @@ def list_centrality(first):
 
     st.write(df.tail())
 
-    # bc = df
-    # st.table(df)
+    #bc = df
+    #st.table(df)
     return bc
 
-    # Compute the in-degree centrality for nodes.
-    # st.markdown("Out-degree Centrality:")
-    # st.markdown("Top to bottom node id from most central to least:")
+    #Compute the in-degree centrality for nodes.
+    #st.markdown("Out-degree Centrality:")
+    #st.markdown("Top to bottom node id from most central to least:")
 
-    # Compute the out-degree centrality for nodes.
-    # st.markdown("Betweeness Centrality:")
-    # centrality = nx.betweenness_centrality(H, endpoints=True)
-    # df = pd.DataFrame([centrality])
-    # df = df.T
-    # df.sort_values(0, axis=0, ascending=False, inplace=True)
-    # st.table(df)
-    # edge_thickness = {k: v * 200000 for k, v in centrality.items()}
+    #Compute the out-degree centrality for nodes.
+    #st.markdown("Betweeness Centrality:")
+    #centrality = nx.betweenness_centrality(H, endpoints=True)
+    #df = pd.DataFrame([centrality])
+    #df = df.T
+    #df.sort_values(0, axis=0, ascending=False, inplace=True)
+    #st.table(df)
+    #edge_thickness = {k: v * 200000 for k, v in centrality.items()}
 
-
-def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
+def physics(first, adj_mat_dicts, color_code,color_code_0,color_dict):
 
     my_expander = st.beta_expander("physical parameters")
 
     phys_ = my_expander.radio(
-        "Would you like to change physical parameters?", ("No", "Yes")
+        "Would you like to change physical parameters?", ("Yes","No")
     )
     pos = nx.get_node_attributes(first, "pos")
     # fig = plt.figure()
     d = nx.degree(first)
     temp = first.to_undirected()
     cen = nx.betweenness_centrality(temp)
-    d = [((cen[node] + 1) * 5000000) for node in first.nodes()]
+    d = [((d[node] + 1) * 50000) for node in first.nodes()]
     G = first  # ead_graph()
 
     nt = Network(
         notebook=True,
         directed=True,
-        height="700px",
-        width="170%",
+        height="600px",
+        width="150%",
         font_color="black",  # , bgcolor='#222222'
     )  # bgcolor='#222222',
 
-    nt = Network("700px", "700px", notebook=True)
+    nt = Network(
+        "600px", "600px", notebook=True
+    )
 
     nt.barnes_hut()
     nt.from_nx(G)
@@ -1114,14 +1097,14 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     )
 
     H = first.to_undirected()
-    centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
-    edge_thickness = {k: v * 90000000 for k, v in centrality.items()}
-    node_size = {k: v * 90000000 for k, v in centrality.items()}
+    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+    edge_thickness = {k: v * 200000 for k, v in centrality.items()}
+    node_size = {k: v * 200000 for k, v in centrality.items()}
 
     for e in edge_data:
         src = e[0]
         dst = e[1]
-        w = e[2] * 193500.0
+        w = e[2] * 1350.0
         src = str(src)
         dst = str(dst)
         w = float(w)
@@ -1130,12 +1113,14 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     neighbor_map = nt.get_adj_list()
     my_expander = st.beta_expander("Mouse over node info?")
 
-    mo_ = my_expander.radio("Toggle Mouse overs?", ("Yes", "No"))
+    mo_ = my_expander.radio(
+        "Toggle Mouse overs?", ("No", "Yes")
+    )
     if mo_ == "Yes":
         mo = True
     else:
         mo = False
-    # labels = False
+    #labels = False
     if phys_ == "Yes":
         nt.show_buttons(filter_=["physics"])
 
@@ -1144,27 +1129,13 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         if mo:
             if "title" not in node.keys():
                 if node["id"] in color_code_0.keys():
-                    node["title"] = (
-                        "<br> This node is:"
-                        + str(node["id"])
-                        + "<br> it's membership is "
-                        + str(color_code_0[node["id"]])
-                        + " It's neighbors are:<br>"
-                        + "<br>".join(neighbor_map[node["id"]])
-                    )
+                    node["title"] = "<br> This node is:"+str(node["id"])+"<br> it's membership is "+str(color_code_0[node["id"]])+" It's neighbors are:<br>" + "<br>".join(neighbor_map[node["id"]])
                 else:
-                    node["title"] = (
-                        "<br> This node is:"
-                        + str(node["id"])
-                        + "<br> it's membership is "
-                        + str("unknown")
-                        + " It's neighbors are:<br>"
-                        + "<br>".join(neighbor_map[node["id"]])
-                    )
+                    node["title"] = "<br> This node is:"+str(node["id"])+"<br> it's membership is "+str("unknown")+" It's neighbors are:<br>" + "<br>".join(neighbor_map[node["id"]])
         #
         if node["id"] in node_size.keys():
-            # if not labels:
-            node["size"] = 92500.0 * node_size[node["id"]]
+            #if not labels:
+            node["size"] = 1250.0 * node_size[node["id"]]
         node["label"] = str(node["id"])
         node["value"] = len(neighbor_map[node["id"]])
         # st.text(node["id"])
@@ -1180,21 +1151,18 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     nt.show("test1.html")
     HtmlFile = open("test1.html", "r", encoding="utf-8")
     source_code = HtmlFile.read()
-    components.html(source_code, height=750, width=750)#,use_column_width=True)
-    #fig = plt.figure()
-    # fig, ax = plt.subplots(figsize=(3, 3))
+    components.html(source_code, height=750, width=750)
+    fig = plt.figure()
+    #fig, ax = plt.subplots(figsize=(3, 3))
 
-    #for k, v in color_dict.items():
-    #    plt.scatter([], [], c=v, label=k)
-    #plt.legend(frameon=False, prop={"size": 4.0})
-    #st.pyplot(fig)
+    for k, v in color_dict.items():
+        plt.scatter([], [], c=v, label=k)
+    plt.legend(frameon=False,prop={'size':4.0})
+    st.pyplot(fig)
     if phys_ == "Yes":
         from PIL import Image
-
-        st.markdown(
-            "Some parameter sets can prevent static equilibrium states. For example:"
-        )
-        # nt.show_buttons(filter_=["physics"])
+        st.markdown("Some parameter sets can prevent static equilibrium states. For example:")
+        #nt.show_buttons(filter_=["physics"])
         st.image(Image.open("rescreen_shot_just_params.png"))
 
 
@@ -1214,59 +1182,61 @@ def dont():
         )
     )
 
-from scipy.spatial import Delaunay, ConvexHull
+
 from pyveplot import Hiveplot, Axis, Node
 import networkx as nx
 import random
 import base64
 import textwrap
 
-
 def render_svg_small(svg):
     """Renders the given svg string."""
-    b64 = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
+    #html = None
+    #b64 = None
+    b64 = base64.b64encode(svg.encode('utf-8')).decode("utf-8")
     html = r'<img src="data:image/svg+xml;base64,%s" width = 900/>' % b64
-    st.write(html, unsafe_allow_html=True, use_column_width=True)
-    return None
+    #from cairosvg import svg2png
+    #bytestring=bytes(svg,'UTF-8')
+    #svg2png(bytestring=bytestring,write_to='output.png')
+    #from PIL import Image
+    #st.image(Image.open("output.png"))
 
+    st.write(html, unsafe_allow_html=True)
+    del html
+    del svg
+    from streamlit import caching
+    caching.clear_cache()
 
 #        hub_sort(first,color_code_0,reverse)
 def render_svg(svg):
     """Renders the given svg string."""
-    b64 = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
-    html = r'<img src="data:image/svg+xml;base64,%s" width = 900/>' % b64
-    st.write(html, unsafe_allow_html=True, use_column_width=True)
-    return None
+    b64 = base64.b64encode(svg.encode('utf-8')).decode("utf-8")
+    html = r'<img src="data:image/svg+xml;base64,%s"/>' % b64
+
+
+
+    #from cairosvg import svg2png
+    #svg2png(bytestring=svg,write_to='output.png')
+    #from PIL import Image
+    #st.image(Image.open("output.png"))
+
+    #st.pyplot()
+    st.write(html, unsafe_allow_html=True)
+    del html
+    del svg
+    from streamlit import caching
+    caching.clear_cache()
 
 def agraph_(first):
     from streamlit_agraph import agraph, Node, Edge, Config
 
-    config = Config(
-        height=500,
-        width=700,
-        nodeHighlightBehavior=True,
-        highlightColor="#F7A7A6",
-        directed=True,
-        collapsible=True,
-    )
-    # st.text(dir(agraph))
-    # agraph(list(first.nodes), (first.edges), config)
-
-
-def hub_sort(first, color_code_1, reverse):
-    with open("1ba_hiveplot.svg", "r") as f:
-        lines = f.readlines()
-        f.close()
-    line_string = "".join(lines)
-
-    render_svg_small(line_string)
-    line_string = None
-    lines = None
-    del line_string
-    del lines
-    return None
-
-    """
+    config = Config(height=500, width=700, nodeHighlightBehavior=True, highlightColor="#F7A7A6", directed=True,
+              collapsible=True)
+    #st.text(dir(agraph))
+    #agraph(list(first.nodes), (first.edges), config)
+a = 0
+def hub_sort(first,color_code_1,reverse,a):
+    a += 1
     c = ['#e41a1c', '#377eb8', '#4daf4a',
          '#984ea3', '#ff7f00', '#ffff33',
          '#a65628', '#f781bf', '#999999',]
@@ -1362,35 +1332,128 @@ def hub_sort(first, color_code_1, reverse):
     h = Hiveplot()
     h.__init__()
     fig = plt.figure()
-    """
-
-    # line_string = ''
-    # os.system('rm ba_hiveplot.svg')
-    # from streamlit import caching
-
-    # caching.clear_cache()
 
 
-# a = 0
-
-
-def hive_two(first, color_code, color_code_0, reverse):
-
-    with open("0ba1_hiveplot.svg", "r") as f:
+    #line_string = ''
+    with open(str(a)+'ba_hiveplot.svg',"r") as f:
         lines = f.readlines()
         f.close()
-    line_string = "".join(lines)
+    line_string=''.join(lines)
+
+    render_svg_small(line_string)
+    line_string = None
+    lines = None
+    del line_string
+    del lines
+    os.system('rm ba_hiveplot.svg')
+    #from streamlit import caching
+
+    #caching.clear_cache()
+a = 0
+
+def hive_two(first,color_code,color_code_0,reverse,a):
+    c = ['#e41a1c', '#377eb8', '#4daf4a',
+         '#984ea3', '#ff7f00', '#ffff33',
+         '#a65628', '#f781bf', '#999999',]
+
+    # create hiveplot object
+    h = Hiveplot()
+    h.__init__()
+    fig = plt.figure()
+    h.axes = None
+    # create three axes, spaced at 120 degrees from each other
+    h.axes = [Axis(start=20, angle=0,
+                   stroke='black', stroke_width=2.1),
+              Axis(start=20, angle=90,
+                   stroke='black', stroke_width=2.1),
+              Axis(start=20, angle=90 + 90,
+                   stroke='black', stroke_width=2.1),
+              Axis(start=20, angle=90 + 90 + 90,
+                   stroke='black', stroke_width=2.1)
+
+              ]
+
+    g = first
+
+    IRG1_indices = []
+    IRG2_indices = []
+    IRG3_indices = []
+    DCMT_indices = []  # ,Un_ind
+    g = first
+    forwards = {v:k for k,v in reverse.items()}
+    for i, (node_id) in enumerate(g.nodes):
+        if node_id in color_code_0.keys():
+            if color_code_0[node_id] == "IRG 1":
+                IRG1_indices.append(node_id)
+            if color_code_0[node_id] == "IRG 2":
+                IRG2_indices.append(node_id)
+            if color_code_0[node_id] == "IRG 3":
+                IRG3_indices.append(node_id)
+            if color_code_0[node_id] == "DCMT":
+                DCMT_indices.append(node_id)
+
+
+    # categorize them as high, medium and low degree
+    hi_deg = [v for v in g if v in IRG1_indices]
+    md_deg = [v for v in g if v in IRG2_indices]
+    md_deg2 = [v for v in g if v in IRG3_indices]
+    lo_deg = [v for v in g if v in DCMT_indices]
+
+    # place these nodes into our three axes
+    for axis, nodes in zip(h.axes,
+                           [hi_deg, md_deg,md_deg2, lo_deg]):
+
+        for v in nodes:
+            #st.text(v)
+            circle_color = color_code[v]
+            # create node object
+            node = Node(radius=33.5*g.degree(v),
+                        label="%s" % (v))
+            # add it to axis
+            axis.add_node(v, node)
+            # once it has x, y coordinates, add a circle
+            node.add_circle(fill=circle_color, stroke=circle_color,
+                            stroke_width=0.1, fill_opacity=0.65)
+            if axis.angle < 180:
+                orientation = -1
+                scale = 6.5
+            else:
+                orientation = - 1
+                scale = 6.5
+            # also add a label
+            node.add_label("{0}".format(v),
+                           angle=axis.angle + 90 * orientation,
+                           scale=scale)
+    # iterate through axes, from left to right
+    for n in range(-1, len(h.axes) - 1):
+
+        curve_color = 'black'#random.choice(c)
+        # draw curves between nodes connected by edges in network
+        h.connect_axes(h.axes[n],
+                       h.axes[n+1],
+                       g.edges,
+                       stroke_width=4.5,
+                       stroke=curve_color)
+    # save output
+    import os
+    h.draw_axes()
+    h.save(str(a)+'ba1_hiveplot.svg')
+    h.__init__()
+    del h
+    h = None
+
+    with open(str(a)+'ba1_hiveplot.svg',"r") as f:
+        lines = f.readlines()
+        f.close()
+    line_string=''.join(lines)
 
     render_svg_small(line_string)
     line_string = None
     del line_string
-    #os.system("rm ba1_hiveplot.svg")
-    #from streamlit import caching
-
-    #caching.clear_cache()
+    os.system('rm ba1_hiveplot.svg')
+    from streamlit import caching
+    caching.clear_cache()
     return None
-
-
 def no_thanks():
     from hiveplotlib import Axis, Node, HivePlot
 
@@ -1405,14 +1468,14 @@ def no_thanks():
     # pull out degree information from nodes for later use
     node_ids, degrees = np.unique(edges, return_counts=True)
 
-    # nodes = np.array(G.nodes)
+    #nodes = np.array(G.nodes)
     nodes = []
 
     IRG1_indices = []
     IRG2_indices = []
     IRG3_indices = []
     DCMT_ind = []  # ,Un_ind
-    # st.text(len(color_code_0))
+    #st.text(len(color_code_0))
     for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
         if not reverse[node_id] in color_code_0.keys():
             color_code_0[reverse[node_id]] = hc[reverse[node_id]]
@@ -1466,6 +1529,7 @@ def no_thanks():
         orient_angle=30,
     )
 
+
     # change the line kwargs for edges in plot
     hp.add_edge_kwargs(
         axis_id_1=temp[0], axis_id_2=temp[1], c=f"C0", lw=1.5, alpha=0.5, zorder=10
@@ -1473,9 +1537,9 @@ def no_thanks():
     hp.add_edge_kwargs(
         axis_id_1=temp[1], axis_id_2=temp[2], c=f"C2", lw=1.5, alpha=0.5, zorder=10
     )
-    # hp.add_edge_kwargs(
+    #hp.add_edge_kwargs(
     ##    axis_id_1=temp[0], axis_id_3=temp[2], c=f"C1", lw=1.5, alpha=0.5, zorder=10
-    # )
+    #)
 
     # st.text(temp[2])
     hp.place_nodes_on_axis(
@@ -1506,13 +1570,13 @@ def no_thanks():
         vmin=0,
         vmax=33,
     )
-    # hp.place_nodes_on_axis(
+    #hp.place_nodes_on_axis(
     #    axis_id=temp[3],
     #    unique_ids=[nodes[i].data["loc"] for i in Un_ind],
     #    sorting_feature_to_use="loc",
     #    vmin=0,
     #    vmax=33,
-    # )
+    #)
 
     hp.connect_axes(edges=edges, axis_id_1=temp[0], axis_id_2=temp[1], c="C1")
     hp.connect_axes(edges=edges, axis_id_1=temp[1], axis_id_2=temp[2], c="C2")
@@ -1520,14 +1584,13 @@ def no_thanks():
     hp.connect_axes(edges=edges, axis_id_1=temp[2], axis_id_2=temp[3], c="C3")
     hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[1], c="C1")
     hp.connect_axes(edges=edges, axis_id_1=temp[3], axis_id_2=temp[0], c="C0")
-    # hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[0], c="C7")
-    # hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[1], c="C8")
-    # hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[2], c="C9")
-    # hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[3], c="C10")
+    #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[0], c="C7")
+    #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[1], c="C8")
+    #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[2], c="C9")
+    #hp.connect_axes(edges=edges, axis_id_1=temp[4], axis_id_2=temp[3], c="C10")
 
     fig, ax = hive_plot_viz_mpl(hive_plot=hp)
     st.pyplot(fig)
-
 
 def nope():
 
@@ -1540,7 +1603,7 @@ def nope():
             "Visualize Centrality",
             "Bundle",
             "Basic",
-            "Population View",
+            "Lumped Population",
             "Spreadsheet",
             "AdjacencyMatrix",
         ),
@@ -1552,20 +1615,21 @@ def main():
     st.sidebar.title("Odor To Action: Collaboration Survey Data")
 
     genre = st.sidebar.radio(
-        "Choose Graph Layout/Option:",
+        "Prefered graph layout?",
         (
-            "Physics",
-            "3D",
-            "Population View",
-            "Visualize Centrality",
+
             "Hive",
+            "Physics",
+            "Chord",
+            "Bundle",
+            "Visualize Centrality",
             "Community Mixing",
             "Basic",
+            "Lumped Population",
             "Spreadsheet",
-            "Bundle",
             "AdjacencyMatrix",
-            "Chord",
-            "View Source Code"
+            "3D"
+
         ),
     )
 
@@ -1591,20 +1655,20 @@ def main():
         color_code_0,
         sheet,
         popg,
-        hc,
+        hc
     ) = get_frame(threshold)
 
     fig = plt.figure()
     for k, v in color_dict.items():
-        plt.scatter([], [], c=v, label=k, s =350)
-    plt.legend(frameon=False, prop={"size": 35})
+        plt.scatter([], [], c=v, label=k)
+    plt.legend(frameon=False,prop={'size':24})
     fig.tight_layout()
     plt.axis("off")
-    st.sidebar.markdown("Color coding of most plots")
-    #my_expander.markdown(
-    #    """ Excepting for chord and hive, which are time consuming to code"""
-    #)
-    st.sidebar.pyplot(fig)
+    my_expander = st.sidebar.beta_expander("Color coding of most plots")
+    my_expander.markdown(
+        """ Excepting for chord and hive, which are time consuming to code"""
+    )
+    my_expander.pyplot(fig)
     inboth = set(names) & set(ratercodes)
     notinboth = set(names) - set(ratercodes)
     allcodes = set(names) or set(ratercodes)
@@ -1639,6 +1703,7 @@ def main():
                 weight = weight + e["weight"]
                 popg.add_edge(cc[idx], cc[col], weight=weight)
 
+
     first.remove_nodes_from(list(nx.isolates(first)))
     adj_mat = pd.DataFrame(adj_mat_dicts)
     try:
@@ -1655,6 +1720,7 @@ def main():
     adj_mat2 = pd.DataFrame(link)
     adj_mat3 = adj_mat[adj_mat["weight"] != 0]
 
+
     encoded = {v: k for k, v in enumerate(first.nodes())}
     reverse = {v: k for k, v in encoded.items()}
     G = nx.relabel_nodes(first, encoded, copy=True)
@@ -1666,10 +1732,7 @@ def main():
         if not reverse[node_id] in color_code_0.keys():
             color_code_0[reverse[node_id]] = hc[reverse[node_id]]
             reverse[node_id] = hc[reverse[node_id]]
-    if genre == "View Source Code":
-        st.markdown("""https://github.com/russelljjarvis/odor2action""")
 
-        st.markdown("""[mostly in this file](https://github.com/russelljjarvis/odor2action/blob/master/app.py)""")
     if genre == "Visualize Centrality":
 
         my_expander = st.beta_expander("Explanation of Second Hive")
@@ -1679,7 +1742,6 @@ def main():
 			"""
         )
 
-        hub_sort(first, color_code, reverse)
         list_centrality(first)
     if genre == "Spreadsheet":
         st.markdown("Processed anonymized network data that is visualized")
@@ -1695,135 +1757,97 @@ def main():
 
     if genre == "Community Mixing":
         my_expander = st.beta_expander("Explanation of Community Partitions")
-        my_expander.markdown(
-            """Communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the five inferred communities. \
+        my_expander.markdown("""Communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the five inferred communities. \
         For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
         This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities. In otherwords spontaneuosly emerging community groups may be significantly different to formal group assignments.
         The stochastic community detection algorithm uses a differently seeded random number generator every time so the graph appears differently each time the function is called.
         The algorithm is called Louvain community detection. The Louvain Community algorithm detects 5 communities, but only 2 communities with membership >=3. A grey filled convex hull is drawn around each of the two larger communities.
-        """
-        )
+        """)
 
-        community(first, color_code, color_dict)
+        community(first,color_code,color_dict)
     if genre == "3D":
-        my_expander = st.beta_expander("Explanation of different Node sizes for 3D")
-        my_expander.markdown("""Note this visualization uses (a different library) python I-Graph (normally networkx) to determine the betweeness centrality
-        with the interesting consequence that a DCMT node is now second most central""")
-        #g = first
+        g = first
 
-        #links = copy.copy(adj_mat)
-        #links.rename(
-        #    columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
-        #)
-        #links = links[links["value"] != 0]
-        #Edges = [
-        #    (encoded[src], encoded[tgt])
-        #    for src, tgt in zip(links["source"], links["target"])
-        #]
-        #G = ig.Graph(Edges, directed=True)
-        G = ig.Graph.from_networkx(first)#, directed=True)
-
-        layt = G.layout(
-            "kk", dim=3
-        )  # plot network with the Kamada-Kawai layout algorithm
-        estimate = G.betweenness(directed=True)  # , cutoff=16)
-        #H = first.to_undirected()
-
-        #estimate = nx.betweenness_centrality(H)#, k=10, endpoints=True)
-        #estimate = list(estimate.values())
+        links = copy.copy(adj_mat)
+        links.rename(
+            columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
+        )
+        links = links[links["value"] != 0]
+        Edges=[(encoded[src],encoded[tgt]) for src,tgt in zip(links['source'], links['target'])]
+        G = ig.Graph(Edges, directed=True)
+        layt = G.layout('kk', dim=3) # plot network with the Kamada-Kawai layout algorithm
+        estimate = G.betweenness(directed=True)#, cutoff=16)
         ee = []
         for i in estimate:
-            if i == 0:
-                ee.append(30 * 0.45)
+            if i==0:
+                ee.append(20*0.5)
             else:
-                ee.append(i * 0.45)
+                ee.append(i*0.5)
         estimate = ee
-        #widths = []
-        #for e in links["value"]:
-        #    widths.append(1.85 * e)
+        widths = []
+        for e in links['value']:
+            widths.append(1.85*e)
 
-        labels = []
-        group = []
+
+        labels=[]
+        group=[]
+
         human_group = []
 
-        for node in first.nodes:#links["source"]:
-            labels.append(str(node) + str(" ") + str(color_code_0[node]))
-            group.append(color_code[node])
-            human_group.append(color_code_0[node])
 
-        Xn = []
-        Yn = []
-        Zn = []
-        N = len(first.nodes)
+        for node in links['source']:
+           labels.append(str(node)+str(" ")+str(color_code_0[node]))
+           group.append(color_code[node])
+           human_group.append(color_code_0[node])
+
+
+        Xn=[]
+        Yn=[]
+        Zn=[]
+        N=len(g.nodes)
         for k in range(N):
-            Xn += [layt[k][0]]
-            Yn += [layt[k][1]]
-            Zn += [layt[k][2]]
+          Xn+=[layt[k][0]]
+          Yn+=[layt[k][1]]
+          Zn+=[layt[k][2]]
 
-        Xe = []
-        Ye = []
-        Ze = []
-        group2 = []
-        decoded = {v: k for k, v in encoded.items()}
-        for e in G.es:
-            Xe += [layt[e.source][0], layt[e.target][0], None]  # x-coordinates of edge ends
-            Ye += [layt[e.source][1], layt[e.target][1], None]
-            Ze += [layt[e.source][2], layt[e.target][2], None]
-        # ,colorscale='Viridis'
-        #for e in G.es:
-        #    group2.append(color_code[encoded[e.source]])
+        Xe=[]
+        Ye=[]
+        Ze=[]
+        group2=[]
+        decoded = {v:k for k,v in encoded.items()}
+        for e in Edges:
+          group2.append(color_code[decoded[e[0]]])
+          Xe+=[layt[e[0]][0],layt[e[1]][0],None]# x-coordinates of edge ends
+          Ye+=[layt[e[0]][1],layt[e[1]][1],None]
+          Ze+=[layt[e[0]][2],layt[e[1]][2],None]
 
-        trace1 = go.Scatter3d(
-            x=Xe, y=Ye, z=Ze, mode="lines", line=dict(color="black", width=1.9)
-        )  # ,text=labels,hoverinfo='text'))
+        trace1=go.Scatter3d(x=Xe, y=Ye, z=Ze, mode='lines', line=dict(color=group2, width=5))#,text=labels,hoverinfo='text'))
 
-        trace2 = go.Scatter3d(
-            x=Xn,
-            y=Yn,
-            z=Zn,
-            mode="markers",
-            name="Researchers",
-            marker=dict(
-                symbol="circle",
-                color=group,
-                size=estimate,
-                line=dict(color="rgb(50,50,50)", width=2),
-            ),
-            text=labels,
-            hoverinfo="text",
-        )
+        trace2=go.Scatter3d(x=Xn, y=Yn, z=Zn, mode='markers', name='Researchers',
+                           marker=dict(symbol='circle',color=group, size=estimate,colorscale='Viridis',
+                              line=dict(color='rgb(50,50,50)', width=2)),text=labels,hoverinfo='text')
 
-        axis = dict(
-            showbackground=False,
-            showline=False,
-            zeroline=False,
-            showgrid=False,
-            showticklabels=False,
-            title="",
-        )
+        axis=dict(showbackground=False, showline=False, zeroline=False, showgrid=False, showticklabels=False, title='')
 
         layout = go.Layout(
-            title="A 3D Visualization (can be rotated)",
-            width=1200,
-            height=1200,
-            showlegend=False,
-            scene=dict(
-                xaxis=dict(axis),
-                yaxis=dict(axis),
-                zaxis=dict(axis),
-            ),
-        )
+                 title="A 3D Visualization which can be rotated",
+                 width=1200,
+                 height=1200,
+                 showlegend=False,
+                 scene=dict(
+                     xaxis=dict(axis),
+                     yaxis=dict(axis),
+                     zaxis=dict(axis),
+                ))
 
-        data = [trace1, trace2]
+        data=[trace1, trace2]
 
-        fig = go.Figure(data=data, layout=layout)
-        st.write(fig,use_column_width=True)
-
-
+        fig=go.Figure(data=data, layout=layout)
+        st.write(fig)
     if genre == "Physics":
-        physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
+        physics(first, adj_mat_dicts, color_code,color_code_0,color_dict)
 
-    if genre == "Population View":
+    if genre == "Lumped Population":
         population(cc, popg, color_dict)
     if genre == "Hive":
 
@@ -1834,7 +1858,8 @@ def main():
 			are shown which can project externally from their respective groups.
 			"""
         )
-        hive_two(first, color_code, color_code_0, reverse)
+        hive_two(first,color_code,color_code_0,reverse,a)
+
 
     if genre == "Bundle":
         my_expander = st.beta_expander("show labels?")
@@ -1849,133 +1874,139 @@ def main():
             """The graph type below is called edge bundling. "Bundling" connecting cables simplifies the visualization.\n \
 			 Think of it like internet cables which are bundled. Internet backbones connect places far \n \
 			 apart as to economize wiring material. Conservation of wire material is also seen in the nervous system.
-             In the corpus callosum and spinal column convergent paths are constricted into relatively narrower bundles."""
-        )
+             In the corpus callosum and spinal column convergent paths are constricted into relatively narrower bundles.""")
 
         fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
-        st.pyplot(fig4, use_column_width=True)
-    if genre == "cyto":
-        # from ipycytoscape import CytoscapeWidget
-        # cyto = CytoscapeWidget()
-        # cyto.graph.add_graph_from_networkx(first)
-        # st.text(dir(cyto))
-        # components.html(raw_html)
-        # cyto_data = nx.cytoscape_data(first)
-        # cyto_graph = nx.cytoscape_graph(cyto_data)
-        # st.text(type(cyto_graph))
-        # st.text(cyto_data["elements"])
-        # st.text(cyto_data.keys())
-        # st.text(cyto_data['directed'])
-        # st.text(cyto.cytoscape_style)
-        # st.text(cyto.cytoscape_layout)
-        # st.text(color_dict)
-        # st.text(color_code)
+        st.pyplot(fig4)
+    if genre== "cyto":
+        #from ipycytoscape import CytoscapeWidget
+        #cyto = CytoscapeWidget()
+        #cyto.graph.add_graph_from_networkx(first)
+        #st.text(dir(cyto))
+        #components.html(raw_html)
+        #cyto_data = nx.cytoscape_data(first)
+        #cyto_graph = nx.cytoscape_graph(cyto_data)
+        #st.text(type(cyto_graph))
+        #st.text(cyto_data["elements"])
+        #st.text(cyto_data.keys())
+        #st.text(cyto_data['directed'])
+        #st.text(cyto.cytoscape_style)
+        #st.text(cyto.cytoscape_layout)
+        #st.text(color_dict)
+        #st.text(color_code)
 
         G = first
-        pos = nx.fruchterman_reingold_layout(G)
+        pos=nx.fruchterman_reingold_layout(G)
         A = nx.to_pandas_adjacency(first)
         nodes = [
             {
-                "data": {"id": node, "label": node},
-                "position": {"x": 500 * pos[node][0], "y": 500 * pos[node][1]},
-                "color": color_code[node]
+                'data': {'id': node, 'label': node},
+                'position': {'x': 500*pos[node][0], 'y': 500*pos[node][1]},
+                'color':color_code[node]
                 #'locked': 'true'
             }
-            for node in G.nodes
-            if node in color_code
+            for node in G.nodes if node in color_code
         ]
 
         edges = []
         for col in A:
             for row, value in A[col].iteritems():
-                if {"data": {"source": row, "target": col}} not in edges and row != col:
-                    edges.append({"data": {"source": col, "target": row}})
+                if {'data': {'source': row, 'target': col}} not in edges and row != col:
+                    edges.append({'data': {'source': col, 'target': row}})
 
         for edge in edges:
-            edge["data"]["weight"] = (
-                0.1 * A.loc[edge["data"]["source"], edge["data"]["target"]]
-            )
+            edge['data']['weight'] = 0.1*A.loc[edge['data']['source'], edge['data']['target']]
 
         elements1 = nodes + edges
 
-        # from streamlit_cytoscapejs import st_cytoscapejs
 
-        # elements = [{"data":cyto_data['elements']}]
-        # st.text(elements)
+        #from streamlit_cytoscapejs import st_cytoscapejs
+
+        #elements = [{"data":cyto_data['elements']}]
+        #st.text(elements)
 
         import streamlit_bd_cytoscapejs
-
-        elements = elements1  # cyto_data#[{"data":cyto_data['elements']}]
-        # st.text(cyto_data['elements'])
-        layout = {"name": "random"}
-        layout = {"name": "preset"}
-        # grid
-        # circle
-        # concentric
-        # breadthfirst
-        # cose
-        stylesheet = [
-            {"selector": "node", "style": {"label": "data(id)"}},
-            {
-                "selector": "edge",
-                "style": {
-                    # The default curve style does not work with certain arrows
-                    "curve-style": "bezier"
-                },
-            },
-            {
-                "selector": "#BA",
-                "style": {
-                    "source-arrow-color": "red",
-                    "source-arrow-shape": "triangle",
-                    "line-color": "red",
-                },
-            },
-            {
-                "selector": "#DA",
-                "style": {
-                    "target-arrow-color": "blue",
-                    "target-arrow-shape": "vee",
-                    "line-color": "blue",
-                },
-            },
-            {
-                "selector": "#BC",
-                "style": {
-                    "mid-source-arrow-color": "green",
-                    "mid-source-arrow-shape": "diamond",
-                    "mid-source-arrow-fill": "hollow",
-                    "line-color": "green",
-                },
-            },
-            {
-                "selector": "#CD",
-                "style": {
-                    "mid-target-arrow-color": "black",
-                    "mid-target-arrow-shape": "circle",
-                    "arrow-scale": 2,
-                    "line-color": "black",
-                },
-            },
+        elements = elements1#cyto_data#[{"data":cyto_data['elements']}]
+        #st.text(cyto_data['elements'])
+        layout = {'name': 'random'}
+        layout = {'name': 'preset'}
+        #grid
+        #circle
+        #concentric
+        #breadthfirst
+        #cose
+        stylesheet=[{
+            'selector': 'node',
+            'style': {
+                'label': 'data(id)'
+            }
+        },
+        {
+            'selector': 'edge',
+            'style': {
+                # The default curve style does not work with certain arrows
+                'curve-style': 'bezier'
+            }
+        },
+        {
+            'selector': '#BA',
+            'style': {
+                'source-arrow-color': 'red',
+                'source-arrow-shape': 'triangle',
+                'line-color': 'red'
+            }
+        },
+        {
+            'selector': '#DA',
+            'style': {
+                'target-arrow-color': 'blue',
+                'target-arrow-shape': 'vee',
+                'line-color': 'blue'
+            }
+        },
+        {
+            'selector': '#BC',
+            'style': {
+                'mid-source-arrow-color': 'green',
+                'mid-source-arrow-shape': 'diamond',
+                'mid-source-arrow-fill': 'hollow',
+                'line-color': 'green',
+            }
+        },
+        {
+            'selector': '#CD',
+            'style': {
+                'mid-target-arrow-color': 'black',
+                'mid-target-arrow-shape': 'circle',
+                'arrow-scale': 2,
+                'line-color': 'black',
+            }
+        }
         ]
 
         node_id = streamlit_bd_cytoscapejs.st_bd_cytoscape(
-            elements, layout=layout, key="foo"
+            elements,
+            layout=layout,
+            key='foo'
         )
         st.write(node_id)
 
         import dash_cytoscape as cyto
         import dash_html_components as html
 
-        # app = dash.Dash(__name__)
-        # layout = html.Div([
-        cyto.Cytoscape(id="cytoscape", elements=elements, layout={"name": "preset"})
-        # ])
-        # st.text(dir(cyto))
-        # st.write(cyto)
-        # st.text()
-        # st.write(layout.to_plotly_json())
-        # components.html(layout.to_plotly_json())
+        #app = dash.Dash(__name__)
+        #layout = html.Div([
+        cyto.Cytoscape(
+            id='cytoscape',
+            elements=elements,
+            layout={'name': 'preset'}
+            )
+        #])
+        #st.text(dir(cyto))
+        #st.write(cyto)
+        #st.text()
+        #st.write(layout.to_plotly_json())
+        #components.html(layout.to_plotly_json())
 
     if genre == "Basic":
         #'plt.rcParams['legend.title_fontsize'] = 'xx-large'
@@ -2002,7 +2033,8 @@ def main():
         )
         H = first.to_undirected()
 
-        centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
+
+        centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
         edge_thickness = [v * 20000 for v in centrality.values()]
         node_size = [v * 20000 for v in centrality.values()]
 
@@ -2023,6 +2055,7 @@ def main():
         for e in H.edges:
             src = color_code[e[0]]
             srcs.append(src)
+
 
         nx.draw_networkx_nodes(
             H,
@@ -2069,10 +2102,10 @@ def main():
         for k, v in color_dict.items():
             plt.scatter([], [], c=v, label=k)
 
-        plt.legend(frameon=False, prop={"size": 24})
-        # leg = ax.legend()
-        # leg.set_title()
-        st.pyplot(fig, use_column_width=True)
+        plt.legend(frameon=False,prop={'size':24})
+        #leg = ax.legend()
+        #leg.set_title()
+        st.pyplot(fig)
 
     adj_mat = pd.DataFrame(adj_mat_dicts)
     narr = nx.to_pandas_adjacency(first)
@@ -2102,7 +2135,6 @@ def main():
             axis labels. If you look closely at the pixels, pixels vary at double the frequency of the node labels.
 			"""
         )
-        import seaborn as sns
 
         g = sns.clustermap(df2)
         st.pyplot(g)
@@ -2120,7 +2152,6 @@ def main():
 
         columns = list(df2.columns.values)
         rows = list(df2.index)
-        '''
         try:
             figure = dashbio.Clustergram(
                 data=df2.loc[rows].values,
@@ -2135,37 +2166,36 @@ def main():
             st.write(figure)
         except:
             pass
-        '''
     if genre == "Chord":
         # https://docs.bokeh.org/en/0.12.3/docs/gallery/chord_chart.html
-        # from bokeh import Chord
-        # nodes = data['nodes']
-        # links = data['links']
+        #from bokeh import Chord
+        #nodes = data['nodes']
+        #links = data['links']
 
-        # nodes_df = pd.DataFrame(nodes)
-        # links_df = pd.DataFrame(links)
+        #nodes_df = pd.DataFrame(nodes)
+        #links_df = pd.DataFrame(links)
 
-        # source_data = links_df.merge(nodes_df, how='left', left_on='source', right_index=True)
-        # source_data = source_data.merge(nodes_df, how='left', left_on='target', right_index=True)
-        # source_data = source_data[source_data["value"] > 5]
+        #source_data = links_df.merge(nodes_df, how='left', left_on='source', right_index=True)
+        #source_data = source_data.merge(nodes_df, how='left', left_on='target', right_index=True)
+        #source_data = source_data[source_data["value"] > 5]
 
-        # chord_from_df = Chord(source_data, source="name_x", target="name_y", value="value")
-        # st.markdown(""" clicking on a node highlights its direct projections""")
+        #chord_from_df = Chord(source_data, source="name_x", target="name_y", value="value")
+        #st.markdown(""" clicking on a node highlights its direct projections""")
 
         H = first.to_undirected()
-        #T = nx.minimum_spanning_tree(H)
+        T = nx.minimum_spanning_tree(first)
         st.markdown("Betweeness Centrality:")
         st.markdown("Top to bottom node id from most central to least:")
 
-        centrality = nx.betweenness_centrality(H)#, endpoints=True)
+        centrality = nx.betweenness_centrality(H, endpoints=True)
         df = pd.DataFrame([centrality])
         df = df.T
         df.sort_values(0, axis=0, ascending=False, inplace=True)
         bc = df
-        bc.rename(columns={0: "centrality value"}, inplace=True)
+        bc.rename(columns={0:'centrality value'},inplace=True)
         st.write(bc.head())
-        # st.markdown("In degree Centrality:")
-        # st.markdown("Top to bottom node id from most central to least:")
+        #st.markdown("In degree Centrality:")
+        #st.markdown("Top to bottom node id from most central to least:")
 
         temp = pd.DataFrame(first.nodes)
         nodes = hv.Dataset(temp[0])
@@ -2194,81 +2224,80 @@ def main():
             }
         )
         dic_to_sort = {}
-        for i, kk in enumerate(df_nodes["name"]):
+        for i,kk in enumerate(df_nodes["name"]):
             dic_to_sort[i] = color_code_0[k]
 
         t = pd.Series(dic_to_sort)
-        df_nodes["sort"] = t  # pd.Series(df_links.source)
-        df_nodes.sort_values(by=["sort"], inplace=True)
+        df_nodes['sort']=t#pd.Series(df_links.source)
+        df_nodes.sort_values(by=['sort'],inplace=True)
 
         dic_to_sort = {}
-        for i, kk in enumerate(df_links["source"]):
+        for i,kk in enumerate(df_links["source"]):
             k = df_nodes.loc[kk, "name"]
             # st.text(k)
             if k not in color_code_0.keys():
                 color_code_0[k] = "Unknown"
-            df_nodes.loc[kk, "colors"] = color_code_0[k]
+            df_nodes.loc[kk,"colors"] = color_code_0[k]
             dic_to_sort[i] = color_code_0[k]
 
         pd.set_option("display.max_columns", 11)
         hv.extension("bokeh")
         hv.output(size=200)
         t = pd.Series(dic_to_sort)
-        df_links["sort"] = t  # pd.Series(df_links.source)
-        df_links.sort_values(by=["sort"], inplace=True)
-        # df_links['colors'] = None
+        df_links['sort']=t#pd.Series(df_links.source)
+        df_links.sort_values(by=['sort'],inplace=True)
+        #df_links['colors'] = None
         categories = np.unique(df_links["sort"])
         colors = np.linspace(0, 1, len(categories))
         colordicth = dict(zip(categories, colors))
 
         df_links["Color"] = df_links["sort"].apply(lambda x: float(colordicth[x]))
-        # for i,row in df_links.iterrows():
+        #for i,row in df_links.iterrows():
         #    st.text(i)
         #    if row[-1]['sort'] == "IRG 1":
         #        row[-1]
-        # if row[-2] == "IRG 1":
-        # if df_links.loc[i,'sort'] == "IRG 1":
-        # st.text(df_links.loc[i,'sort'])
+            #if row[-2] == "IRG 1":
+                #if df_links.loc[i,'sort'] == "IRG 1":
+                #st.text(df_links.loc[i,'sort'])
 
-        # df_links.loc[i,'colors']
-        # df_nodes["index"] = df_links["Color"]
-        # st.write(df_links)
-        # st.write()
+            #df_links.loc[i,'colors']
+        #df_nodes["index"] = df_links["Color"]
+        #st.write(df_links)
+        #st.write()
 
         # https://geomdata.gitlab.io/hiveplotlib/karate_club.html
         # Todo make hiveplot
         #
-        # st.text(chord.transform)
-        # colors,y = chord.transform(chord,"Color")
-        # st.text(colors)
-        # st.text(dir(chord))
-        # from bokeh.sampledata.les_mis import data
+        #st.text(chord.transform)
+        #colors,y = chord.transform(chord,"Color")
+        #st.text(colors)
+        #st.text(dir(chord))
+        #from bokeh.sampledata.les_mis import data
 
-        # links = pd.DataFrame(data['links'])
-        # nodes = hv.Dataset(pd.DataFrame(data['nodes']), 'index')
-        # hv.Chord((links, nodes)).select(value=(5, None)).opts(
+        #links = pd.DataFrame(data['links'])
+        #nodes = hv.Dataset(pd.DataFrame(data['nodes']), 'index')
+        #hv.Chord((links, nodes)).select(value=(5, None)).opts(
 
-        # st.write(hv.render((chordt), backend="bokeh"))
+        #st.write(hv.render((chordt), backend="bokeh"))
 
-        # st.text(links.head())
-        # st.text(links.tail())
-        # from chord3 import doCircleRibbonGraph
-        # labels = first.nodes
+        #st.text(links.head())
+        #st.text(links.tail())
+        #from chord3 import doCircleRibbonGraph
+        #labels = first.nodes
         colors = df_links["Color"].values
-        # temp = nx.to_pandas_adjacency(first)
-        # temp = temp[temp!=0]
-        # temp = temp[temp!=np.nan]
-        # st.write(temp)
-        # doCircleRibbonGraph(temp, labels, colors, plot_size=400, title="Phd Country")
-        # (matrix, labels, colors, plot_size=400, title="Phd Country")
+        #temp = nx.to_pandas_adjacency(first)
+        #temp = temp[temp!=0]
+        #temp = temp[temp!=np.nan]
+        #st.write(temp)
+        #doCircleRibbonGraph(temp, labels, colors, plot_size=400, title="Phd Country")
+        #(matrix, labels, colors, plot_size=400, title="Phd Country")
         nodes = hv.Dataset(df_nodes, "index")
-        # st.write(nodes)
-        # st.write(df_links)
+        #st.write(nodes)
+        #st.write(df_links)
         df_links["index"] = df_links["Color"]
-        chord = hv.Chord(
-            (df_links, nodes)
-        )  # .opts.Chord(cmap='Category20', edge_color=dim('source').astype(str), node_color=dim('index').astype(str))
-        # .select(value=(5, None))
+        chord = hv.Chord((df_links, nodes))#.opts.Chord(cmap='Category20', edge_color=dim('source').astype(str), node_color=dim('index').astype(str))
+          # .select(value=(5, None))
+
 
         chord.opts(
             opts.Chord(
@@ -2277,17 +2306,18 @@ def main():
                 edge_color=dim("sort").str(),
                 width=350,
                 height=350,
-                labels="Color",
+                labels="Color"
             )
         )
         # st.markdown("Chord layout democratic")
-        # sankey = hv.Sankey(df_links, label='Energy Diagram')
-        # sankey.opts(label_position='left', edge_color='target', node_color='index', cmap='tab20')
+        #sankey = hv.Sankey(df_links, label='Energy Diagram')
+        #sankey.opts(label_position='left', edge_color='target', node_color='index', cmap='tab20')
 
         hv.save(chord, "chord2.html", backend="bokeh")
         HtmlFile2 = open("chord2.html", "r", encoding="utf-8")
         source_code2 = HtmlFile2.read()
         components.html(source_code2, height=750, width=750)
+
 
     def dontdo():
 
@@ -2371,11 +2401,99 @@ def main():
 
 
 if __name__ == "__main__":
-    #import os
-    #os.system("python make_serial_plots0.py")
-    #os.system("python make_serial_plots1.py")
+    threshold=6
+    (
+        df2,
+        names,
+        ratercodes,
+        legend,
+        color_code,
+        color_dict,
+        color_code_0,
+        sheet,
+        popg,
+        hc
+    ) = get_frame(threshold=threshold)
 
-    main()
+    fig = plt.figure()
+    for k, v in color_dict.items():
+        plt.scatter([], [], c=v, label=k)
+    plt.legend(frameon=False,prop={'size':24})
+    fig.tight_layout()
+    plt.axis("off")
+    #my_expander = st.sidebar.beta_expander("Color coding of most plots")
+    #my_expander.markdown(
+    #    """ Excepting for chord and hive, which are time consuming to code"""
+    #)
+    #my_expander.pyplot(fig)
+    inboth = set(names) & set(ratercodes)
+    notinboth = set(names) - set(ratercodes)
+    allcodes = set(names) or set(ratercodes)
+    first = nx.DiGraph()
+
+    for i, row in enumerate(allcodes):
+        if i != 0:
+            if row[0] != 1 and row[0] != 0:
+                first.add_node(row[0], name=row)  # ,size=20)
+    adj_mat_dicts = []
+    conns = {}
+    cc = copy.copy(color_code_0)
+    for i, idx in enumerate(df2.index):
+        for j, col in enumerate(df2.columns):
+            if col not in cc.keys():
+                cc[col] = hc[col]
+            if idx not in color_code_0.keys():
+                cc[col] = hc[col]
+
+    for i, idx in enumerate(df2.index):
+        for j, col in enumerate(df2.columns):
+            weight = float(df2.iloc[i, j])
+            if idx != col:
+                if float(weight) > threshold:
+                    adj_mat_dicts.append({"src": idx, "tgt": col, "weight": weight})
+                    first.add_edge(idx, col, weight=weight)
+
+            if not popg.has_edge(cc[idx], cc[col]):
+                popg.add_edge(cc[idx], cc[col], weight=weight)
+            else:
+                e = popg.get_edge_data(cc[idx], cc[col])
+                weight = weight + e["weight"]
+                popg.add_edge(cc[idx], cc[col], weight=weight)
+
+
+    first.remove_nodes_from(list(nx.isolates(first)))
+    adj_mat = pd.DataFrame(adj_mat_dicts)
+    try:
+        encoded = {v: k for k, v in enumerate(first.nodes())}
+    except:
+        encoded = {v: k for k, v in enumerate(adj_mat.columns)}
+    adj_mat = adj_mat[adj_mat["weight"] != 0]
+
+    link = dict(
+        source=[encoded[i] for i in list(adj_mat["src"].values)],
+        target=[encoded[i] for i in list(adj_mat["tgt"].values)],
+        value=[i * 3 for i in list(adj_mat["weight"].values)],
+    )
+    adj_mat2 = pd.DataFrame(link)
+    adj_mat3 = adj_mat[adj_mat["weight"] != 0]
+
+
+    encoded = {v: k for k, v in enumerate(first.nodes())}
+    reverse = {v: k for k, v in encoded.items()}
+    G = nx.relabel_nodes(first, encoded, copy=True)
+    edges = np.array(G.edges)
+
+    node_ids, degrees = np.unique(edges, return_counts=True)
+
+    for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
+        if not reverse[node_id] in color_code_0.keys():
+            color_code_0[reverse[node_id]] = hc[reverse[node_id]]
+            reverse[node_id] = hc[reverse[node_id]]
+
+    #hub_sort(first,color_code,reverse,a)
+    hive_two(first,color_code,color_code_0,reverse,a)
+
+    #main()
 
 
 def dontdo():

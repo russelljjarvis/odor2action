@@ -2,7 +2,7 @@
 Author: [Russell Jarvis](https://github.com/russelljjarvis)
 
 """
-from community import community_louvain
+#from community import community_louvain
 
 import igraph as ig
 import plotly.graph_objs as go
@@ -63,7 +63,7 @@ import networkx as nx
 
 import xlrd
 import matplotlib.pyplot as plt
-from community import community_louvain
+#from community import community_louvain
 
 
 import dash_bio
@@ -878,7 +878,7 @@ def dont():
 
 
 import matplotlib.patches as patches
-from community import community_louvain
+#from community import community_louvain
 
 # @st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def community(first, color_code, color_dict):

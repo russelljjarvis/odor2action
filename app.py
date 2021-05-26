@@ -1552,7 +1552,7 @@ def main():
     st.sidebar.title("Odor To Action: Collaboration Survey Data")
 
     genre = st.sidebar.radio(
-        "Choose Graph Layout:",
+        "Choose Graph Layout/Option:",
         (
             "Physics",
             "3D",
@@ -1564,7 +1564,8 @@ def main():
             "Spreadsheet",
             "Bundle",
             "AdjacencyMatrix",
-            "Chord"
+            "Chord",
+            "View Source Code"
         ),
     )
 
@@ -1665,7 +1666,8 @@ def main():
         if not reverse[node_id] in color_code_0.keys():
             color_code_0[reverse[node_id]] = hc[reverse[node_id]]
             reverse[node_id] = hc[reverse[node_id]]
-
+    if genre == "View Source Code":
+        st.markdown("""https://github.com/russelljjarvis/odor2action""")
     if genre == "Visualize Centrality":
 
         my_expander = st.beta_expander("Explanation of Second Hive")
@@ -1702,7 +1704,8 @@ def main():
 
         community(first, color_code, color_dict)
     if genre == "3D":
-        st.markdown("""Note this visualization uses (a different library) python I-Graph (normally networkx) to determine the betweeness centrality
+        my_expander = st.beta_expander("Explanation of different Node sizes for 3D")
+        my_expander.markdown("""Note this visualization uses (a different library) python I-Graph (normally networkx) to determine the betweeness centrality
         with the interesting consequence that a DCMT node is now second most central""")
         #g = first
 
@@ -1765,11 +1768,11 @@ def main():
             Ye += [layt[e.source][1], layt[e.target][1], None]
             Ze += [layt[e.source][2], layt[e.target][2], None]
         # ,colorscale='Viridis'
-        for e in G.es:
-            group2.append(color_code[e.source])
+        #for e in G.es:
+        #    group2.append(color_code[encoded[e.source]])
 
         trace1 = go.Scatter3d(
-            x=Xe, y=Ye, z=Ze, mode="lines", line=dict(color=group2, width=1.9)
+            x=Xe, y=Ye, z=Ze, mode="lines", line=dict(color="black", width=1.9)
         )  # ,text=labels,hoverinfo='text'))
 
         trace2 = go.Scatter3d(

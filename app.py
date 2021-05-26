@@ -135,7 +135,9 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     pos_ = nx.spring_layout(graph, scale=2.5, k=0.00015, seed=4572321)
     # node_color = [community_index[n] for n in graph]
     H = graph.to_undirected()
-    centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
+    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+
+    #centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
     node_size = [v * 25000 for v in centrality.values()]
 
     coords = []
@@ -1013,8 +1015,9 @@ def list_centrality(first):
     H = first.to_undirected()
     st.markdown("## Betweeness Centrality:")
     st.markdown("Top to bottom node id from most central to least:")
+    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
 
-    centrality = nx.betweenness_centrality(H)#, endpoints=True)
+    #centrality = nx.betweenness_centrality(H)#, endpoints=True)
     df = pd.DataFrame([centrality])
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
@@ -1114,7 +1117,9 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     )
 
     H = first.to_undirected()
-    centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
+    #centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
+    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+
     edge_thickness = {k: v * 90000000 for k, v in centrality.items()}
     node_size = {k: v * 90000000 for k, v in centrality.items()}
 
@@ -1672,10 +1677,12 @@ def main():
         st.markdown("""[mostly in this file](https://github.com/russelljjarvis/odor2action/blob/master/app.py)""")
     if genre == "Visualize Centrality":
 
-        my_expander = st.beta_expander("Explanation of Second Hive")
+        my_expander = st.beta_expander("Explanation of Centrality Hive")
 
         my_expander.markdown(
-            """This graphically shows network centrality from densely into connected (hub) to sparsely interconnected.
+            """Nodes are layed out from ascending to descending contributions of centrality
+
+            This graphically shows network centrality from densely into connected (hub) to sparsely interconnected.
 			"""
         )
 
@@ -2002,7 +2009,7 @@ def main():
         )
         H = first.to_undirected()
 
-        centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
+        centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
         edge_thickness = [v * 20000 for v in centrality.values()]
         node_size = [v * 20000 for v in centrality.values()]
 
@@ -2156,8 +2163,9 @@ def main():
         #T = nx.minimum_spanning_tree(H)
         st.markdown("Betweeness Centrality:")
         st.markdown("Top to bottom node id from most central to least:")
+        centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
 
-        centrality = nx.betweenness_centrality(H)#, endpoints=True)
+        #centrality = nx.betweenness_centrality(H)#, endpoints=True)
         df = pd.DataFrame([centrality])
         df = df.T
         df.sort_values(0, axis=0, ascending=False, inplace=True)

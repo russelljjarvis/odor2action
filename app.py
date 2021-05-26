@@ -1680,7 +1680,7 @@ def main():
         my_expander = st.beta_expander("Explanation of Centrality Hive")
 
         my_expander.markdown(
-            """Nodes are layed out from ascending to descending contributions of centrality. This shows network centrality from densely inter-connected (hub) to sparsely interconnected leaf.
+            """Using pythons networkx module (not igraph). Nodes are layed out from ascending to descending contributions of centrality. This shows network centrality from densely inter-connected (hub) to sparsely interconnected leaf.
 			"""
         )
 
@@ -1835,8 +1835,11 @@ def main():
         my_expander = st.beta_expander("Explanation of Hive")
 
         my_expander.markdown(
-            """This predominantly shows between group connectivity. The total node number in each category is reduced compared to other graphs, as only nodes
-			are shown which can project externally from their respective groups.
+            """This predominantly shows between group connectivity. The total node number in each category is reduced compared to other graphs.
+
+            Unlike other hive implementations nodes
+			are shown that don't connect outside of their assigned group (eg IRG-1), but they are visualized with no prominent interconnection.
+            Connection within their class (eg IRG-1 is implied by being positioned on a vertical or horizontal axis, which connects all nodes.
 			"""
         )
         hive_two(first, color_code, color_code_0, reverse)
@@ -2169,7 +2172,7 @@ def main():
         df.sort_values(0, axis=0, ascending=False, inplace=True)
         bc = df
         bc.rename(columns={0: "centrality value"}, inplace=True)
-        st.write(bc.head())
+        #st.write(bc.head())
         # st.markdown("In degree Centrality:")
         # st.markdown("Top to bottom node id from most central to least:")
 

@@ -481,11 +481,11 @@ def get_frame(threshold=6):
     df2.groupby(df2.columns, axis=1).sum()
     df2.groupby(level=0, axis=1).sum()
     # df2 = df4
-    store["df2"] = df2  # save it
+    #store["df2"] = df2  # save it
     # st.write(df2)
-    store["names"] = names  # save it
-    store["ratercodes"] = ratercodes  # save it
-    store["legend"] = legend  # save it
+    #store["names"] = names  # save it
+    #store["ratercodes"] = ratercodes  # save it
+    #store["legend"] = legend  # save it
 
     return (
         df2,

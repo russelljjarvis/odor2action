@@ -682,15 +682,28 @@ def population(cc, popg, color_dict):
 
     popgc = copy.copy(popg)
     st.pyplot(fig)
+    st.markdown(""" Networkx is not capable of plotting autopses (self connecting edges onto the same node). A different package dot/agraph can do this""")
     try:
         from networkx.drawing.nx_agraph import to_agraph
 
         dot = to_agraph(popgc)
         dot.layout("dot")
-        st.markdown(""" Schematic View""")
-        st.graphviz_chart(dot.to_string())
+        dot.format = 'png'
+        #from graphviz import Source, render
+
+        #dot.src.render('schematic_view', view=True)
+        string = dot.to_string()
+
+        with open('population.p','wb') as f:
+            pickle.dump(string,f)
+        st.graphviz_chart(string)
+
     except:
-        pass
+        with open('population.p','rb') as f:
+            string = pickle.load(f)
+
+        st.markdown(""" Schematic View""")
+        st.graphviz_chart(string)
 
 
 # from scipy.spatial import ConvexHull, convex_hull_plot_2d
@@ -1109,6 +1122,35 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     phys_ = my_expander.radio(
         "Would you like to change physical parameters?", ("No", "Yes")
     )
+
+    #my_expander = st.sidebar.beta_expander("Explanation of Threshold")
+    my_expander2 = st.beta_expander("Explanation")
+
+    my_expander2.markdown(
+    """
+    The basic force directed layout
+    Qoute from wikipedia:
+    'Force-directed graph drawing algorithms assign forces among the set of edges and the set of nodes of a graph drawing. Typically, spring-like attractive forces based on Hooke's law are used to attract pairs of endpoints of the graph's edges towards each other, while simultaneously repulsive forces like those of electrically charged particles based on Coulomb's law are used to separate all pairs of nodes. In equilibrium states for this system of forces, the edges tend to have uniform length (because of the spring forces), and nodes that are not connected by an edge tend to be drawn further apart (because of the electrical repulsion). Edge attraction and vertex repulsion forces may be defined using functions that are not based on the physical behavior of springs and particles; for instance, some force-directed systems use springs whose attractive force is logarithmic rather than linear.'
+    \n
+    https://en.wikipedia.org/wiki/Force-directed_graph_drawing \n
+    What this means is conflicting forces of attraction, and repulsion determine node position.
+    node centrality does not necessarily determine a central position.
+    Also nodes can be central because of high in-degree out-degree or both.\n
+
+    Fruchterman, Thomas M. J.; Reingold, Edward M. (1991), "Graph Drawing by Force-Directed Placement", Software – Practice & Experience, Wiley, 21 (11): 1129–1164, doi:10.1002/spe.4380211102.
+
+    [LC Freeman A set of Measures of Betweeness (1977)](https://www.jstor.org/stable/pdf/3033543.pdf?casa_token=TzgYRJHfiYwAAAAA:r_8UKsxHRT7GRzoZ1OXwhJpzBbalTBYbG53me2fyMgZOvHnS9XM5TGB5yusfk5mCzQqXz4exAEFUcKXZ8I5ciIlU2dGpADzDfMu4Zm0rdA65G_ZzzJGo)
+    [Analyzing the Structure of
+    the Centrality-Productivity Literature
+    Created Between 1948 and 1979](https://journals.sagepub.com/doi/pdf/10.1177/107554709001100405?casa_token=49LZA0RLipUAAAAA:nP4ZKyjVjgiuskFOE1540eeixMGwt0mW8-2VNCzfdV0IoRYFWSsrQLXTZAVWulawQqJ9A4XcND--Sw)\n
+    Exploring network structure, dynamics, and function using NetworkX
+    A Hagberg, P Swart, DS Chult - 2008 - osti.gov
+    … NetworkX is a Python package for exploration and analysis of networks and network algorithms …
+    NetworkX Python libraries to extend the avail- able functionality with interfaces to well-tested
+    numerical and statis- tical libraries written in C. C++ and FORTRAN …
+      Cited by 3606 Related articles
+    """)
+
     pos = nx.get_node_attributes(first, "pos")
     # fig = plt.figure()
     d = nx.degree(first)
@@ -1568,7 +1610,7 @@ def nope():
             "Visualize Centrality",
             "Bundle",
             "Basic",
-            "Population View",
+            "Population",
             "Spreadsheet",
             "AdjacencyMatrix",
         ),
@@ -1707,7 +1749,7 @@ def main():
         (
             "Physics",
             "3D",
-            "Population View",
+            "Population",
             "Visualize Centrality",
             "Hive",
             "Community Mixing",
@@ -2072,10 +2114,10 @@ def main():
     if genre == "Physics":
         physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
 
-    if genre == "Population View":
+    if genre == "Population":
         my_expander = st.beta_expander("Explanation of population")
         my_expander.markdown(
-            """Here node size does not reflect centrality or connectivity. Node size reflects number of participants in group, therefore DCMT is small, but it is not sparsely connected (it is densely connected) as you can see in 3D"""
+            """Here node size does not reflect centrality or connectivity. Node size reflects number of participants in group, therefore DCMT is small because it consists of just two members. Likewise ribbon width is """
         )
 
         population(cc, popg, color_dict)
@@ -2259,6 +2301,8 @@ def main():
             What this means is conflicting forces of attraction, and repulsion determine node position.
             node centrality does not necessarily determine a central position.
             Also nodes can be central because of high in-degree out-degree or both.
+
+            [LC Freeman A set of Measures of Betweeness (1977)](https://www.jstor.org/stable/pdf/3033543.pdf?casa_token=TzgYRJHfiYwAAAAA:r_8UKsxHRT7GRzoZ1OXwhJpzBbalTBYbG53me2fyMgZOvHnS9XM5TGB5yusfk5mCzQqXz4exAEFUcKXZ8I5ciIlU2dGpADzDfMu4Zm0rdA65G_ZzzJGo)
             """
         )
         H = first.to_undirected()

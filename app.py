@@ -663,15 +663,15 @@ def population(cc, popg, color_dict):
         # set the node name as the key and the label as its value
         labels[node] = node
 
-    for k, v in labels.items():
-        plt.scatter([], [], c=color_dict[v], label=k)
-    plt.legend(frameon=False, prop={"size": 34})
+    #for k, v in labels.items():
+    #    plt.scatter([], [], c=color_dict[v], label=k)
+    #plt.legend(frameon=False, prop={"size": 34})
 
     popgc = copy.copy(popg)
     st.pyplot(fig)
 
     my_expander = st.beta_expander("Explanation of second population Graph")
-    second = my_expander.radio("Would you like to label nodes?", ("No", "Yes"))
+    second = my_expander.radio("Explanation", ("Yes", "No"))
     if second == "Yes":
         my_expander.markdown(""" Networkx is not capable of plotting autopses (self connecting edges onto the same node). A different package dot/agraph can do this""")
     try:

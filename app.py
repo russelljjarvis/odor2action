@@ -650,19 +650,6 @@ def population(cc, popg, color_dict):
         ee = popg.get_edge_data(e[0], e[1])
         widths.append(ee["weight"] * 0.02)
 
-    # nx.draw_networkx_edges(G, pos, edgelist=edgelist, arrowstyle="<|-", style="dashed")
-    def dontdo():
-        """
-        nx.draw_networkx_edges(
-            popg,
-            pos=pos,
-            edgelist=edge_list,
-            edge_color=edge_colors,
-            alpha=0.70,
-            width=widths,
-            arrowstyle="<|-"
-        )
-        """
 
     ax = plt.gca()
     draw_network(popg, pos, ax, widths, edge_colors)
@@ -682,7 +669,11 @@ def population(cc, popg, color_dict):
 
     popgc = copy.copy(popg)
     st.pyplot(fig)
-    st.markdown(""" Networkx is not capable of plotting autopses (self connecting edges onto the same node). A different package dot/agraph can do this""")
+
+    my_expander = st.beta_expander("Explanation of second population Graph")
+    second = my_expander.radio("Would you like to label nodes?", ("No", "Yes"))
+    if second == "Yes":
+        my_expander.markdown(""" Networkx is not capable of plotting autopses (self connecting edges onto the same node). A different package dot/agraph can do this""")
     try:
         from networkx.drawing.nx_agraph import to_agraph
 
@@ -702,7 +693,6 @@ def population(cc, popg, color_dict):
         with open('population.p','rb') as f:
             string = pickle.load(f)
 
-        st.markdown(""" Schematic View""")
         st.graphviz_chart(string)
 
 

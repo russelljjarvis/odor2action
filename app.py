@@ -453,6 +453,7 @@ def get_frame(transpose=False,threshold=6):
     del df3[1]
 
     df3.drop(0, inplace=True)
+    #st.write(df3)
     #df3.drop(1, inplace=True)
 
     #df3.rename(columns=to_rename, inplace=True)
@@ -488,6 +489,7 @@ def get_frame(transpose=False,threshold=6):
     #st.text(to_rename_ind)
     df2.rename(index=to_rename_ind, inplace=True)
     df2.rename(columns=to_rename, inplace=True)
+    df2.fillna(0,inplace=True)
 
     #df2.loc[1,"02P1"] = "Occasionally but substantively"
 
@@ -1297,7 +1299,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
                         + str(node["id"])
                         + "<br> it's membership is "
                         + str(color_code_0[node["id"]])
-                        + " It's neighbors are:<br>"
+                        + "<br> It's neighbors are:<br>"
                         + "<br>".join(neighbor_map[node["id"]])
                     )
                 else:
@@ -2186,7 +2188,7 @@ def main():
     if genre == "Population":
         my_expander = st.beta_expander("Explanation of population")
         my_expander.markdown(
-            """Here node size does not reflect centrality or connectivity. Node size reflects number of participants in group, therefore DCMT is small because it consists of just two members. Likewise ribbon width is """
+            """Here node size does not reflect centrality or connectivity. Node size reflects number of participants in group, therefore DCMT is small because it consists of just two members. Likewise ribbon width is the total sum of weighted connections between groups."""
         )
 
         population(cc, popg, color_dict)

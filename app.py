@@ -703,6 +703,12 @@ def population(cc, popg, color_dict):
         alpha=0.6,
         linewidths=2,
     )
+    #if labelsx:
+    #    labels = {}
+    #    for node in temp.nodes():
+            # set the node name as the key and the label as its value
+    #        labels[node] = node
+    #    nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
 
     widths = []  # [e["weight"] for e in popg.edges]
     # st.text(widths)
@@ -718,10 +724,6 @@ def population(cc, popg, color_dict):
 
     ax = plt.gca()
     draw_network(popg, pos, ax, widths, edge_colors)
-    ax.autoscale()
-    plt.axis("equal")
-    plt.axis("off")
-
     # labels = {v.name:v for v,v in popg.nodes}
     labels = {}
     for node in popg.nodes():
@@ -731,14 +733,21 @@ def population(cc, popg, color_dict):
     #for k, v in labels.items():
     #    plt.scatter([], [], c=color_dict[v], label=k)
     #plt.legend(frameon=False, prop={"size": 34})
+    ax.margins(0.1, 0.1)
 
     popgc = copy.copy(popg)
-    st.pyplot(fig)
+    ax.autoscale()
+    plt.axis("equal")
+    plt.axis("off")
+    plt.tight_layout()
 
-    my_expander = st.beta_expander("Explanation of second population Graph")
-    second = my_expander.radio("Explanation", ("Yes", "No"))
-    if second == "Yes":
-        my_expander.markdown(""" Networkx is not capable of plotting autopses (self connecting edges onto the same node). A different package dot/agraph can do this""")
+
+    st.pyplot(fig,use_column_width=True)
+
+    #my_expander = st.beta_expander("Explanation of second population Graph")
+    #second = my_expander.radio("Explanation", ("Yes", "No"))
+    #if second == "Yes":
+    #    my_expander.markdown(""" Networkx is not capable of plotting autopses (self connecting edges onto the same node). A different package dot/agraph can do this""")
 
     def notnow():
         try:
@@ -1920,7 +1929,15 @@ def main():
             """Using pythons networkx module (not igraph). Nodes are layed out from ascending to descending contributions of centrality. This shows network centrality from densely inter-connected (hub) to sparsely interconnected leaf.
 			"""
         )
+        try:
+            import os
+            if transpose:
+                os.system('python make_serial_transpose.py')
 
+            else:
+                os.system('python make_serial_plots1.py')
+        except:
+            pass
         hub_sort(first, color_code, reverse)
         list_centrality(first)
     if genre == "Spreadsheet":
@@ -1936,8 +1953,10 @@ def main():
         my_expander.table(sheet)
         my_expander = st.beta_expander("Verify Person By Code")
         user_input = my_expander.text_input("enter anonymos code", "02P1")
-
-        my_expander.table(df2[user_input])
+        try:
+            my_expander.write(df2[user_input])
+        except:
+            st.warning("This user has not participated in survey, but people have answered questions about them")
 
     if genre == "Community Mixing":
         my_expander = st.beta_expander("Explanation of Community Partitions")

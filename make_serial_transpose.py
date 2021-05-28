@@ -140,8 +140,6 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     # node_color = [community_index[n] for n in graph]
     H = graph.to_undirected()
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
-
-    # centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
     node_size = [v * 25000 for v in centrality.values()]
 
     coords = []
@@ -335,7 +333,7 @@ import copy
 
 # @st.cache(persist=True)
 # @st.cache(allow_output_mutation=True)
-def get_frame(transpose=False,threshold=6):
+def get_frame(transpose=True,threshold=6):
 
     # with shelve.open("fast_graphs_splash.p") as store:
     # flag = "df" in store
@@ -940,7 +938,7 @@ def dont():
 
 
 import matplotlib.patches as patches
-#from community import community_louvain
+from community import community_louvain
 
 # @st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def community(first, color_code, color_dict):
@@ -1410,16 +1408,16 @@ def hub_sort(first, color_code_1, reverse, a):
                 stroke_width=0.1,
                 fill_opacity=0.65,
             )
-            if axis.angle < 180:
+            if axis.angle != 360-90:
                 orientation = -1  # 1#-1
-                scale = 8.5
+                scale = 18.5
             else:
-                orientation = 1
-                scale = 1.5
+                orientation = -1
+                scale = 6.5
 
-                if axis.angle < 5 or axis.angle > 355:
-                    orientation = 1
-                    scale = 7.5
+                #if axis.angle < 5 or axis.angle > 355:
+                #    orientation = 1
+                #    scale = 7.5
             # also add a label
             node.add_label(
                 "{0}".format(v), angle=axis.angle + 90 * orientation, scale=scale
@@ -1443,7 +1441,7 @@ def hub_sort(first, color_code_1, reverse, a):
 
     import os
 
-    os.system("rm ba_hiveplot.svg")
+    #os.system("rm ba_hiveplot.svg")
     h.save(str(a) + "ba_hiveplot.svg")
     del h
     h = None
@@ -1463,7 +1461,7 @@ def hub_sort(first, color_code_1, reverse, a):
     lines = None
     del line_string
     del lines
-    os.system("rm ba_hiveplot.svg")
+    #os.system("rm ba_hiveplot.svg")
     # from streamlit import caching
 
     # caching.clear_cache()
@@ -2555,7 +2553,7 @@ if __name__ == "__main__":
         sheet,
         popg,
         hc,
-    ) = get_frame(threshold=threshold)
+    ) = get_frame(transpose=True,threshold=threshold)
 
     fig = plt.figure()
     for k, v in color_dict.items():
@@ -2630,8 +2628,8 @@ if __name__ == "__main__":
             color_code_0[reverse[node_id]] = hc[reverse[node_id]]
             reverse[node_id] = hc[reverse[node_id]]
 
-    # hub_sort(first,color_code,reverse,a)
-    hive_two(first, color_code, color_code_0, reverse, a)
+    hub_sort(first, color_code, reverse, a)
+    # hive_two(first,color_code,color_code_0,reverse,a)
 
     # main()
 

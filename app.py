@@ -1115,7 +1115,7 @@ def list_centrality(first):
     H = first.to_undirected()
     st.markdown("## Betweeness Centrality:")
     st.markdown("Top to bottom node id from most central to least:")
-    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+    centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
 
     # centrality = nx.betweenness_centrality(H)#, endpoints=True)
     df = pd.DataFrame([centrality])
@@ -1126,11 +1126,11 @@ def list_centrality(first):
     bc = df
     st.markdown("### Most Connected:")
     st.write(bc.head())
-    st.text("...")
-    st.markdown("### Least Connected:")
-    st.write(bc.tail())
+    #st.text("...")
+    #st.markdown("### Least Connected:")
+    #st.write(bc.tail())
 
-    st.markdown("## In degree Centrality: (percieved listeners/high authority)")
+    st.markdown("## In degree Centrality:")#" (percieved listeners/high authority)")
     st.markdown("Top to bottom node id from most central to least:")
 
     centrality = nx.in_degree_centrality(first)
@@ -1141,14 +1141,13 @@ def list_centrality(first):
     st.markdown("### Biggest Listeners:")
 
     st.write(df.head())
-    st.text("...")
-    st.markdown("### Least Listening:")
+    #st.text("...")
+    #st.markdown("### Least Listening:")
 
-    st.write(df.tail())
+    #st.write(df.tail())
 
-    st.markdown(
-        "## Out-degree Centrality (percieved talkers), read from top to bottom from most central to least:"
-    )
+    st.markdown("## Out-degree Centrality (percieved talkers)")#, read from top to bottom from most central to least:"
+    #)
 
     centrality = nx.out_degree_centrality(first)
     df = pd.DataFrame([centrality])
@@ -1158,10 +1157,10 @@ def list_centrality(first):
     st.markdown("### Biggest Talkers:")
 
     st.write(df.head())
-    st.text("...")
-    st.markdown("### Least Talkative:")
+    #st.text("...")
+    #st.markdown("### Least Talkative:")
 
-    st.write(df.tail())
+    #st.write(df.tail())
 
     # bc = df
     # st.table(df)

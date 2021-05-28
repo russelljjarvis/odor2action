@@ -119,6 +119,10 @@ def generate_sankey_figure(
 
     # return fig
 
+#def fix():
+#02P1 missing
+#13P1 IRG3 leader. Currently Blue should be green.
+# move from IRG1 to IRG3
 
 # @st.cache
 # @st.cache(suppress_st_warning=True)
@@ -330,7 +334,7 @@ import copy
 
 # @st.cache(persist=True)
 # @st.cache(allow_output_mutation=True)
-def get_frame(threshold=6):
+def get_frame(transpose=False,threshold=6):
 
     # with shelve.open("fast_graphs_splash.p") as store:
     # flag = "df" in store
@@ -360,40 +364,38 @@ def get_frame(threshold=6):
     worksheet1 = wb_obj1.active
 
     df3 = pd.DataFrame(worksheet0.values)
-    df2 = pd.DataFrame(worksheet1.values)
+    df3.fillna("Barely or never",inplace=True)
 
-    df2 = pd.concat([df3, df2])
+    df2 = pd.DataFrame(worksheet1.values)
+    df2.fillna("Barely or never",inplace=True)
+
+    #st.write(df2[112])
+
+    #df3 = df3.values[1::]
+    #st.write(df3)
+    #df2 = pd.merge(df2, df3)#],axis=0)#,inplace=True)
+
+    #st.write(df3)
+
     sheet = copy.copy(df2)
     hc = {
         k: str("IRG ") + str(v) for k, v in zip(hard_codes[0][1::], hard_codes[1][1::])
     }
+    hc["13P1"] = "IRG 3"
     hc1 = {k: "DCMT" for k, v in hc.items() if v == "IRG DCMT"}
-    # st.text(hc1)
+
     hc.update(hc1)
     hc.pop("Code", None)
-
-    # st.text(hc)
     color_code_0 = {k: v for k, v in zip(df2[0], df2[1]) if k not in "Rater Code"}
-    # st.text(hc)
-    # st.text(color_code_0)
     color_code_0.update(hc)
-
-    # st.write(color_code_0)
-
-    # for i, (node_id, degree) in enumerate(zip(node_ids, degrees)):
-    #    if not reverse[node_id] in color_code_0.keys():
-    #        color_code_0[reverse[node_id]] = hc[reverse[node_id]]
-    #        reverse[node_id] = hc[reverse[node_id]]
-    # ➜  ~ change yellow to red
-    # ➜  ~ change orange to purple
 
     # Ribbon color code needs to labeled as to or from.
     # source or target.
 
     color_dict = {
-        "IRG 3": "green",
         "IRG 1": "blue",
         "IRG 2": "red",
+        "IRG 3": "green",
         "DCMT": "purple",
     }
     color_code_1 = {}
@@ -410,7 +412,10 @@ def get_frame(threshold=6):
     row_names = list(df2.T[0].values)
     row_names.append(list(df2.T[0].values)[-1])
     row_names = row_names[2::]
-    names = [rn[0].split("- ") for rn in row_names]
+    #st.text(row_names)
+    names = [rn.split("- ") for rn in row_names]
+    #st.text(names)
+
     names2 = []
     for i in names:
         if len(i) == 2:
@@ -418,24 +423,81 @@ def get_frame(threshold=6):
         else:
             names2.append(i)
     names = names2
-    for nm in names:
-        if nm not in color_code_1.keys():
-            color_code_1[nm] = "black"
+    #st.text(names)
+    #for nm in names:
+    #    if nm not in color_code_1.keys():
+    #        color_code_1[nm] = "black"
 
-    row_names = list(range(0, len(df2.columns) + 1, 1))
-    to_rename = {k: v for k, v in zip(row_names, names)}
     r_names = list(df2.index.values[:])
 
     to_rename_ind = {v: k for k, v in zip(df2[0], r_names)}
+
+    row_names = list(range(0, len(df2.columns) + 1, 1))
+    to_rename = {k: v for k, v in zip(row_names, names)}
+    #df2.rename(columns={"113":"02P1"},inplace=True)
+    to_rename[113] = "12P2"
+    #st.text(to_rename)
+
     del df2[0]
     del df2[1]
     # del df2[112]
-    del df2[113]
+    #del df2[113]
     df2.drop(0, inplace=True)
-    df2.drop(1, inplace=True)
+    #df2.drop(1, inplace=True)
 
-    df2.rename(columns=to_rename, inplace=True)
+
+
+    #st.text(df2)
+
+    del df3[0]
+    del df3[1]
+
+    df3.drop(0, inplace=True)
+    #df3.drop(1, inplace=True)
+
+    #df3.rename(columns=to_rename, inplace=True)
+    #df3.rename(index=to_rename_ind, inplace=True)
+    #st.write(df3)
+    #st.text(df2.shape)
+    df2 = pd.concat([df3, df2],axis=0)#,inplace=True)
+    #st.text(df2.shape)
+    #st.write(df2)
+
+    #    for i, idx in enumerate(df2.index):
+    #        for j, col in enumerate(df2.columns):
+    #            weight = float(df2.iloc[i, j])
+
+    #legend.update({"Never": 0.0})
+    #legend.update({"Barely or never": 1})
+    #legend.update({"Occasionally in a minor way": 2})
+    #legend.update({"Less than once a month": 3})
+    #legend.update({"More than once a month (But not weekly)": 4})
+    #legend.update({"Occasionally but substantively": 5})
+    #legend.update({"More than twice a week": 6})
+    #legend.update({"Often": 7})
+    #legend.update({"Much or all of the time": 8})
+    #legend.update({"1-2 times a week": 9.0})
+    #df2.loc[1,111] = "Barely or never"
+
+    #try:
+    #    st.text(df2.loc[:,"02P1"])
+    #except:
+    #    st.text(df2.loc["02P1",:])
+
+        #pass
+    #st.text(to_rename_ind)
     df2.rename(index=to_rename_ind, inplace=True)
+    df2.rename(columns=to_rename, inplace=True)
+
+    #df2.loc[1,"02P1"] = "Occasionally but substantively"
+
+    #st.write(df2['02P1'])
+
+    #st.write(df2)
+    #st.write(df2['12P2'])
+
+    #df2.at[1, '12P2'] = "Occasionally but substantively"
+
     unk = []
 
     for col in df2.columns:
@@ -476,8 +538,11 @@ def get_frame(threshold=6):
     df2.replace({"1-2 times a week": 9.0}, inplace=True)
 
     # This sums columns under the same name
-    df2.groupby(df2.columns, axis=1).sum()
-    df2.groupby(level=0, axis=1).sum()
+    df2 = df2.groupby(df2.columns, axis=1).sum()
+    df2 = df2.groupby(level=0, axis=1).sum()
+    if transpose:
+        df2 = df2.T
+    #st.write(df2["02P1"])
     # df2 = df4
     # store["df2"] = df2  # save it
     # st.write(df2)
@@ -674,26 +739,28 @@ def population(cc, popg, color_dict):
     second = my_expander.radio("Explanation", ("Yes", "No"))
     if second == "Yes":
         my_expander.markdown(""" Networkx is not capable of plotting autopses (self connecting edges onto the same node). A different package dot/agraph can do this""")
-    try:
-        from networkx.drawing.nx_agraph import to_agraph
 
-        dot = to_agraph(popgc)
-        dot.layout("dot")
-        dot.format = 'png'
-        #from graphviz import Source, render
+    def notnow():
+        try:
+            from networkx.drawing.nx_agraph import to_agraph
 
-        #dot.src.render('schematic_view', view=True)
-        string = dot.to_string()
+            dot = to_agraph(popgc)
+            dot.layout("dot")
+            dot.format = 'png'
+            #from graphviz import Source, render
 
-        with open('population.p','wb') as f:
-            pickle.dump(string,f)
-        st.graphviz_chart(string)
+            #dot.src.render('schematic_view', view=True)
+            string = dot.to_string()
 
-    except:
-        with open('population.p','rb') as f:
-            string = pickle.load(f)
+            with open('population.p','wb') as f:
+                pickle.dump(string,f)
+            st.graphviz_chart(string)
 
-        st.graphviz_chart(string)
+        except:
+            with open('population.p','rb') as f:
+                string = pickle.load(f)
+
+            st.graphviz_chart(string)
 
 
 # from scipy.spatial import ConvexHull, convex_hull_plot_2d
@@ -1140,14 +1207,34 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     numerical and statis- tical libraries written in C. C++ and FORTRAN …
       Cited by 3606 Related articles
     """)
+    my_expander = st.beta_expander("Mouse over node info?")
 
+    mo_ = my_expander.radio("Toggle Mouse overs?", ("Yes", "No"))
+    if mo_ == "Yes":
+        mo = True
+    else:
+        mo = False
+    # labels = False
+    if phys_ == "Yes":
+        nt.show_buttons(filter_=["physics"])
+
+    #if mo_=="Yes" and phys_=="No":
+        #st.markdown("hit")
+    #    HtmlFile = open("test1.html", "r", encoding="utf-8")
+    #    source_code = HtmlFile.read()
+
+        #try:
+        #    with open('physic.p','rb') as f:
+        #        result = pickle.load(f)
+        #except:
+    #    result = components.html(source_code, height=750, width=750)  # ,use_column_width=True)
+    #    with open('physic.p','wb') as f:
+    #        pickle.dump(f,result)
+    #else:
+    #st.warning("Warning: Toggling option forces a random re-initialization of the visualization")
     pos = nx.get_node_attributes(first, "pos")
     # fig = plt.figure()
-    d = nx.degree(first)
-    temp = first.to_undirected()
-    cen = nx.betweenness_centrality(temp)
-    d = [((cen[node] + 1) * 5000000) for node in first.nodes()]
-    G = first  # ead_graph()
+    #G = first  # ead_graph()
 
     nt = Network(
         notebook=True,
@@ -1160,7 +1247,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     nt = Network("700px", "700px", notebook=True)
 
     nt.barnes_hut()
-    nt.from_nx(G)
+    nt.from_nx(first)
 
     adj_mat = pd.DataFrame(adj_mat_dicts)
     edge_data = zip(
@@ -1176,6 +1263,11 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     edge_thickness = {k: v * 90000000 for k, v in centrality.items()}
     node_size = {k: v * 90000000 for k, v in centrality.items()}
 
+    #d = nx.degree(first)
+    #temp = first.to_undirected()
+    #cen = nx.betweenness_centrality(temp)
+    #d = [((cen[node] + 1) * 5000000) for node in first.nodes()]
+
     for e in edge_data:
         src = e[0]
         dst = e[1]
@@ -1186,16 +1278,6 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         nt.add_edge(src, dst, value=w)
 
     neighbor_map = nt.get_adj_list()
-    my_expander = st.beta_expander("Mouse over node info?")
-
-    mo_ = my_expander.radio("Toggle Mouse overs?", ("Yes", "No"))
-    if mo_ == "Yes":
-        mo = True
-    else:
-        mo = False
-    # labels = False
-    if phys_ == "Yes":
-        nt.show_buttons(filter_=["physics"])
 
     # add neighbor data to node hover data
     for node in nt.nodes:
@@ -1225,27 +1307,13 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
             node["size"] = 92500.0 * node_size[node["id"]]
         node["label"] = str(node["id"])
         node["value"] = len(neighbor_map[node["id"]])
-        # st.text(node["id"])
-        # st.text(color_code.keys())
         if node["id"] in color_code.keys():
             node["color"] = color_code[node["id"]]
-        # else:
-        # 	st.text(node["id"])
-        # if not labels:
-        # node["borderWidth"] = 10
-        # node["borderWidthSelected"] = 20
-    # nt.show()
     nt.show("test1.html")
     HtmlFile = open("test1.html", "r", encoding="utf-8")
     source_code = HtmlFile.read()
     components.html(source_code, height=750, width=750)  # ,use_column_width=True)
-    # fig = plt.figure()
-    # fig, ax = plt.subplots(figsize=(3, 3))
 
-    # for k, v in color_dict.items():
-    #    plt.scatter([], [], c=v, label=k)
-    # plt.legend(frameon=False, prop={"size": 4.0})
-    # st.pyplot(fig)
     if phys_ == "Yes":
         from PIL import Image
 
@@ -1588,25 +1656,6 @@ def no_thanks():
     fig, ax = hive_plot_viz_mpl(hive_plot=hp)
     st.pyplot(fig)
 
-
-def nope():
-
-    genre = st.sidebar.radio(
-        "Prefered graph layout?",
-        (
-            "Hive",
-            "Chord",
-            "Physics",
-            "Visualize Centrality",
-            "Bundle",
-            "Basic",
-            "Population",
-            "Spreadsheet",
-            "AdjacencyMatrix",
-        ),
-    )
-
-
 import networkx as nx
 import numpy as np
 from scipy import integrate
@@ -1731,6 +1780,19 @@ def disparity_filter_alpha_cut(G,weight='weight',alpha_t=0.4, cut_mode='or'):
                 B.add_edge(u,v, weight=w[weight])
         return B
 def main():
+    # full range.
+    #"Physics",
+    #"3D",
+    #"Population",
+    #"Visualize Centrality",
+    #"Hive",
+    #"Community Mixing",
+    #"Basic",
+    #"Spreadsheet",
+    #"Bundle",
+    #"AdjacencyMatrix",
+    #"Chord",
+    #"View Source Code",
 
     st.sidebar.title("Odor To Action: Collaboration Survey Data")
 
@@ -1738,17 +1800,9 @@ def main():
         "Choose Graph Layout/Option:",
         (
             "Physics",
-            "3D",
             "Population",
             "Visualize Centrality",
-            "Hive",
-            "Community Mixing",
-            "Basic",
             "Spreadsheet",
-            "Bundle",
-            "AdjacencyMatrix",
-            "Chord",
-            "View Source Code",
         ),
     )
 
@@ -1762,6 +1816,9 @@ def main():
 		setting a minimum meaningful level of \n communication collaboration, \
 		The higher the threshold the more you \n reduce connections"""
     )
+    my_expander = st.beta_expander("Toggle Transpose collaboration sources <-> targets")
+    transpose = my_expander.radio("source/target",(False,True))
+
     my_expander = st.beta_expander("Set threshold")
     threshold = my_expander.slider("Select a threshold value", 0.0, 8.0, 5.0, 1.0)
     (
@@ -1775,7 +1832,7 @@ def main():
         sheet,
         popg,
         hc,
-    ) = get_frame(threshold)
+    ) = get_frame(transpose,threshold)
 
     fig = plt.figure()
     for k, v in color_dict.items():
@@ -1828,7 +1885,7 @@ def main():
         encoded = {v: k for k, v in enumerate(first.nodes())}
     except:
         encoded = {v: k for k, v in enumerate(adj_mat.columns)}
-    adj_mat = adj_mat[adj_mat["weight"] != 0]
+    #adj_mat = adj_mat[adj_mat["weight"] != 0]
 
     link = dict(
         source=[encoded[i] for i in list(adj_mat["src"].values)],
@@ -1877,12 +1934,16 @@ def main():
         my_expander.table(df2)
         my_expander = st.beta_expander("Collapsed/Expand Raw Spread sheet")
         my_expander.table(sheet)
+        my_expander = st.beta_expander("Verify Person By Code")
+        user_input = my_expander.text_input("enter anonymos code", "02P1")
+
+        my_expander.table(df2[user_input])
 
     if genre == "Community Mixing":
         my_expander = st.beta_expander("Explanation of Community Partitions")
         my_expander.markdown(
-            """Communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the five inferred communities. \
-        For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes are color coded IRG-1-3 \n \
+            """Communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the four inferred communities. \
+        For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes (dots) are color coded IRG-1-3 \n \
         This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities. In otherwords spontaneuosly emerging community groups may be significantly different to formal group assignments.
         The stochastic community detection algorithm uses a differently seeded random number generator every time so the graph appears differently each time the function is called.
         The algorithm is called Louvain community detection. The Louvain Community algorithm detects 5 communities, but only 2 communities with membership >=3. A grey filled convex hull is drawn around each of the two larger communities.

@@ -1128,7 +1128,7 @@ def list_centrality(first):
     H = first.to_undirected()
     st.markdown("## Betweeness Centrality:")
     st.markdown("Top to bottom node id from most central to least:")
-    centrality = nx.betweenness_centrality(H)  # , k=10, endpoints=True)
+    centrality = nx.betweenness_centrality(H, endpoints=True)
 
     # centrality = nx.betweenness_centrality(H)#, endpoints=True)
     df = pd.DataFrame([centrality])

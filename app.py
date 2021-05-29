@@ -541,6 +541,11 @@ def get_frame(transpose=False, threshold=6):
     # This sums columns under the same name
     df2 = df2.groupby(df2.columns, axis=1).sum()
     df2 = df2.groupby(level=0, axis=1).sum()
+    df2 = df2.T
+    df2 = df2.groupby(df2.columns, axis=1).sum()
+    df2 = df2.groupby(level=0, axis=1).sum()
+    df2 = df2.T
+
     if transpose:
         df2 = df2.T
     # st.write(df2["02P1"])

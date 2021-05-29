@@ -141,7 +141,6 @@ def data_shade(graph, color_code, adj_mat, color_dict, labels_=False):
     H = graph.to_undirected()
     centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
 
-    # centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
     node_size = [v * 25000 for v in centrality.values()]
 
     coords = []
@@ -337,17 +336,6 @@ import copy
 # @st.cache(allow_output_mutation=True)
 def get_frame(transpose=False, threshold=6):
 
-    # with shelve.open("fast_graphs_splash.p") as store:
-    # flag = "df" in store
-    # if False:
-    #    df = store["df"]  # load it
-    #
-    #            df2 = store["df2"]  # load it
-    #            names = store["names"]  # = names  # save it
-    #            ratercodes = store["ratercodes"]  # =   # save it
-    #            legend = store["legend"]  # = legend  # save it
-
-    #        else:
     hard_codes = Path("code_by_IRG.xlsx")
     hard_codes = openpyxl.load_workbook(hard_codes)
 
@@ -365,18 +353,12 @@ def get_frame(transpose=False, threshold=6):
     worksheet1 = wb_obj1.active
 
     df3 = pd.DataFrame(worksheet0.values)
-    df3.fillna("Barely or never", inplace=True)
-
+    df3.replace("", "Barely or never", regex=True,inplace=True)
     df2 = pd.DataFrame(worksheet1.values)
-    df2.fillna("Barely or never", inplace=True)
-
-    # st.write(df2[112])
-
-    # df3 = df3.values[1::]
-    # st.write(df3)
-    # df2 = pd.merge(df2, df3)#],axis=0)#,inplace=True)
-
-    # st.write(df3)
+    df2.replace("", "Barely or never", regex=True,inplace=True)
+    df3.drop(0, inplace=True)
+    df2 = pd.concat([df2, df3], axis=0)  # ,inplace=True)
+    #st.write(df2)
 
     sheet = copy.copy(df2)
     hc = {
@@ -424,10 +406,6 @@ def get_frame(transpose=False, threshold=6):
         else:
             names2.append(i)
     names = names2
-    # st.text(names)
-    # for nm in names:
-    #    if nm not in color_code_1.keys():
-    #        color_code_1[nm] = "black"
 
     r_names = list(df2.index.values[:])
 
@@ -435,69 +413,13 @@ def get_frame(transpose=False, threshold=6):
 
     row_names = list(range(0, len(df2.columns) + 1, 1))
     to_rename = {k: v for k, v in zip(row_names, names)}
-    # df2.rename(columns={"113":"02P1"},inplace=True)
     to_rename[113] = "12P2"
-    # st.text(to_rename)
 
     del df2[0]
     del df2[1]
-    # del df2[112]
-    # del df2[113]
     df2.drop(0, inplace=True)
-    # df2.drop(1, inplace=True)
-
-    # st.text(df2)
-
-    del df3[0]
-    del df3[1]
-
-    df3.drop(0, inplace=True)
-    # st.write(df3)
-    # df3.drop(1, inplace=True)
-
-    # df3.rename(columns=to_rename, inplace=True)
-    # df3.rename(index=to_rename_ind, inplace=True)
-    # st.write(df3)
-    # st.text(df2.shape)
-    df2 = pd.concat([df3, df2], axis=0)  # ,inplace=True)
-    # st.text(df2.shape)
-    # st.write(df2)
-
-    #    for i, idx in enumerate(df2.index):
-    #        for j, col in enumerate(df2.columns):
-    #            weight = float(df2.iloc[i, j])
-
-    # legend.update({"Never": 0.0})
-    # legend.update({"Barely or never": 1})
-    # legend.update({"Occasionally in a minor way": 2})
-    # legend.update({"Less than once a month": 3})
-    # legend.update({"More than once a month (But not weekly)": 4})
-    # legend.update({"Occasionally but substantively": 5})
-    # legend.update({"More than twice a week": 6})
-    # legend.update({"Often": 7})
-    # legend.update({"Much or all of the time": 8})
-    # legend.update({"1-2 times a week": 9.0})
-    # df2.loc[1,111] = "Barely or never"
-
-    # try:
-    #    st.text(df2.loc[:,"02P1"])
-    # except:
-    #    st.text(df2.loc["02P1",:])
-
-    # pass
-    # st.text(to_rename_ind)
     df2.rename(index=to_rename_ind, inplace=True)
     df2.rename(columns=to_rename, inplace=True)
-    df2.fillna(0, inplace=True)
-
-    # df2.loc[1,"02P1"] = "Occasionally but substantively"
-
-    # st.write(df2['02P1'])
-
-    # st.write(df2)
-    # st.write(df2['12P2'])
-
-    # df2.at[1, '12P2'] = "Occasionally but substantively"
 
     unk = []
 
@@ -506,9 +428,6 @@ def get_frame(transpose=False, threshold=6):
             pass
         else:
             pass
-            # st.text('found')
-            # st.text(hc[col])
-            # st.text(col)
 
     legend = {}
 
@@ -1151,7 +1070,7 @@ def list_centrality(first):
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
     df.rename(columns={0: "centrality value"}, inplace=True)
-    st.markdown("### Biggest targets (receivers of communication):")
+    st.markdown("### Biggest targets (group acknowledged and verified communication):")
 
     st.write(df.head())
     # st.text("...")
@@ -1169,7 +1088,7 @@ def list_centrality(first):
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
     df.rename(columns={0: "centrality value"}, inplace=True)
-    st.markdown("### Biggest sources (initiators of communication):")
+    st.markdown("### Biggest sources (individually acknowledged communication):")
 
     st.write(df.head())
     # st.text("...")
@@ -1865,7 +1784,7 @@ def main():
 		setting a minimum meaningful level of \n communication collaboration, \
 		The higher the threshold the more you \n reduce connections"""
     )
-    my_expander = st.beta_expander("Toggle Transpose collaboration sources <-> targets")
+    my_expander = st.beta_expander("Toggle Transpose collaboration sources/targets")
     transpose = my_expander.radio("source/target", (False, True))
 
     my_expander = st.beta_expander("Set threshold")
@@ -2249,15 +2168,15 @@ def main():
         # st.write(fig1, use_column_width=True)
 
     if genre == "Physics":
-        if threshold == 5 and transpose == False:
-            HtmlFile = open("test2.html", "r", encoding="utf-8")
-            source_code = HtmlFile.read()
-            components.html(
-                source_code, height=750, width=750
-            )  # ,use_column_width=True)
+        #if threshold == 5 and transpose == False:
+        #    HtmlFile = open("test2.html", "r", encoding="utf-8")
+        #    source_code = HtmlFile.read()
+        #    components.html(
+        #        source_code, height=750, width=750
+        #    )  # ,use_column_width=True)
 
-        else:
-            physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
+        #else:
+        physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
 
     if genre == "Population":
         my_expander = st.beta_expander("Explanation of population")

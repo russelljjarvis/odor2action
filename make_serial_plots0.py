@@ -120,9 +120,10 @@ def generate_sankey_figure(
 
     # return fig
 
-#def fix():
-#02P1 missing
-#13P1 IRG3 leader. Currently Blue should be green.
+
+# def fix():
+# 02P1 missing
+# 13P1 IRG3 leader. Currently Blue should be green.
 # move from IRG1 to IRG3
 
 # @st.cache
@@ -335,7 +336,7 @@ import copy
 
 # @st.cache(persist=True)
 # @st.cache(allow_output_mutation=True)
-def get_frame(transpose=False,threshold=6):
+def get_frame(transpose=False, threshold=6):
 
     # with shelve.open("fast_graphs_splash.p") as store:
     # flag = "df" in store
@@ -365,18 +366,18 @@ def get_frame(transpose=False,threshold=6):
     worksheet1 = wb_obj1.active
 
     df3 = pd.DataFrame(worksheet0.values)
-    df3.fillna("Barely or never",inplace=True)
+    df3.fillna("Barely or never", inplace=True)
 
     df2 = pd.DataFrame(worksheet1.values)
-    df2.fillna("Barely or never",inplace=True)
+    df2.fillna("Barely or never", inplace=True)
 
-    #st.write(df2[112])
+    # st.write(df2[112])
 
-    #df3 = df3.values[1::]
-    #st.write(df3)
-    #df2 = pd.merge(df2, df3)#],axis=0)#,inplace=True)
+    # df3 = df3.values[1::]
+    # st.write(df3)
+    # df2 = pd.merge(df2, df3)#],axis=0)#,inplace=True)
 
-    #st.write(df3)
+    # st.write(df3)
 
     sheet = copy.copy(df2)
     hc = {
@@ -413,9 +414,9 @@ def get_frame(transpose=False,threshold=6):
     row_names = list(df2.T[0].values)
     row_names.append(list(df2.T[0].values)[-1])
     row_names = row_names[2::]
-    #st.text(row_names)
+    # st.text(row_names)
     names = [rn.split("- ") for rn in row_names]
-    #st.text(names)
+    # st.text(names)
 
     names2 = []
     for i in names:
@@ -424,8 +425,8 @@ def get_frame(transpose=False,threshold=6):
         else:
             names2.append(i)
     names = names2
-    #st.text(names)
-    #for nm in names:
+    # st.text(names)
+    # for nm in names:
     #    if nm not in color_code_1.keys():
     #        color_code_1[nm] = "black"
 
@@ -435,69 +436,67 @@ def get_frame(transpose=False,threshold=6):
 
     row_names = list(range(0, len(df2.columns) + 1, 1))
     to_rename = {k: v for k, v in zip(row_names, names)}
-    #df2.rename(columns={"113":"02P1"},inplace=True)
+    # df2.rename(columns={"113":"02P1"},inplace=True)
     to_rename[113] = "12P2"
-    #st.text(to_rename)
+    # st.text(to_rename)
 
     del df2[0]
     del df2[1]
     # del df2[112]
-    #del df2[113]
+    # del df2[113]
     df2.drop(0, inplace=True)
-    #df2.drop(1, inplace=True)
+    # df2.drop(1, inplace=True)
 
-
-
-    #st.text(df2)
+    # st.text(df2)
 
     del df3[0]
     del df3[1]
 
     df3.drop(0, inplace=True)
-    #df3.drop(1, inplace=True)
+    # df3.drop(1, inplace=True)
 
-    #df3.rename(columns=to_rename, inplace=True)
-    #df3.rename(index=to_rename_ind, inplace=True)
-    #st.write(df3)
-    #st.text(df2.shape)
-    df2 = pd.concat([df3, df2],axis=0)#,inplace=True)
-    #st.text(df2.shape)
-    #st.write(df2)
+    # df3.rename(columns=to_rename, inplace=True)
+    # df3.rename(index=to_rename_ind, inplace=True)
+    # st.write(df3)
+    # st.text(df2.shape)
+    df2 = pd.concat([df3, df2], axis=0)  # ,inplace=True)
+    # st.text(df2.shape)
+    # st.write(df2)
 
     #    for i, idx in enumerate(df2.index):
     #        for j, col in enumerate(df2.columns):
     #            weight = float(df2.iloc[i, j])
 
-    #legend.update({"Never": 0.0})
-    #legend.update({"Barely or never": 1})
-    #legend.update({"Occasionally in a minor way": 2})
-    #legend.update({"Less than once a month": 3})
-    #legend.update({"More than once a month (But not weekly)": 4})
-    #legend.update({"Occasionally but substantively": 5})
-    #legend.update({"More than twice a week": 6})
-    #legend.update({"Often": 7})
-    #legend.update({"Much or all of the time": 8})
-    #legend.update({"1-2 times a week": 9.0})
-    #df2.loc[1,111] = "Barely or never"
+    # legend.update({"Never": 0.0})
+    # legend.update({"Barely or never": 1})
+    # legend.update({"Occasionally in a minor way": 2})
+    # legend.update({"Less than once a month": 3})
+    # legend.update({"More than once a month (But not weekly)": 4})
+    # legend.update({"Occasionally but substantively": 5})
+    # legend.update({"More than twice a week": 6})
+    # legend.update({"Often": 7})
+    # legend.update({"Much or all of the time": 8})
+    # legend.update({"1-2 times a week": 9.0})
+    # df2.loc[1,111] = "Barely or never"
 
-    #try:
+    # try:
     #    st.text(df2.loc[:,"02P1"])
-    #except:
+    # except:
     #    st.text(df2.loc["02P1",:])
 
-        #pass
-    #st.text(to_rename_ind)
+    # pass
+    # st.text(to_rename_ind)
     df2.rename(index=to_rename_ind, inplace=True)
     df2.rename(columns=to_rename, inplace=True)
 
-    #df2.loc[1,"02P1"] = "Occasionally but substantively"
+    # df2.loc[1,"02P1"] = "Occasionally but substantively"
 
-    #st.write(df2['02P1'])
+    # st.write(df2['02P1'])
 
-    #st.write(df2)
-    #st.write(df2['12P2'])
+    # st.write(df2)
+    # st.write(df2['12P2'])
 
-    #df2.at[1, '12P2'] = "Occasionally but substantively"
+    # df2.at[1, '12P2'] = "Occasionally but substantively"
 
     unk = []
 
@@ -543,7 +542,7 @@ def get_frame(transpose=False,threshold=6):
     df2 = df2.groupby(level=0, axis=1).sum()
     if transpose:
         df2 = df2.T
-    #st.write(df2["02P1"])
+    # st.write(df2["02P1"])
     # df2 = df4
     # store["df2"] = df2  # save it
     # st.write(df2)
@@ -940,7 +939,8 @@ def dont():
 
 
 import matplotlib.patches as patches
-#from community import community_louvain
+
+# from community import community_louvain
 
 # @st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def community(first, color_code, color_dict):

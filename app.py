@@ -119,9 +119,10 @@ def generate_sankey_figure(
 
     # return fig
 
-#def fix():
-#02P1 missing
-#13P1 IRG3 leader. Currently Blue should be green.
+
+# def fix():
+# 02P1 missing
+# 13P1 IRG3 leader. Currently Blue should be green.
 # move from IRG1 to IRG3
 
 # @st.cache
@@ -334,7 +335,7 @@ import copy
 
 # @st.cache(persist=True)
 # @st.cache(allow_output_mutation=True)
-def get_frame(transpose=False,threshold=6):
+def get_frame(transpose=False, threshold=6):
 
     # with shelve.open("fast_graphs_splash.p") as store:
     # flag = "df" in store
@@ -364,18 +365,18 @@ def get_frame(transpose=False,threshold=6):
     worksheet1 = wb_obj1.active
 
     df3 = pd.DataFrame(worksheet0.values)
-    df3.fillna("Barely or never",inplace=True)
+    df3.fillna("Barely or never", inplace=True)
 
     df2 = pd.DataFrame(worksheet1.values)
-    df2.fillna("Barely or never",inplace=True)
+    df2.fillna("Barely or never", inplace=True)
 
-    #st.write(df2[112])
+    # st.write(df2[112])
 
-    #df3 = df3.values[1::]
-    #st.write(df3)
-    #df2 = pd.merge(df2, df3)#],axis=0)#,inplace=True)
+    # df3 = df3.values[1::]
+    # st.write(df3)
+    # df2 = pd.merge(df2, df3)#],axis=0)#,inplace=True)
 
-    #st.write(df3)
+    # st.write(df3)
 
     sheet = copy.copy(df2)
     hc = {
@@ -412,9 +413,9 @@ def get_frame(transpose=False,threshold=6):
     row_names = list(df2.T[0].values)
     row_names.append(list(df2.T[0].values)[-1])
     row_names = row_names[2::]
-    #st.text(row_names)
+    # st.text(row_names)
     names = [rn.split("- ") for rn in row_names]
-    #st.text(names)
+    # st.text(names)
 
     names2 = []
     for i in names:
@@ -423,8 +424,8 @@ def get_frame(transpose=False,threshold=6):
         else:
             names2.append(i)
     names = names2
-    #st.text(names)
-    #for nm in names:
+    # st.text(names)
+    # for nm in names:
     #    if nm not in color_code_1.keys():
     #        color_code_1[nm] = "black"
 
@@ -434,71 +435,69 @@ def get_frame(transpose=False,threshold=6):
 
     row_names = list(range(0, len(df2.columns) + 1, 1))
     to_rename = {k: v for k, v in zip(row_names, names)}
-    #df2.rename(columns={"113":"02P1"},inplace=True)
+    # df2.rename(columns={"113":"02P1"},inplace=True)
     to_rename[113] = "12P2"
-    #st.text(to_rename)
+    # st.text(to_rename)
 
     del df2[0]
     del df2[1]
     # del df2[112]
-    #del df2[113]
+    # del df2[113]
     df2.drop(0, inplace=True)
-    #df2.drop(1, inplace=True)
+    # df2.drop(1, inplace=True)
 
-
-
-    #st.text(df2)
+    # st.text(df2)
 
     del df3[0]
     del df3[1]
 
     df3.drop(0, inplace=True)
-    #st.write(df3)
-    #df3.drop(1, inplace=True)
+    # st.write(df3)
+    # df3.drop(1, inplace=True)
 
-    #df3.rename(columns=to_rename, inplace=True)
-    #df3.rename(index=to_rename_ind, inplace=True)
-    #st.write(df3)
-    #st.text(df2.shape)
-    df2 = pd.concat([df3, df2],axis=0)#,inplace=True)
-    #st.text(df2.shape)
-    #st.write(df2)
+    # df3.rename(columns=to_rename, inplace=True)
+    # df3.rename(index=to_rename_ind, inplace=True)
+    # st.write(df3)
+    # st.text(df2.shape)
+    df2 = pd.concat([df3, df2], axis=0)  # ,inplace=True)
+    # st.text(df2.shape)
+    # st.write(df2)
 
     #    for i, idx in enumerate(df2.index):
     #        for j, col in enumerate(df2.columns):
     #            weight = float(df2.iloc[i, j])
 
-    #legend.update({"Never": 0.0})
-    #legend.update({"Barely or never": 1})
-    #legend.update({"Occasionally in a minor way": 2})
-    #legend.update({"Less than once a month": 3})
-    #legend.update({"More than once a month (But not weekly)": 4})
-    #legend.update({"Occasionally but substantively": 5})
-    #legend.update({"More than twice a week": 6})
-    #legend.update({"Often": 7})
-    #legend.update({"Much or all of the time": 8})
-    #legend.update({"1-2 times a week": 9.0})
-    #df2.loc[1,111] = "Barely or never"
+    # legend.update({"Never": 0.0})
+    # legend.update({"Barely or never": 1})
+    # legend.update({"Occasionally in a minor way": 2})
+    # legend.update({"Less than once a month": 3})
+    # legend.update({"More than once a month (But not weekly)": 4})
+    # legend.update({"Occasionally but substantively": 5})
+    # legend.update({"More than twice a week": 6})
+    # legend.update({"Often": 7})
+    # legend.update({"Much or all of the time": 8})
+    # legend.update({"1-2 times a week": 9.0})
+    # df2.loc[1,111] = "Barely or never"
 
-    #try:
+    # try:
     #    st.text(df2.loc[:,"02P1"])
-    #except:
+    # except:
     #    st.text(df2.loc["02P1",:])
 
-        #pass
-    #st.text(to_rename_ind)
+    # pass
+    # st.text(to_rename_ind)
     df2.rename(index=to_rename_ind, inplace=True)
     df2.rename(columns=to_rename, inplace=True)
-    df2.fillna(0,inplace=True)
+    df2.fillna(0, inplace=True)
 
-    #df2.loc[1,"02P1"] = "Occasionally but substantively"
+    # df2.loc[1,"02P1"] = "Occasionally but substantively"
 
-    #st.write(df2['02P1'])
+    # st.write(df2['02P1'])
 
-    #st.write(df2)
-    #st.write(df2['12P2'])
+    # st.write(df2)
+    # st.write(df2['12P2'])
 
-    #df2.at[1, '12P2'] = "Occasionally but substantively"
+    # df2.at[1, '12P2'] = "Occasionally but substantively"
 
     unk = []
 
@@ -544,7 +543,7 @@ def get_frame(transpose=False,threshold=6):
     df2 = df2.groupby(level=0, axis=1).sum()
     if transpose:
         df2 = df2.T
-    #st.write(df2["02P1"])
+    # st.write(df2["02P1"])
     # df2 = df4
     # store["df2"] = df2  # save it
     # st.write(df2)
@@ -705,10 +704,10 @@ def population(cc, popg, color_dict):
         alpha=0.6,
         linewidths=2,
     )
-    #if labelsx:
+    # if labelsx:
     #    labels = {}
     #    for node in temp.nodes():
-            # set the node name as the key and the label as its value
+    # set the node name as the key and the label as its value
     #        labels[node] = node
     #    nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
 
@@ -723,7 +722,6 @@ def population(cc, popg, color_dict):
         ee = popg.get_edge_data(e[0], e[1])
         widths.append(ee["weight"] * 0.02)
 
-
     ax = plt.gca()
     draw_network(popg, pos, ax, widths, edge_colors)
     # labels = {v.name:v for v,v in popg.nodes}
@@ -732,9 +730,9 @@ def population(cc, popg, color_dict):
         # set the node name as the key and the label as its value
         labels[node] = node
 
-    #for k, v in labels.items():
+    # for k, v in labels.items():
     #    plt.scatter([], [], c=color_dict[v], label=k)
-    #plt.legend(frameon=False, prop={"size": 34})
+    # plt.legend(frameon=False, prop={"size": 34})
     ax.margins(0.1, 0.1)
 
     popgc = copy.copy(popg)
@@ -743,12 +741,11 @@ def population(cc, popg, color_dict):
     plt.axis("off")
     plt.tight_layout()
 
+    st.pyplot(fig, use_column_width=True)
 
-    st.pyplot(fig,use_column_width=True)
-
-    #my_expander = st.beta_expander("Explanation of second population Graph")
-    #second = my_expander.radio("Explanation", ("Yes", "No"))
-    #if second == "Yes":
+    # my_expander = st.beta_expander("Explanation of second population Graph")
+    # second = my_expander.radio("Explanation", ("Yes", "No"))
+    # if second == "Yes":
     #    my_expander.markdown(""" Networkx is not capable of plotting autopses (self connecting edges onto the same node). A different package dot/agraph can do this""")
 
     def notnow():
@@ -757,18 +754,18 @@ def population(cc, popg, color_dict):
 
             dot = to_agraph(popgc)
             dot.layout("dot")
-            dot.format = 'png'
-            #from graphviz import Source, render
+            dot.format = "png"
+            # from graphviz import Source, render
 
-            #dot.src.render('schematic_view', view=True)
+            # dot.src.render('schematic_view', view=True)
             string = dot.to_string()
 
-            with open('population.p','wb') as f:
-                pickle.dump(string,f)
+            with open("population.p", "wb") as f:
+                pickle.dump(string, f)
             st.graphviz_chart(string)
 
         except:
-            with open('population.p','rb') as f:
+            with open("population.p", "rb") as f:
                 string = pickle.load(f)
 
             st.graphviz_chart(string)
@@ -976,14 +973,14 @@ def community(first, color_code, color_dict):
         labelsx = False
 
     try:
-        with open('positions.p','rb') as f:
-            [pos, pos_communities,partition,temp] = pickle.load(f)#,)
+        with open("positions.p", "rb") as f:
+            [pos, pos_communities, partition, temp] = pickle.load(f)  # ,)
     except:
         temp = first.to_undirected()
         partition = community_louvain.best_partition(temp, resolution=4.0)
         pos, pos_communities = community_layout(temp, partition)
-        with open('positions.p','wb') as f:
-            pickle.dump([pos, pos_communities,partition,temp],f)
+        with open("positions.p", "wb") as f:
+            pickle.dump([pos, pos_communities, partition, temp], f)
     diffcc = list(partition.values())
     pkeys = set(partition.values())
     partitiondf = pd.DataFrame([partition]).T
@@ -1043,7 +1040,9 @@ def community(first, color_code, color_dict):
         c = (float(centre[0]), float(centre[1]))
         ax1.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
 
-    def last_fig(color_code,first,temp,pos,pkeys,centrex,centrey,color_dict,labelsx=False):
+    def last_fig(
+        color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=False
+    ):
         fig2, ax2 = plt.subplots(1, 1, figsize=(20, 20))
 
         node_color = [color_code[n] for n in first]
@@ -1069,32 +1068,39 @@ def community(first, color_code, color_dict):
             for node in temp.nodes():
                 # set the node name as the key and the label as its value
                 labels[node] = node
-            nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
+            nx.draw_networkx_labels(
+                temp, label_pos, labels, font_size=29.5, font_color="b"
+            )
 
         # axx = ax2.gca()  # to get the current axis
         # axx.collections[0].set_edgecolor("#FF0000")
-        nx.draw_networkx_edges(temp, pos=pos, edge_color="grey", alpha=0.15, width=widths)
+        nx.draw_networkx_edges(
+            temp, pos=pos, edge_color="grey", alpha=0.15, width=widths
+        )
         for centre in zip(centrex, centrey, pkeys):
             r = 1.5
             c = (float(centre[0]), float(centre[1]))
             ax2.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
             #    if labelsx:
-            #for k, v in color_dict.items():
+            # for k, v in color_dict.items():
             #    plt.scatter([], [], c=v, label=k)
-            #plt.legend(frameon=False, prop={"size": 29.5})
+            # plt.legend(frameon=False, prop={"size": 29.5})
         return fig2
-    fig2 = last_fig(color_code,first,temp,pos,pkeys,centrex,centrey,color_dict,labelsx=False)
+
+    fig2 = last_fig(
+        color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=False
+    )
     # plt.axis('off')
     # fig1.tight_layout()
     col1, col2 = st.beta_columns(2)
 
     col1.pyplot(fig1, use_column_width=True)
     col2.pyplot(fig2, use_column_width=True)
-    fig2 = last_fig(color_code,first,temp,pos,pkeys,centrex,centrey,color_dict,labelsx=True)
+    fig2 = last_fig(
+        color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=True
+    )
 
     st.pyplot(fig2, use_column_width=True)
-
-
 
     # try:
     #    st.pyplot(fig1, use_column_width=True)
@@ -1117,7 +1123,7 @@ def list_centrality(first):
     H = first.to_undirected()
     st.markdown("## Betweeness Centrality:")
     st.markdown("Top to bottom node id from most central to least:")
-    centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
+    centrality = nx.betweenness_centrality(H)  # , k=10, endpoints=True)
 
     # centrality = nx.betweenness_centrality(H)#, endpoints=True)
     df = pd.DataFrame([centrality])
@@ -1128,11 +1134,11 @@ def list_centrality(first):
     bc = df
     st.markdown("### Most Connected:")
     st.write(bc.head())
-    #st.text("...")
-    #st.markdown("### Least Connected:")
-    #st.write(bc.tail())
+    # st.text("...")
+    # st.markdown("### Least Connected:")
+    # st.write(bc.tail())
 
-    st.markdown("## In degree Centrality:")#" (percieved listeners/high authority)")
+    st.markdown("## In degree Centrality:")  # " (percieved listeners/high authority)")
     st.markdown("Top to bottom node id from most central to least:")
 
     centrality = nx.in_degree_centrality(first)
@@ -1140,29 +1146,31 @@ def list_centrality(first):
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
     df.rename(columns={0: "centrality value"}, inplace=True)
-    st.markdown("### Biggest Listeners:")
+    st.markdown("### Biggest targets (receivers of communication):")
 
     st.write(df.head())
-    #st.text("...")
-    #st.markdown("### Least Listening:")
+    # st.text("...")
+    # st.markdown("### Least Listening:")
 
-    #st.write(df.tail())
+    # st.write(df.tail())
 
-    st.markdown("## Out-degree Centrality (percieved talkers)")#, read from top to bottom from most central to least:"
-    #)
+    st.markdown(
+        "## Out-degree Centrality"
+    )  # , read from top to bottom from most central to least:"
+    # )
 
     centrality = nx.out_degree_centrality(first)
     df = pd.DataFrame([centrality])
     df = df.T
     df.sort_values(0, axis=0, ascending=False, inplace=True)
     df.rename(columns={0: "centrality value"}, inplace=True)
-    st.markdown("### Biggest Talkers:")
+    st.markdown("### Biggest sources (initiators of communication):")
 
     st.write(df.head())
-    #st.text("...")
-    #st.markdown("### Least Talkative:")
+    # st.text("...")
+    # st.markdown("### Least Talkative:")
 
-    #st.write(df.tail())
+    # st.write(df.tail())
 
     # bc = df
     # st.table(df)
@@ -1182,6 +1190,11 @@ def list_centrality(first):
     # edge_thickness = {k: v * 200000 for k, v in centrality.items()}
 
 
+# @st.cache
+
+# Or, if you know what you're doing, use
+
+
 def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     my_expander = st.beta_expander("physical parameters")
@@ -1190,19 +1203,19 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         "Would you like to change physical parameters?", ("No", "Yes")
     )
 
-    #my_expander = st.sidebar.beta_expander("Explanation of Threshold")
+    # my_expander = st.sidebar.beta_expander("Explanation of Threshold")
     my_expander2 = st.beta_expander("Explanation")
 
     my_expander2.markdown(
-    """
+        """
     The basic force directed layout
     Qoute from wikipedia:
     'Force-directed graph drawing algorithms assign forces among the set of edges and the set of nodes of a graph drawing. Typically, spring-like attractive forces based on Hooke's law are used to attract pairs of endpoints of the graph's edges towards each other, while simultaneously repulsive forces like those of electrically charged particles based on Coulomb's law are used to separate all pairs of nodes. In equilibrium states for this system of forces, the edges tend to have uniform length (because of the spring forces), and nodes that are not connected by an edge tend to be drawn further apart (because of the electrical repulsion). Edge attraction and vertex repulsion forces may be defined using functions that are not based on the physical behavior of springs and particles; for instance, some force-directed systems use springs whose attractive force is logarithmic rather than linear.'
     \n
     https://en.wikipedia.org/wiki/Force-directed_graph_drawing \n
     What this means is conflicting forces of attraction, and repulsion determine node position.
-    node centrality does not necessarily determine a central position.
-    Also nodes can be central because of high in-degree out-degree or both.\n
+    Possesing a high centrality value does not necessarily mean occupying a central position on the graph.
+    Also nodes can have a high betweeness centrality due to contributions from either inward directed projections, outward facing projections or both.\n
 
     Fruchterman, Thomas M. J.; Reingold, Edward M. (1991), "Graph Drawing by Force-Directed Placement", Software – Practice & Experience, Wiley, 21 (11): 1129–1164, doi:10.1002/spe.4380211102.
 
@@ -1216,7 +1229,8 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     NetworkX Python libraries to extend the avail- able functionality with interfaces to well-tested
     numerical and statis- tical libraries written in C. C++ and FORTRAN …
       Cited by 3606 Related articles
-    """)
+    """
+    )
     my_expander = st.beta_expander("Mouse over node info?")
 
     mo_ = my_expander.radio("Toggle Mouse overs?", ("Yes", "No"))
@@ -1228,23 +1242,23 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     if phys_ == "Yes":
         nt.show_buttons(filter_=["physics"])
 
-    #if mo_=="Yes" and phys_=="No":
-        #st.markdown("hit")
+    # if mo_=="Yes" and phys_=="No":
+    # st.markdown("hit")
     #    HtmlFile = open("test1.html", "r", encoding="utf-8")
     #    source_code = HtmlFile.read()
 
-        #try:
-        #    with open('physic.p','rb') as f:
-        #        result = pickle.load(f)
-        #except:
+    # try:
+    #    with open('physic.p','rb') as f:
+    #        result = pickle.load(f)
+    # except:
     #    result = components.html(source_code, height=750, width=750)  # ,use_column_width=True)
     #    with open('physic.p','wb') as f:
     #        pickle.dump(f,result)
-    #else:
-    #st.warning("Warning: Toggling option forces a random re-initialization of the visualization")
+    # else:
+    # st.warning("Warning: Toggling option forces a random re-initialization of the visualization")
     pos = nx.get_node_attributes(first, "pos")
     # fig = plt.figure()
-    #G = first  # ead_graph()
+    # G = first  # ead_graph()
 
     nt = Network(
         notebook=True,
@@ -1273,10 +1287,10 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     edge_thickness = {k: v * 90000000 for k, v in centrality.items()}
     node_size = {k: v * 90000000 for k, v in centrality.items()}
 
-    #d = nx.degree(first)
-    #temp = first.to_undirected()
-    #cen = nx.betweenness_centrality(temp)
-    #d = [((cen[node] + 1) * 5000000) for node in first.nodes()]
+    # d = nx.degree(first)
+    # temp = first.to_undirected()
+    # cen = nx.betweenness_centrality(temp)
+    # d = [((cen[node] + 1) * 5000000) for node in first.nodes()]
 
     for e in edge_data:
         src = e[0]
@@ -1320,10 +1334,13 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         if node["id"] in color_code.keys():
             node["color"] = color_code[node["id"]]
     nt.show("test1.html")
-    HtmlFile = open("test1.html", "r", encoding="utf-8")
-    source_code = HtmlFile.read()
-    components.html(source_code, height=750, width=750)  # ,use_column_width=True)
+    # @st.cache(suppress_st_warning=True)# to suppress the warning.
+    def display():
+        HtmlFile = open("test1.html", "r", encoding="utf-8")
+        source_code = HtmlFile.read()
+        components.html(source_code, height=750, width=750)  # ,use_column_width=True)
 
+    display()
     if phys_ == "Yes":
         from PIL import Image
 
@@ -1666,22 +1683,23 @@ def no_thanks():
     fig, ax = hive_plot_viz_mpl(hive_plot=hp)
     st.pyplot(fig)
 
+
 import networkx as nx
 import numpy as np
 from scipy import integrate
 
 
-def disparity_filter(G, weight='weight'):
-    ''' Compute significance scores (alpha) for weighted edges in G as defined in Serrano et al. 2009
-        Args
-            G: Weighted NetworkX graph
-        Returns
-            Weighted graph with a significance score (alpha) assigned to each edge
-        References
-            M. A. Serrano et al. (2009) Extracting the Multiscale backbone of complex weighted networks. PNAS, 106:16, pp. 6483-6488.
-    '''
+def disparity_filter(G, weight="weight"):
+    """Compute significance scores (alpha) for weighted edges in G as defined in Serrano et al. 2009
+    Args
+        G: Weighted NetworkX graph
+    Returns
+        Weighted graph with a significance score (alpha) assigned to each edge
+    References
+        M. A. Serrano et al. (2009) Extracting the Multiscale backbone of complex weighted networks. PNAS, 106:16, pp. 6483-6488.
+    """
 
-    if nx.is_directed(G): #directed case
+    if nx.is_directed(G):  # directed case
         N = nx.DiGraph()
         for u in G:
 
@@ -1692,27 +1710,37 @@ def disparity_filter(G, weight='weight'):
                 sum_w_out = sum(np.absolute(G[u][v][weight]) for v in G.successors(u))
                 for v in G.successors(u):
                     w = G[u][v][weight]
-                    p_ij_out = float(np.absolute(w))/sum_w_out
-                    alpha_ij_out = 1 - (k_out-1) * integrate.quad(lambda x: (1-x)**(k_out-2), 0, p_ij_out)[0]
-                    N.add_edge(u, v, weight = w, alpha_out=float('%.4f' % alpha_ij_out))
+                    p_ij_out = float(np.absolute(w)) / sum_w_out
+                    alpha_ij_out = (
+                        1
+                        - (k_out - 1)
+                        * integrate.quad(lambda x: (1 - x) ** (k_out - 2), 0, p_ij_out)[
+                            0
+                        ]
+                    )
+                    N.add_edge(u, v, weight=w, alpha_out=float("%.4f" % alpha_ij_out))
 
             elif k_out == 1 and G.in_degree(G.successors(u)) == 1:
-                #we need to keep the connection as it is the only way to maintain the connectivity of the network
+                # we need to keep the connection as it is the only way to maintain the connectivity of the network
                 v = G.successors(u)[0]
                 w = G[u][v][weight]
-                N.add_edge(u, v, weight = w, alpha_out=0., alpha_in=0.)
-                #there is no need to do the same for the k_in, since the link is built already from the tail
+                N.add_edge(u, v, weight=w, alpha_out=0.0, alpha_in=0.0)
+                # there is no need to do the same for the k_in, since the link is built already from the tail
 
             if k_in > 1:
                 sum_w_in = sum(np.absolute(G[v][u][weight]) for v in G.predecessors(u))
                 for v in G.predecessors(u):
                     w = G[v][u][weight]
-                    p_ij_in = float(np.absolute(w))/sum_w_in
-                    alpha_ij_in = 1 - (k_in-1) * integrate.quad(lambda x: (1-x)**(k_in-2), 0, p_ij_in)[0]
-                    N.add_edge(v, u, weight = w, alpha_in=float('%.4f' % alpha_ij_in))
+                    p_ij_in = float(np.absolute(w)) / sum_w_in
+                    alpha_ij_in = (
+                        1
+                        - (k_in - 1)
+                        * integrate.quad(lambda x: (1 - x) ** (k_in - 2), 0, p_ij_in)[0]
+                    )
+                    N.add_edge(v, u, weight=w, alpha_in=float("%.4f" % alpha_ij_in))
         return N
 
-    else: #undirected case
+    else:  # undirected case
         B = nx.Graph()
         for u in G:
             k = len(G[u])
@@ -1720,89 +1748,95 @@ def disparity_filter(G, weight='weight'):
                 sum_w = sum(np.absolute(G[u][v][weight]) for v in G[u])
                 for v in G[u]:
                     w = G[u][v][weight]
-                    p_ij = float(np.absolute(w))/sum_w
-                    alpha_ij = 1 - (k-1) * integrate.quad(lambda x: (1-x)**(k-2), 0, p_ij)[0]
-                    B.add_edge(u, v, weight = w, alpha=float('%.4f' % alpha_ij))
+                    p_ij = float(np.absolute(w)) / sum_w
+                    alpha_ij = (
+                        1
+                        - (k - 1)
+                        * integrate.quad(lambda x: (1 - x) ** (k - 2), 0, p_ij)[0]
+                    )
+                    B.add_edge(u, v, weight=w, alpha=float("%.4f" % alpha_ij))
         return B
 
-def disparity_filter_alpha_cut(G,weight='weight',alpha_t=0.4, cut_mode='or'):
-    ''' Performs a cut of the graph previously filtered through the disparity_filter function.
 
-        Args
-        ----
-        G: Weighted NetworkX graph
+def disparity_filter_alpha_cut(G, weight="weight", alpha_t=0.4, cut_mode="or"):
+    """Performs a cut of the graph previously filtered through the disparity_filter function.
 
-        weight: string (default='weight')
-            Key for edge data used as the edge weight w_ij.
+    Args
+    ----
+    G: Weighted NetworkX graph
 
-        alpha_t: double (default='0.4')
-            The threshold for the alpha parameter that is used to select the surviving edges.
-            It has to be a number between 0 and 1.
+    weight: string (default='weight')
+        Key for edge data used as the edge weight w_ij.
 
-        cut_mode: string (default='or')
-            Possible strings: 'or', 'and'.
-            It works only for directed graphs. It represents the logic operation to filter out edges
-            that do not pass the threshold value, combining the alpha_in and alpha_out attributes
-            resulting from the disparity_filter function.
+    alpha_t: double (default='0.4')
+        The threshold for the alpha parameter that is used to select the surviving edges.
+        It has to be a number between 0 and 1.
 
-
-        Returns
-        -------
-        B: Weighted NetworkX graph
-            The resulting graph contains only edges that survived from the filtering with the alpha_t threshold
-
-        References
-        ---------
-        .. M. A. Serrano et al. (2009) Extracting the Multiscale backbone of complex weighted networks. PNAS, 106:16, pp. 6483-6488.
-    '''
+    cut_mode: string (default='or')
+        Possible strings: 'or', 'and'.
+        It works only for directed graphs. It represents the logic operation to filter out edges
+        that do not pass the threshold value, combining the alpha_in and alpha_out attributes
+        resulting from the disparity_filter function.
 
 
-    if nx.is_directed(G):#Directed case:
+    Returns
+    -------
+    B: Weighted NetworkX graph
+        The resulting graph contains only edges that survived from the filtering with the alpha_t threshold
+
+    References
+    ---------
+    .. M. A. Serrano et al. (2009) Extracting the Multiscale backbone of complex weighted networks. PNAS, 106:16, pp. 6483-6488.
+    """
+
+    if nx.is_directed(G):  # Directed case:
         B = nx.DiGraph()
         for u, v, w in G.edges(data=True):
             try:
-                alpha_in =  w['alpha_in']
-            except KeyError: #there is no alpha_in, so we assign 1. It will never pass the cut
+                alpha_in = w["alpha_in"]
+            except KeyError:  # there is no alpha_in, so we assign 1. It will never pass the cut
                 alpha_in = 1
             try:
-                alpha_out =  w['alpha_out']
-            except KeyError: #there is no alpha_out, so we assign 1. It will never pass the cut
+                alpha_out = w["alpha_out"]
+            except KeyError:  # there is no alpha_out, so we assign 1. It will never pass the cut
                 alpha_out = 1
 
-            if cut_mode == 'or':
-                if alpha_in<alpha_t or alpha_out<alpha_t:
-                    B.add_edge(u,v, weight=w[weight])
-            elif cut_mode == 'and':
-                if alpha_in<alpha_t and alpha_out<alpha_t:
-                    B.add_edge(u,v, weight=w[weight])
+            if cut_mode == "or":
+                if alpha_in < alpha_t or alpha_out < alpha_t:
+                    B.add_edge(u, v, weight=w[weight])
+            elif cut_mode == "and":
+                if alpha_in < alpha_t and alpha_out < alpha_t:
+                    B.add_edge(u, v, weight=w[weight])
         return B
 
     else:
-        B = nx.Graph()#Undirected case:
+        B = nx.Graph()  # Undirected case:
         for u, v, w in G.edges(data=True):
 
             try:
-                alpha = w['alpha']
-            except KeyError: #there is no alpha, so we assign 1. It will never pass the cut
+                alpha = w["alpha"]
+            except KeyError:  # there is no alpha, so we assign 1. It will never pass the cut
                 alpha = 1
 
-            if alpha<alpha_t:
-                B.add_edge(u,v, weight=w[weight])
+            if alpha < alpha_t:
+                B.add_edge(u, v, weight=w[weight])
         return B
+
+
 def main():
     # full range.
-    #"Physics",
-    #"3D",
-    #"Population",
-    #"Visualize Centrality",
-    #"Hive",
-    #"Community Mixing",
-    #"Basic",
-    #"Spreadsheet",
-    #"Bundle",
-    #"AdjacencyMatrix",
-    #"Chord",
-    #"View Source Code",
+    # "Physics",
+    # "3D",
+    # "Population",
+    # "Visualize Centrality",
+    # "Hive",
+    # "Community Mixing",
+    # "Basic",
+    # "Spreadsheet",
+    # "Bundle",
+    # "AdjacencyMatrix",
+    # "Chord",
+    # "View Source Code",
 
     st.sidebar.title("Odor To Action: Collaboration Survey Data")
 
@@ -1827,7 +1861,7 @@ def main():
 		The higher the threshold the more you \n reduce connections"""
     )
     my_expander = st.beta_expander("Toggle Transpose collaboration sources <-> targets")
-    transpose = my_expander.radio("source/target",(False,True))
+    transpose = my_expander.radio("source/target", (False, True))
 
     my_expander = st.beta_expander("Set threshold")
     threshold = my_expander.slider("Select a threshold value", 0.0, 8.0, 5.0, 1.0)
@@ -1842,7 +1876,7 @@ def main():
         sheet,
         popg,
         hc,
-    ) = get_frame(transpose,threshold)
+    ) = get_frame(transpose, threshold)
 
     fig = plt.figure()
     for k, v in color_dict.items():
@@ -1895,7 +1929,7 @@ def main():
         encoded = {v: k for k, v in enumerate(first.nodes())}
     except:
         encoded = {v: k for k, v in enumerate(adj_mat.columns)}
-    #adj_mat = adj_mat[adj_mat["weight"] != 0]
+    # adj_mat = adj_mat[adj_mat["weight"] != 0]
 
     link = dict(
         source=[encoded[i] for i in list(adj_mat["src"].values)],
@@ -1927,16 +1961,21 @@ def main():
         my_expander = st.beta_expander("Explanation of Centrality Hive")
 
         my_expander.markdown(
-            """Using pythons networkx module (not igraph). Nodes are layed out from ascending to descending contributions of centrality. This shows network centrality from densely inter-connected (hub) to sparsely interconnected leaf.
-			"""
+            """Using pythons networkx module Nodes are layed out from ascending to descending contributions of centrality. This shows network centrality from densely inter-connected (hub) to sparsely interconnected leaf.
+            Hive visualizations are designed to show between group connectivity. Nodes on the same axis have implied connectivity through the axis, these connections are not shown to remove clutter."""
         )
+        # Unlike other hive implementations nodes are shown that don't connect outside of their assigned group (eg IRG-1), but they are visualized with no prominent interconnection.
+        # Connection within their class (eg IRG-1 is implied by being positioned on a vertical or horizontal axis, the axis connects all nodes.
+        # """
+
         try:
             import os
+
             if transpose:
-                os.system('python make_serial_transpose.py')
+                os.system("python make_serial_transpose.py")
 
             else:
-                os.system('python make_serial_plots1.py')
+                os.system("python make_serial_plots1.py")
         except:
             pass
         hub_sort(first, color_code, reverse)
@@ -1950,15 +1989,37 @@ def main():
         my_expander.write(legend)
         my_expander = st.beta_expander("Collapsed/Expand Numeric Spread sheet")
         my_expander.table(df2)
+
         my_expander = st.beta_expander("Collapsed/Expand Raw Spread sheet")
+        my_expander.markdown(
+            """Row elements represent, outward facing projections, how often a person recognizes contact with others."""
+        )
+        my_expander.markdown(
+            """Column elements represent, inward facing projections, how often other people recognize contact with this person"""
+        )
+
         my_expander.table(sheet)
         my_expander = st.beta_expander("Verify Person By Code")
         user_input = my_expander.text_input("enter anonymos code", "02P1")
         try:
-            my_expander.write(df2[user_input])
-        except:
-            st.warning("This user has not participated in survey, but people have answered questions about them")
+            my_expander.markdown("The column is how others rated them")
 
+            my_expander.write(df2[user_input])
+            my_expander.markdown(
+                "If following row slice has no value, this user has not participated in survey, but people have answered questions about them"
+            )
+
+            my_expander.write(df2.loc[df2.index.isin([user_input])])
+
+        except:
+            my_expander.warning(
+                "This user has not participated in survey, but people have answered questions about them"
+            )
+            my_expander.warning("Try toggling the transpose")
+            my_expander.write(df2[user_input])
+            my_expander.write(df2.loc[df2.index.isin([user_input])])
+
+            # my_expander.write(df2.loc[:,user_input])
     if genre == "Community Mixing":
         my_expander = st.beta_expander("Explanation of Community Partitions")
         my_expander.markdown(
@@ -2183,7 +2244,15 @@ def main():
         # st.write(fig1, use_column_width=True)
 
     if genre == "Physics":
-        physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
+        if threshold == 5 and transpose == False:
+            HtmlFile = open("test2.html", "r", encoding="utf-8")
+            source_code = HtmlFile.read()
+            components.html(
+                source_code, height=750, width=750
+            )  # ,use_column_width=True)
+
+        else:
+            physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
 
     if genre == "Population":
         my_expander = st.beta_expander("Explanation of population")
@@ -2346,10 +2415,10 @@ def main():
 
     if genre == "Basic":
         #'plt.rcParams['legend.title_fontsize'] = 'xx-large'
-        #my_expander = st.beta_expander("Toggle Backbone")
+        # my_expander = st.beta_expander("Toggle Backbone")
 
-        #backbone = my_expander.radio("Would you like to see the back-bone?", ("No", "Yes"))
-        #if backbone:
+        # backbone = my_expander.radio("Would you like to see the back-bone?", ("No", "Yes"))
+        # if backbone:
         #    alpha = 0.05
         #    G = disparity_filter(first)
         #    first = nx.Graph([(u, v, d) for u, v, d in G.edges(data=True) if d['alpha'] < alpha])

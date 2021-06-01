@@ -1319,7 +1319,10 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     #nt.show("test1.html")
 
     # nt.to_json("name.json")
-    nt.save_graph("saved_html.html")
+    try:
+        nt.save_graph("saved_html.html")
+    except:
+        pass
     # @st.cache(suppress_st_warning=True)# to suppress the warning.
     def display():
         HtmlFile = open("test1.html", "r", encoding="utf-8")
@@ -1959,16 +1962,16 @@ def main():
         # Connection within their class (eg IRG-1 is implied by being positioned on a vertical or horizontal axis, the axis connects all nodes.
         # """
 
-        try:
-            import os
+        #try:
+        #    import os
 
-            if transpose:
-                os.system("python make_serial_transpose.py")
+            #if transpose:
+            #    os.system("python make_serial_transpose.py")
 
-            else:
-                os.system("python make_serial_plots1.py")
-        except:
-            pass
+            #else:
+            #    os.system("python make_serial_plots1.py")
+        #except:
+        #    pass
         hub_sort(first, color_code, reverse)
         list_centrality(first)
     if genre == "Spreadsheet":

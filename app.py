@@ -712,6 +712,12 @@ def interactive_population(cc, popg, color_dict):
     for i,node in enumerate(nt.nodes):
         node["size"] = sizes[node["id"]] #* 1025
         node["color"] = node_color[i]
+
+    for node in nt.nodes:
+        node["title"] = (
+            "<br> This nodes, group size is: {0}<br>".format(sizes[node["id"]])
+        )
+
     nt.save_graph("population.html")
     # nt.save_graph("saved_html.html")
     HtmlFile = open("population.html", "r", encoding="utf-8")
@@ -1150,10 +1156,10 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     # my_expander = st.sidebar.beta_expander("Explanation of Threshold")
     my_expander2 = st.beta_expander("Explanation")
-    physics_layouts = st.beta_expander("Layouts")
-    physics_layouts.radio(
-        label="layout_options", options=("force_atlas_2based", "hierarchical")
-    )
+    #physics_layouts = st.beta_expander("Layouts")
+    #physics_layouts.radio(
+    #    label="layout_options", options=("force_atlas_2based", "hierarchical")
+    #)
     my_expander2.markdown(
         """
     The specific interactive visualization libraries are: pyvis, which calls the javascript library: vis-network
@@ -1224,7 +1230,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         font_color="black",  # , bgcolor='#222222'
     )  # bgcolor='#222222',
 
-    nt = Network("800px", "800px", directed=True)  # ,layout=physics_layouts)
+    nt = Network("800px", "800px", directed=True,font_color="black")  # ,layout=physics_layouts)
     #nt.set_edge_smooth('continuous')
 
     #nt.barnes_hut()
@@ -1240,7 +1246,8 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         ee = first.get_edge_data(e[0], e[1])
         #nt.add_edge(src, dst, arrowStrikethrough=True)
 
-        nt.add_edge(src, dst, width=0.2*ee["weight"], arrowStrikethrough=False)
+        nt.add_edge(src, dst, width=0.9*ee["weight"], arrowStrikethrough=True)
+    nt.inherit_edge_colors(True)
 
     #nt.from_nx(first)
 
@@ -1253,10 +1260,10 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     H = first.to_undirected()
     # centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
-    centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+    centrality = nx.betweenness_centrality(H, endpoints=True)
 
     edge_thickness = {k: v * 90000000 for k, v in centrality.items()}
-    node_size = {k: v * 90000000 for k, v in centrality.items()}
+    node_size = {k: v*320 for k, v in centrality.items()}
 
     # d = nx.degree(first)
     # temp = first.to_undirected()
@@ -1274,7 +1281,8 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     neighbor_map = nt.get_adj_list()
     for node in nt.nodes:
-        node["size"] = node_size[node["id"]] * 10025
+        node["size"] = node_size[node["id"]] #* 10025
+        node["borderWidth"] = 2
 
     # add neighbor data to node hover data
     for node in nt.nodes:
@@ -1301,20 +1309,20 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         #
         if node["id"] in node_size.keys():
             # if not labels:
-            node["size"] = 92500.0 * node_size[node["id"]]
+            node["size"] = node_size[node["id"]]
         node["label"] = str(node["id"])
-        node["value"] = len(neighbor_map[node["id"]])
+        #node["value"] = len(neighbor_map[node["id"]])
         if node["id"] in color_code.keys():
             node["color"] = color_code[node["id"]]
     nt.barnes_hut()
 
-    # nt.show("test1.html")
+    #nt.show("test1.html")
 
     # nt.to_json("name.json")
     nt.save_graph("saved_html.html")
     # @st.cache(suppress_st_warning=True)# to suppress the warning.
     def display():
-        HtmlFile = open("saved_html.html", "r", encoding="utf-8")
+        HtmlFile = open("test1.html", "r", encoding="utf-8")
         source_code = HtmlFile.read()
         components.html(source_code, height=800, width=800)  # ,use_column_width=True)
 

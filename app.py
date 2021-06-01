@@ -715,7 +715,7 @@ def interactive_population(cc, popg, color_dict):
 
     for node in nt.nodes:
         node["title"] = (
-            "<br> This nodes, group size is: {0}<br>".format(sizes[node["id"]])
+            "<br> {0}'s' group size is: {1}<br>".format(node["id"],sizes[node["id"]])
         )
 
     nt.save_graph("population.html")
@@ -1200,6 +1200,16 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         mo = True
     else:
         mo = False
+
+
+    my_expander = st.beta_expander("Directed Visualization (include arrow directions)?")
+
+    dir_ = my_expander.radio("Toggle Directed Visualization?", ("Yes","No"))
+    if dir_ == "Yes":
+        dir = True
+    else:
+        dir = False
+
     # labels = False
     if phys_ == "Yes":
         nt.show_buttons(filter_=["physics"])
@@ -1319,17 +1329,25 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     #nt.show("test1.html")
 
     # nt.to_json("name.json")
-    try:
-        nt.save_graph("saved_html.html")
-    except:
-        pass
-    # @st.cache(suppress_st_warning=True)# to suppress the warning.
+    #try:
     def display():
         HtmlFile = open("test1.html", "r", encoding="utf-8")
         source_code = HtmlFile.read()
         components.html(source_code, height=800, width=800)  # ,use_column_width=True)
 
-    display()
+    if dir:
+        nt.save_graph("saved_html2.html")
+        HtmlFile = open("saved_html2.html", "r", encoding="utf-8")
+        source_code = HtmlFile.read()
+        components.html(source_code, height=800, width=800)  # ,use_column_width=True)
+
+    else:
+        display()
+
+    #except:
+    #    pass
+    # @st.cache(suppress_st_warning=True)# to suppress the warning.
+
 
     #    network = drawGraph();
     #    localStorage.setItem("localnet",network)

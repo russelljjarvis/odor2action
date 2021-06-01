@@ -353,12 +353,12 @@ def get_frame(transpose=False, threshold=6):
     worksheet1 = wb_obj1.active
 
     df3 = pd.DataFrame(worksheet0.values)
-    df3.replace("", "Barely or never", regex=True,inplace=True)
+    df3.replace("", "Barely or never", regex=True, inplace=True)
     df2 = pd.DataFrame(worksheet1.values)
-    df2.replace("", "Barely or never", regex=True,inplace=True)
+    df2.replace("", "Barely or never", regex=True, inplace=True)
     df3.drop(0, inplace=True)
     df2 = pd.concat([df2, df3], axis=0)  # ,inplace=True)
-    #st.write(df2)
+    # st.write(df2)
 
     sheet = copy.copy(df2)
     hc = {
@@ -667,35 +667,56 @@ def population(cc, popg, color_dict):
 
     st.pyplot(fig, use_column_width=True)
 
-    # my_expander = st.beta_expander("Explanation of second population Graph")
-    # second = my_expander.radio("Explanation", ("Yes", "No"))
-    # if second == "Yes":
-    #    my_expander.markdown(""" Networkx is not capable of plotting autopses (self connecting edges onto the same node). A different package dot/agraph can do this""")
 
-    def notnow():
-        try:
-            from networkx.drawing.nx_agraph import to_agraph
+def interactive_population(cc, popg, color_dict):
 
-            dot = to_agraph(popgc)
-            dot.layout("dot")
-            dot.format = "png"
-            # from graphviz import Source, render
+    sizes = {}
+    for k, v in cc.items():
+        if v not in sizes.keys():
+            sizes[v] = 1
+        else:
+            sizes[v] += 1
+    temp = list([s * 1000 for s in sizes.values()])
+    node_color = [color_dict[n] for n in popg]
 
-            # dot.src.render('schematic_view', view=True)
-            string = dot.to_string()
+    widths = []  # [e["weight"] for e in popg.edges]
+    # st.text(widths)
+    edge_list = []
+    edge_colors = []
+    for e in popg.edges:
+        edge_list.append((e[0], e[1]))
+        edge_colors.append(color_dict[e[0]])
 
-            with open("population.p", "wb") as f:
-                pickle.dump(string, f)
-            st.graphviz_chart(string)
+        ee = popg.get_edge_data(e[0], e[1])
+        widths.append(ee["weight"] * 0.02)
+    labels = {}
+    for node in popg.nodes():
+        # set the node name as the key and the label as its value
+        labels[node] = node
+    nt = Network("700px", "700px",directed=True)  # ,layout=physics_layouts)
 
-        except:
-            with open("population.p", "rb") as f:
-                string = pickle.load(f)
+    nt.barnes_hut()
+    for node in popg.nodes:
+        nt.add_node(node,label=node) # node id = 1 and label = Node 1
+    nt.set_edge_smooth('continuous')
 
-            st.graphviz_chart(string)
+    for e in popg.edges:
+        src = e[0]
+        dst = e[1]
+        src = str(src)
+        dst = str(dst)
 
+        ee = popg.get_edge_data(e[0], e[1])
 
-# from scipy.spatial import ConvexHull, convex_hull_plot_2d
+        nt.add_edge(src, dst, width=0.01*ee["weight"])#, arrowStrikethrough=True)
+    for i,node in enumerate(nt.nodes):
+        node["size"] = sizes[node["id"]] #* 1025
+        node["color"] = node_color[i]
+    nt.save_graph("population.html")
+    # nt.save_graph("saved_html.html")
+    HtmlFile = open("population.html", "r", encoding="utf-8")
+    source_code = HtmlFile.read()
+    components.html(source_code, height=1200, width=1000)
 
 
 def community_layout(g, partition):
@@ -1129,9 +1150,19 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     # my_expander = st.sidebar.beta_expander("Explanation of Threshold")
     my_expander2 = st.beta_expander("Explanation")
-
+    physics_layouts = st.beta_expander("Layouts")
+    physics_layouts.radio(
+        label="layout_options", options=("force_atlas_2based", "hierarchical")
+    )
     my_expander2.markdown(
         """
+    The specific interactive visualization libraries are: pyvis, which calls the javascript library: vis-network
+    https://pyvis.readthedocs.io/en/latest/documentation.html
+    https://github.com/visjs/vis-network
+    BarnesHut is a quadtree based gravity model. It is the fastest. default and recommended solver for non-hierarchical layouts.
+    The barnesHut physics model (which is enabled by default) is based on an inverted gravity model. By increasing the mass of a node, you increase it’s repulsion. Values lower than 1 are not recommended.
+
+
     The basic force directed layout
     Qoute from wikipedia:
     'Force-directed graph drawing algorithms assign forces among the set of edges and the set of nodes of a graph drawing. Typically, spring-like attractive forces based on Hooke's law are used to attract pairs of endpoints of the graph's edges towards each other, while simultaneously repulsive forces like those of electrically charged particles based on Coulomb's law are used to separate all pairs of nodes. In equilibrium states for this system of forces, the edges tend to have uniform length (because of the spring forces), and nodes that are not connected by an edge tend to be drawn further apart (because of the electrical repulsion). Edge attraction and vertex repulsion forces may be defined using functions that are not based on the physical behavior of springs and particles; for instance, some force-directed systems use springs whose attractive force is logarithmic rather than linear.'
@@ -1153,6 +1184,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     NetworkX Python libraries to extend the avail- able functionality with interfaces to well-tested
     numerical and statis- tical libraries written in C. C++ and FORTRAN …
       Cited by 3606 Related articles
+
     """
     )
     my_expander = st.beta_expander("Mouse over node info?")
@@ -1187,22 +1219,37 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     nt = Network(
         notebook=True,
         directed=True,
-        height="700px",
-        width="170%",
+        height="500px",
+        width="100%",
         font_color="black",  # , bgcolor='#222222'
     )  # bgcolor='#222222',
 
-    nt = Network("700px", "700px", notebook=True)
+    nt = Network("800px", "800px", directed=True)  # ,layout=physics_layouts)
+    #nt.set_edge_smooth('continuous')
 
-    nt.barnes_hut()
-    nt.from_nx(first)
+    #nt.barnes_hut()
+    for node in first.nodes:
+        nt.add_node(node,label=node) # node id = 1 and label = Node 1
 
-    adj_mat = pd.DataFrame(adj_mat_dicts)
-    edge_data = zip(
-        list(adj_mat["src"].values),
-        list(adj_mat["tgt"].values),
-        list(adj_mat["weight"].values),
-    )
+    for e in first.edges:
+        src = e[0]
+        dst = e[1]
+        src = str(src)
+        dst = str(dst)
+
+        ee = first.get_edge_data(e[0], e[1])
+        #nt.add_edge(src, dst, arrowStrikethrough=True)
+
+        nt.add_edge(src, dst, width=0.2*ee["weight"], arrowStrikethrough=False)
+
+    #nt.from_nx(first)
+
+    #adj_mat = pd.DataFrame(adj_mat_dicts)
+    #edge_data = zip(
+    #    list(adj_mat["src"].values),
+    #    list(adj_mat["tgt"].values),
+    #    list(adj_mat["weight"].values),
+    #)
 
     H = first.to_undirected()
     # centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
@@ -1216,16 +1263,18 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     # cen = nx.betweenness_centrality(temp)
     # d = [((cen[node] + 1) * 5000000) for node in first.nodes()]
 
-    for e in edge_data:
-        src = e[0]
-        dst = e[1]
-        w = e[2] * 193500.0
-        src = str(src)
-        dst = str(dst)
-        w = float(w)
-        nt.add_edge(src, dst, value=w)
+    #for e in edge_data:
+    #    src = e[0]
+    #    dst = e[1]
+    #    w = e[2]  # * 193500.0
+    #    src = str(src)
+    #    dst = str(dst)
+    #    w = float(w)
+    #    nt.add_edge(src, dst, width=w * 10025, arrowStrikethrough=True)
 
     neighbor_map = nt.get_adj_list()
+    for node in nt.nodes:
+        node["size"] = node_size[node["id"]] * 10025
 
     # add neighbor data to node hover data
     for node in nt.nodes:
@@ -1257,14 +1306,23 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         node["value"] = len(neighbor_map[node["id"]])
         if node["id"] in color_code.keys():
             node["color"] = color_code[node["id"]]
-    nt.show("test1.html")
+    nt.barnes_hut()
+
+    # nt.show("test1.html")
+
+    # nt.to_json("name.json")
+    nt.save_graph("saved_html.html")
     # @st.cache(suppress_st_warning=True)# to suppress the warning.
     def display():
-        HtmlFile = open("test1.html", "r", encoding="utf-8")
+        HtmlFile = open("saved_html.html", "r", encoding="utf-8")
         source_code = HtmlFile.read()
-        components.html(source_code, height=750, width=750)  # ,use_column_width=True)
+        components.html(source_code, height=800, width=800)  # ,use_column_width=True)
 
     display()
+
+    #    network = drawGraph();
+    #    localStorage.setItem("localnet",network)
+
     if phys_ == "Yes":
         from PIL import Image
 
@@ -1769,6 +1827,7 @@ def main():
         (
             "Physics",
             "Population",
+            "Interactive Population",
             "Visualize Centrality",
             "Spreadsheet",
         ),
@@ -1885,7 +1944,7 @@ def main():
         my_expander = st.beta_expander("Explanation of Centrality Hive")
 
         my_expander.markdown(
-            """Using pythons networkx module Nodes are layed out from ascending to descending contributions of centrality. This shows network centrality from densely inter-connected (hub) to sparsely interconnected leaf.
+            """Using pythons networkx module Nodes are layed out from ascending to descending contributions of centrality. This plot depicts betweeness centrality from densely inter-connected (hub) to sparsely inter-connected leaf.
             Hive visualizations are designed to show between group connectivity. Nodes on the same axis have implied connectivity through the axis, these connections are not shown to remove clutter."""
         )
         # Unlike other hive implementations nodes are shown that don't connect outside of their assigned group (eg IRG-1), but they are visualized with no prominent interconnection.
@@ -2168,15 +2227,23 @@ def main():
         # st.write(fig1, use_column_width=True)
 
     if genre == "Physics":
-        #if threshold == 5 and transpose == False:
+        # if threshold == 5 and transpose == False:
         #    HtmlFile = open("test2.html", "r", encoding="utf-8")
         #    source_code = HtmlFile.read()
         #    components.html(
         #        source_code, height=750, width=750
         #    )  # ,use_column_width=True)
 
-        #else:
+        # else:
         physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
+
+    if genre == "Interactive Population":
+        my_expander = st.beta_expander("Explanation of population")
+        my_expander.markdown(
+            """Here node size does not reflect centrality or connectivity. Node size reflects number of participants in group, therefore DCMT is small because it consists of just two members. Likewise ribbon width is the total sum of weighted connections between groups."""
+        )
+
+        interactive_population(cc, popg, color_dict)
 
     if genre == "Population":
         my_expander = st.beta_expander("Explanation of population")

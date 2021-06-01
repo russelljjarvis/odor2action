@@ -1895,7 +1895,7 @@ def main():
         plt.scatter([], [], c=v, label=k, s=350)
     plt.legend(frameon=False, prop={"size": 35})
     fig.tight_layout()
-    plt.axis("off")
+    #plt.axis("off")
     st.sidebar.markdown("Color coding of most plots")
     # my_expander.markdown(
     #    """ Excepting for chord and hive, which are time consuming to code"""

@@ -1204,33 +1204,15 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     my_expander = st.beta_expander("Directed Visualization (include arrow directions)?")
 
-    dir_ = my_expander.radio("Toggle Directed Visualization?", ("Yes","No"))
+    dir_ = my_expander.radio("Toggle Directed Visualization?", ("No","Yes"))
     if dir_ == "Yes":
         dir = True
     else:
         dir = False
 
-    # labels = False
     if phys_ == "Yes":
         nt.show_buttons(filter_=["physics"])
-
-    # if mo_=="Yes" and phys_=="No":
-    # st.markdown("hit")
-    #    HtmlFile = open("test1.html", "r", encoding="utf-8")
-    #    source_code = HtmlFile.read()
-
-    # try:
-    #    with open('physic.p','rb') as f:
-    #        result = pickle.load(f)
-    # except:
-    #    result = components.html(source_code, height=750, width=750)  # ,use_column_width=True)
-    #    with open('physic.p','wb') as f:
-    #        pickle.dump(f,result)
-    # else:
-    # st.warning("Warning: Toggling option forces a random re-initialization of the visualization")
     pos = nx.get_node_attributes(first, "pos")
-    # fig = plt.figure()
-    # G = first  # ead_graph()
 
     nt = Network(
         notebook=True,
@@ -1239,8 +1221,11 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         width="100%",
         font_color="black",  # , bgcolor='#222222'
     )  # bgcolor='#222222',
+    if dir:
+        nt = Network("800px", "800px", directed=True,font_color="black")  # ,layout=physics_layouts)
+    else:
+        nt = Network("800px", "800px", directed=False,font_color="black")  # ,layout=physics_layouts)
 
-    nt = Network("800px", "800px", directed=True,font_color="black")  # ,layout=physics_layouts)
     #nt.set_edge_smooth('continuous')
 
     #nt.barnes_hut()
@@ -1258,16 +1243,6 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
         nt.add_edge(src, dst, width=0.4*ee["weight"], arrowStrikethrough=True)
     nt.inherit_edge_colors(True)
-
-    #nt.from_nx(first)
-
-    #adj_mat = pd.DataFrame(adj_mat_dicts)
-    #edge_data = zip(
-    #    list(adj_mat["src"].values),
-    #    list(adj_mat["tgt"].values),
-    #    list(adj_mat["weight"].values),
-    #)
-
     H = first.to_undirected()
     # centrality = nx.betweenness_centrality(H)#, k=10, endpoints=True)
     centrality = nx.betweenness_centrality(H, endpoints=True)
@@ -1275,23 +1250,11 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     edge_thickness = {k: v * 90000000 for k, v in centrality.items()}
     node_size = {k: v*320 for k, v in centrality.items()}
 
-    # d = nx.degree(first)
-    # temp = first.to_undirected()
-    # cen = nx.betweenness_centrality(temp)
-    # d = [((cen[node] + 1) * 5000000) for node in first.nodes()]
-
-    #for e in edge_data:
-    #    src = e[0]
-    #    dst = e[1]
-    #    w = e[2]  # * 193500.0
-    #    src = str(src)
-    #    dst = str(dst)
-    #    w = float(w)
-    #    nt.add_edge(src, dst, width=w * 10025, arrowStrikethrough=True)
 
     neighbor_map = nt.get_adj_list()
     for node in nt.nodes:
-        node["size"] = node_size[node["id"]] #* 10025
+        if dir:
+            node["size"] = node_size[node["id"]] #* 10025
         node["borderWidth"] = 2
 
     # add neighbor data to node hover data
@@ -1316,26 +1279,27 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
                         + " It's neighbors are:<br>"
                         + "<br>".join(neighbor_map[node["id"]])
                     )
-        #
         if node["id"] in node_size.keys():
-            # if not labels:
             node["size"] = node_size[node["id"]]
         node["label"] = str(node["id"])
-        node["value"] = len(neighbor_map[node["id"]])
+        if not dir:
+            node["value"] = 10.0*len(neighbor_map[node["id"]])
         if node["id"] in color_code.keys():
             node["color"] = color_code[node["id"]]
     nt.barnes_hut()
 
-    #nt.show("test1.html")
-
-    # nt.to_json("name.json")
-    #try:
     def display():
+        nt.save_graph("test1.html")
+
         HtmlFile = open("test1.html", "r", encoding="utf-8")
         source_code = HtmlFile.read()
         components.html(source_code, height=800, width=800)  # ,use_column_width=True)
 
     if dir:
+        st.markdown("""
+        This visualization has bigger node sizes because it uses betweeness centrality to determine node size.
+        The other visualization determines node size based on just a count on the number of direct neighbours
+        """)
         nt.save_graph("saved_html2.html")
         HtmlFile = open("saved_html2.html", "r", encoding="utf-8")
         source_code = HtmlFile.read()

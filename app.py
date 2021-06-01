@@ -1855,9 +1855,9 @@ def main():
         "Choose Graph Layout/Option:",
         (
             "Physics",
-            "Population",
             "Interactive Population",
             "Visualize Centrality",
+            "Population",
             "Spreadsheet",
         ),
     )

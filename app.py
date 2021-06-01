@@ -1321,7 +1321,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
             # if not labels:
             node["size"] = node_size[node["id"]]
         node["label"] = str(node["id"])
-        #node["value"] = len(neighbor_map[node["id"]])
+        node["value"] = len(neighbor_map[node["id"]])
         if node["id"] in color_code.keys():
             node["color"] = color_code[node["id"]]
     nt.barnes_hut()

@@ -1204,7 +1204,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     my_expander = st.beta_expander("Directed Visualization (include arrow directions)?")
 
-    dir_ = my_expander.radio("Toggle Directed Visualization?", ("No","Yes"))
+    dir_ = my_expander.radio("Toggle Directed Visualization?", ("Yes","No"))
     if dir_ == "Yes":
         dir = True
     else:

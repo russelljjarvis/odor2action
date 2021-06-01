@@ -1210,8 +1210,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     else:
         dir = False
 
-    if phys_ == "Yes":
-        nt.show_buttons(filter_=["physics"])
+
     pos = nx.get_node_attributes(first, "pos")
 
     nt = Network(
@@ -1287,7 +1286,8 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         if node["id"] in color_code.keys():
             node["color"] = color_code[node["id"]]
     nt.barnes_hut()
-
+    if phys_ == "Yes":
+        nt.show_buttons(filter_=["physics"])
     def display():
         nt.save_graph("test1.html")
 

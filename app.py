@@ -1246,7 +1246,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         ee = first.get_edge_data(e[0], e[1])
         #nt.add_edge(src, dst, arrowStrikethrough=True)
 
-        nt.add_edge(src, dst, width=0.9*ee["weight"], arrowStrikethrough=True)
+        nt.add_edge(src, dst, width=0.4*ee["weight"], arrowStrikethrough=True)
     nt.inherit_edge_colors(True)
 
     #nt.from_nx(first)

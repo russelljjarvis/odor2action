@@ -357,6 +357,10 @@ def get_frame(transpose=False, threshold=6):
     df2 = pd.DataFrame(worksheet1.values)
     df2.replace("", "Barely or never", regex=True, inplace=True)
     df3.drop(0, inplace=True)
+    #df3.rename
+    to_rename = {1:43,2:44,3:45,4:46}# v for k, v in zip(row_names, names)}
+    df3.rename(index=to_rename, inplace=True)
+
     df2 = pd.concat([df2, df3], axis=0)  # ,inplace=True)
     # st.write(df2)
 
@@ -1144,15 +1148,23 @@ def list_centrality(first):
 # @st.cache
 
 # Or, if you know what you're doing, use
+import fileinput
+import sys
+
+def replaceAll(file,searchExp,replaceExp):
+    for line in fileinput.input(file, inplace=1):
+        if searchExp in line:
+            line = line.replace(searchExp,replaceExp)
+        sys.stdout.write(line)
 
 
 def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
-    my_expander = st.beta_expander("physical parameters")
+    #my_expander = st.beta_expander("physical parameters")
 
-    phys_ = my_expander.radio(
-        "Would you like to change physical parameters?", ("No", "Yes")
-    )
+    #phys_ = my_expander.radio(
+    #    "Would you like to change physical parameters?", ("No", "Yes")
+    #)
 
     # my_expander = st.sidebar.beta_expander("Explanation of Threshold")
     my_expander2 = st.beta_expander("Explanation")
@@ -1165,20 +1177,12 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     The specific interactive visualization libraries are: pyvis, which calls the javascript library: vis-network
     https://pyvis.readthedocs.io/en/latest/documentation.html
     https://github.com/visjs/vis-network
-    BarnesHut is a quadtree based gravity model. It is the fastest. default and recommended solver for non-hierarchical layouts.
+    Barnes Hut is a quadtree based gravity model.
     The barnesHut physics model (which is enabled by default) is based on an inverted gravity model. By increasing the mass of a node, you increase it’s repulsion. Values lower than 1 are not recommended.
+    Other visualizations use a Fruchterman force directed layout algorithm.
 
+    Almost all physical simulations use different random initial conditions.
 
-    The basic force directed layout
-    Qoute from wikipedia:
-    'Force-directed graph drawing algorithms assign forces among the set of edges and the set of nodes of a graph drawing. Typically, spring-like attractive forces based on Hooke's law are used to attract pairs of endpoints of the graph's edges towards each other, while simultaneously repulsive forces like those of electrically charged particles based on Coulomb's law are used to separate all pairs of nodes. In equilibrium states for this system of forces, the edges tend to have uniform length (because of the spring forces), and nodes that are not connected by an edge tend to be drawn further apart (because of the electrical repulsion). Edge attraction and vertex repulsion forces may be defined using functions that are not based on the physical behavior of springs and particles; for instance, some force-directed systems use springs whose attractive force is logarithmic rather than linear.'
-    \n
-    https://en.wikipedia.org/wiki/Force-directed_graph_drawing \n
-    What this means is conflicting forces of attraction, and repulsion determine node position.
-    Possesing a high centrality value does not necessarily mean occupying a central position on the graph.
-    Also nodes can have a high betweeness centrality due to contributions from either inward directed projections, outward facing projections or both.\n
-
-    Fruchterman, Thomas M. J.; Reingold, Edward M. (1991), "Graph Drawing by Force-Directed Placement", Software – Practice & Experience, Wiley, 21 (11): 1129–1164, doi:10.1002/spe.4380211102.
 
     [LC Freeman A set of Measures of Betweeness (1977)](https://www.jstor.org/stable/pdf/3033543.pdf?casa_token=TzgYRJHfiYwAAAAA:r_8UKsxHRT7GRzoZ1OXwhJpzBbalTBYbG53me2fyMgZOvHnS9XM5TGB5yusfk5mCzQqXz4exAEFUcKXZ8I5ciIlU2dGpADzDfMu4Zm0rdA65G_ZzzJGo)
     [Analyzing the Structure of
@@ -1191,26 +1195,38 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     numerical and statis- tical libraries written in C. C++ and FORTRAN …
       Cited by 3606 Related articles
 
+
+    The basic force directed layout (used in other visualizations not this one)
+    Qoute from wikipedia:
+    'Force-directed graph drawing algorithms assign forces among the set of edges and the set of nodes of a graph drawing. Typically, spring-like attractive forces based on Hooke's law are used to attract pairs of endpoints of the graph's edges towards each other, while simultaneously repulsive forces like those of electrically charged particles based on Coulomb's law are used to separate all pairs of nodes. In equilibrium states for this system of forces, the edges tend to have uniform length (because of the spring forces), and nodes that are not connected by an edge tend to be drawn further apart (because of the electrical repulsion). Edge attraction and vertex repulsion forces may be defined using functions that are not based on the physical behavior of springs and particles; for instance, some force-directed systems use springs whose attractive force is logarithmic rather than linear.'
+    \n
+    https://en.wikipedia.org/wiki/Force-directed_graph_drawing \n
+    What this means is conflicting forces of attraction, and repulsion determine node position.
+    Possesing a high centrality value does not necessarily mean occupying a central position on the graph.
+    Also nodes can have a high betweeness centrality due to contributions from either inward directed projections, outward facing projections or both.\n
+
+    Fruchterman, Thomas M. J.; Reingold, Edward M. (1991), "Graph Drawing by Force-Directed Placement", Software – Practice & Experience, Wiley, 21 (11): 1129–1164, doi:10.1002/spe.4380211102.
+
     """
     )
-    my_expander = st.beta_expander("Mouse over node info?")
+    #my_expander = st.beta_expander("Mouse over node info?")
 
-    mo_ = my_expander.radio("Toggle Mouse overs?", ("Yes", "No"))
-    if mo_ == "Yes":
-        mo = True
-    else:
-        mo = False
+    #mo_ = my_expander.radio("Toggle Mouse overs?", ("Yes", "No"))
+    #if mo_ == "Yes":
+    #        mo = True
+    #else:
+    #    mo = False
+    mo = True
 
+    #my_expander = st.beta_expander("Directed Visualization (include arrow directions)?")
 
-    my_expander = st.beta_expander("Directed Visualization (include arrow directions)?")
+    #dir_ = my_expander.radio("Toggle Directed Visualization?", ("No","Yes"))
+    #if dir_ == "Yes":
+    #    dir = True
+    #else:
+    #    dir = False
 
-    dir_ = my_expander.radio("Toggle Directed Visualization?", ("No","Yes"))
-    if dir_ == "Yes":
-        dir = True
-    else:
-        dir = False
-
-
+    dir = True
     pos = nx.get_node_attributes(first, "pos")
 
     nt = Network(
@@ -1286,20 +1302,23 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
         if node["id"] in color_code.keys():
             node["color"] = color_code[node["id"]]
     nt.barnes_hut()
-    if phys_ == "Yes":
-        nt.show_buttons(filter_=["physics"])
+    #if phys_ == "Yes":
+    #    nt.show_buttons(filter_=["physics"])
     def display():
         nt.save_graph("test1.html")
 
+        #replaceAll('/test1.html','updateInterval": 50"','updateInterval": 50000"')
         HtmlFile = open("test1.html", "r", encoding="utf-8")
         source_code = HtmlFile.read()
         components.html(source_code, height=800, width=800)  # ,use_column_width=True)
 
     if dir:
-        st.markdown("""
-        This visualization has bigger node sizes because it uses betweeness centrality to determine node size.
-        The other visualization determines node size based on just a count on the number of direct neighbours
-        """)
+        #st.markdown("""
+        #This visualization has bigger node sizes because it uses betweeness centrality to determine node size.
+        #The other visualization determines node size based on just a count on the number of direct neighbours
+        #""")
+        #replaceAll('/saved_html2.html','updateInterval": 50"','updateInterval": 50000"')
+
         nt.save_graph("saved_html2.html")
         HtmlFile = open("saved_html2.html", "r", encoding="utf-8")
         source_code = HtmlFile.read()
@@ -1316,14 +1335,14 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     #    network = drawGraph();
     #    localStorage.setItem("localnet",network)
 
-    if phys_ == "Yes":
-        from PIL import Image
+    #if phys_ == "Yes":
+    #    from PIL import Image
 
-        st.markdown(
-            "Some parameter sets can prevent static equilibrium states. For example:"
-        )
+    #    st.markdown(
+    #        "Some parameter sets can prevent static equilibrium states. For example:"
+    #    )
         # nt.show_buttons(filter_=["physics"])
-        st.image(Image.open("rescreen_shot_just_params.png"))
+    #    st.image(Image.open("rescreen_shot_just_params.png"))
 
 
 def dont():
@@ -1836,9 +1855,9 @@ def main():
 		setting a minimum meaningful level of \n communication collaboration, \
 		The higher the threshold the more you \n reduce connections"""
     )
-    my_expander = st.beta_expander("Toggle Transpose collaboration sources/targets")
-    transpose = my_expander.radio("source/target", (False, True))
-
+    #my_expander = st.beta_expander("Toggle Transpose collaboration sources/targets")
+    #transpose = my_expander.radio("source/target", (False, True))
+    transpose = False
     my_expander = st.beta_expander("Set threshold")
     threshold = my_expander.slider("Select a threshold value", 0.0, 8.0, 5.0, 1.0)
     (

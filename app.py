@@ -1000,7 +1000,7 @@ def community(first, color_code, color_dict):
     ):
         fig2, ax2 = plt.subplots(1, 1, figsize=(20, 20))
 
-        node_color = [color_code[n] for n in first]
+        node_color = [color_code[n] for n in temp]
         srcs = []
         for e in temp.edges:
             src = color_code[e[0]]
@@ -1819,18 +1819,19 @@ def disparity_filter_alpha_cut(G, weight="weight", alpha_t=0.4, cut_mode="or"):
 
 def main():
     # full range.
-    # "Physics",
+    #"Physics",
     # "3D",
     # "Population",
-    # "Visualize Centrality",
-    # "Hive",
-    # "Community Mixing",
-    # "Basic",
-    # "Spreadsheet",
-    # "Bundle",
-    # "AdjacencyMatrix",
-    # "Chord",
-    # "View Source Code",
+    #"Interactive Population",
+    #"Visualize Centrality",
+    #"Hive",
+    #"Community Mixing",
+    #"Basic",
+    #"Spreadsheet",
+    #"Bundle",
+    #"AdjacencyMatrix",
+    #"Chord",
+    #"View Source Code",
 
     st.sidebar.title("Odor To Action: Collaboration Survey Data")
 
@@ -1840,8 +1841,15 @@ def main():
             "Physics",
             "Interactive Population",
             "Visualize Centrality",
-            "Population",
+            "Hive",
+            "Community Mixing",
+            "Basic",
             "Spreadsheet",
+            "Bundle",
+            "AdjacencyMatrix",
+            "Chord",
+            "3D",
+            "View Source Code",
         ),
     )
 
@@ -2028,6 +2036,7 @@ def main():
 
         community(first, color_code, color_dict)
     if genre == "3D":
+        st.markdown("""This visualization is a work in progress, the results are not yet fully reliable""")
         my_expander = st.beta_expander("Explanation of different Node sizes for 3D")
         my_expander.markdown(
             """Note this visualization uses a different library (I-Graph, however normally networkx is used) to determine the betweeness centrality

@@ -1,7 +1,7 @@
-openpyxl==3.0.0
+#openpyxl==3.0.0
 numpy
 xlrd==1.2.0
-colorlover==0.3.0
+#colorlover==0.3.0
 plotly==4.5.2
 streamlit
 datashader==0.12.0
@@ -10,7 +10,7 @@ pyvis==0.1.9
 matplotlib==2.2.5
 scikit-image
 -e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=python-louvain
-python-igraph
+#python-igraph
 pyveplot
 seaborn==0.9.1
 #dash_bio==0.7.0

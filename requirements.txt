@@ -13,8 +13,8 @@ scikit-image
 python-igraph
 pyveplot
 seaborn==0.9.1
-dash_bio==0.7.0
-agraph-python
+#dash_bio==0.7.0
+#agraph-python
 
 #egg=community
 

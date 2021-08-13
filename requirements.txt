@@ -1,8 +1,6 @@
-#openpyxl==3.0.0
 tkinter
 numpy
 xlrd==1.2.0
-#colorlover==0.3.0
 plotly==4.5.2
 streamlit
 datashader==0.12.0
@@ -10,10 +8,16 @@ holoviews
 pyvis==0.1.9
 matplotlib==2.2.5
 scikit-image
--e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=python-louvain
-#python-igraph
+python-louvain
+networkx
 pyveplot
 seaborn==0.9.1
+#colorlover==0.3.0
+#openpyxl==3.0.0
+
+#-e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=python-louvain
+#python-igraph
+
 #dash_bio==0.7.0
 #agraph-python
 

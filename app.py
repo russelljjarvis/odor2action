@@ -3,7 +3,7 @@ Author: [Russell Jarvis](https://github.com/russelljjarvis)
 
 """
 from community import community_louvain
-import igraph as ig
+#import igraph as ig
 import plotly.graph_objs as go
 from matplotlib.patches import FancyArrowPatch, Circle
 import numpy as np
@@ -2035,6 +2035,7 @@ def main():
         )
 
         community(first, color_code, color_dict)
+    '''
     if genre == "3D":
         st.markdown("""This visualization is a work in progress, the results are not yet fully reliable""")
         my_expander = st.beta_expander("Explanation of different Node sizes for 3D")
@@ -2054,7 +2055,7 @@ def main():
         #    for src, tgt in zip(links["source"], links["target"])
         # ]
         # G = ig.Graph(Edges, directed=True)
-        G = ig.Graph.from_networkx(first)  # , directed=True)
+        #G = ig.Graph.from_networkx(first)  # , directed=True)
         # local_reverse = {k:v for k,v in zip(G.vs(),first.nodes)}
         # spring_3D = nx.spring_layout(G, dim = 3, k = 0.5) # k regulates the distance between nodes
         edges = first.edges()
@@ -2142,11 +2143,11 @@ def main():
         # Include the traces we want to plot and create a figure
         data = [trace_edges, trace_nodes, trace_weights]
 
-        layt = G.layout(
-            "kk", dim=3
-        )  # plot network with the Kamada-Kawai layout algorithm
-        estimate = G.betweenness(directed=True)  # , cutoff=16)
-        H = first.to_undirected()
+        #layt = G.layout(
+        #    "kk", dim=3
+        #)  # plot network with the Kamada-Kawai layout algorithm
+        #estimate = G.betweenness(directed=True)  # , cutoff=16)
+        #H = first.to_undirected()
 
         # estimate = nx.betweenness_centrality(H)  # , k=10, endpoints=True)
         # estimate = list(estimate.values())
@@ -2246,7 +2247,7 @@ def main():
         # st.markdown("To ultimately be replaced with something in centre of page and networkx derived like below:")
         # fig1 = go.Figure(data=data, layout=layout)
         # st.write(fig1, use_column_width=True)
-
+    '''
     if genre == "Physics":
         # if threshold == 5 and transpose == False:
         #    HtmlFile = open("test2.html", "r", encoding="utf-8")

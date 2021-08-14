@@ -4,8 +4,8 @@ Author: [Russell Jarvis](https://github.com/russelljjarvis)
 """
 import matplotlib
 matplotlib.use("Agg")
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
+#from matplotlib.backends.backend_agg import RendererAgg
+#_lock = RendererAgg.lock
 
 import seaborn as sns
 
@@ -625,65 +625,65 @@ def draw_network(G, pos, ax, widths, edge_colors, sg=None):
 
 # @st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def population(cc, popg, color_dict):
-    with _lock:
+    #with _lock:
 
-        fig, ax = plt.subplots(figsize=(20, 15))
+    fig, ax = plt.subplots(figsize=(20, 15))
 
-        pos = nx.spring_layout(popg, k=15, seed=4572321, scale=1.5)
-        sizes = {}
-        for k, v in cc.items():
-            if v not in sizes.keys():
-                sizes[v] = 1
-            else:
-                sizes[v] += 1
-        temp = list([s * 1000 for s in sizes.values()])
-        node_color = [color_dict[n] for n in popg]
-        nx.draw_networkx_nodes(
-            popg,
-            pos=pos,
-            node_color=node_color,  # = [color_code[n] for n in H],
-            node_size=temp,
-            alpha=0.6,
-            linewidths=2,
-        )
-        # if labelsx:
-        #    labels = {}
-        #    for node in temp.nodes():
+    pos = nx.spring_layout(popg, k=15, seed=4572321, scale=1.5)
+    sizes = {}
+    for k, v in cc.items():
+        if v not in sizes.keys():
+            sizes[v] = 1
+        else:
+            sizes[v] += 1
+    temp = list([s * 1000 for s in sizes.values()])
+    node_color = [color_dict[n] for n in popg]
+    nx.draw_networkx_nodes(
+        popg,
+        pos=pos,
+        node_color=node_color,  # = [color_code[n] for n in H],
+        node_size=temp,
+        alpha=0.6,
+        linewidths=2,
+    )
+    # if labelsx:
+    #    labels = {}
+    #    for node in temp.nodes():
+    # set the node name as the key and the label as its value
+    #        labels[node] = node
+    #    nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
+
+    widths = []  # [e["weight"] for e in popg.edges]
+    # st.text(widths)
+    edge_list = []
+    edge_colors = []
+    for e in popg.edges:
+        edge_list.append((e[0], e[1]))
+        edge_colors.append(color_dict[e[0]])
+
+        ee = popg.get_edge_data(e[0], e[1])
+        widths.append(ee["weight"] * 0.02)
+
+    ax = plt.gca()
+    draw_network(popg, pos, ax, widths, edge_colors)
+    # labels = {v.name:v for v,v in popg.nodes}
+    labels = {}
+    for node in popg.nodes():
         # set the node name as the key and the label as its value
-        #        labels[node] = node
-        #    nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
+        labels[node] = node
 
-        widths = []  # [e["weight"] for e in popg.edges]
-        # st.text(widths)
-        edge_list = []
-        edge_colors = []
-        for e in popg.edges:
-            edge_list.append((e[0], e[1]))
-            edge_colors.append(color_dict[e[0]])
+    # for k, v in labels.items():
+    #    plt.scatter([], [], c=color_dict[v], label=k)
+    # plt.legend(frameon=False, prop={"size": 34})
+    ax.margins(0.1, 0.1)
 
-            ee = popg.get_edge_data(e[0], e[1])
-            widths.append(ee["weight"] * 0.02)
+    popgc = copy.copy(popg)
+    ax.autoscale()
+    plt.axis("equal")
+    plt.axis("off")
+    plt.tight_layout()
 
-        ax = plt.gca()
-        draw_network(popg, pos, ax, widths, edge_colors)
-        # labels = {v.name:v for v,v in popg.nodes}
-        labels = {}
-        for node in popg.nodes():
-            # set the node name as the key and the label as its value
-            labels[node] = node
-
-        # for k, v in labels.items():
-        #    plt.scatter([], [], c=color_dict[v], label=k)
-        # plt.legend(frameon=False, prop={"size": 34})
-        ax.margins(0.1, 0.1)
-
-        popgc = copy.copy(popg)
-        ax.autoscale()
-        plt.axis("equal")
-        plt.axis("off")
-        plt.tight_layout()
-
-        st.pyplot(fig, use_column_width=True)
+    st.pyplot(fig, use_column_width=True)
 
 
 def interactive_population(cc, popg, color_dict):
@@ -978,21 +978,57 @@ def community(first, color_code, color_dict):
         srcs.append(src)
         ee = temp.get_edge_data(e[0], e[1])
         widths.append(1.85 * ee["weight"])
-    with _lock:
+    #with _lock:
 
-        fig1, ax1 = plt.subplots(1, 1, figsize=(20, 20))
-        recolored = [colors[i] for i in diffcc]
+    fig1, ax1 = plt.subplots(1, 1, figsize=(20, 20))
+    recolored = [colors[i] for i in diffcc]
+
+    nx.draw_networkx_nodes(
+        temp,
+        pos=pos,
+        node_color=recolored,
+        node_size=550,
+        alpha=0.5,
+        linewidths=1,
+    )
+    # axx = ax1.gca()  # to get the current axis
+    # axx.collections[0].set_edgecolor("#FF0000")
+    label_pos = copy.deepcopy(pos)
+    for k, v in label_pos.items():
+        label_pos[k][0] = v[0] + 0.5
+
+    if labelsx:
+        labels = {}
+        for node in temp.nodes():
+            # set the node name as the key and the label as its value
+            labels[node] = node
+        nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
+
+    nx.draw_networkx_edges(temp, pos=pos, edge_color="grey", alpha=0.15, width=widths)
+    for centre in zip(centrex, centrey, pkeys):
+        r = 1.5
+        c = (float(centre[0]), float(centre[1]))
+        ax1.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
+
+    def last_fig(
+        color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=False
+    ):
+        fig2, ax2 = plt.subplots(1, 1, figsize=(20, 20))
+
+        node_color = [color_code[n] for n in temp]
+        srcs = []
+        for e in temp.edges:
+            src = color_code[e[0]]
+            srcs.append(src)
 
         nx.draw_networkx_nodes(
             temp,
             pos=pos,
-            node_color=recolored,
+            node_color=node_color,
             node_size=550,
             alpha=0.5,
             linewidths=1,
         )
-        # axx = ax1.gca()  # to get the current axis
-        # axx.collections[0].set_edgecolor("#FF0000")
         label_pos = copy.deepcopy(pos)
         for k, v in label_pos.items():
             label_pos[k][0] = v[0] + 0.5
@@ -1002,75 +1038,39 @@ def community(first, color_code, color_dict):
             for node in temp.nodes():
                 # set the node name as the key and the label as its value
                 labels[node] = node
-            nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
+            nx.draw_networkx_labels(
+                temp, label_pos, labels, font_size=29.5, font_color="b"
+            )
 
-        nx.draw_networkx_edges(temp, pos=pos, edge_color="grey", alpha=0.15, width=widths)
+        # axx = ax2.gca()  # to get the current axis
+        # axx.collections[0].set_edgecolor("#FF0000")
+        nx.draw_networkx_edges(
+            temp, pos=pos, edge_color="grey", alpha=0.15, width=widths
+        )
         for centre in zip(centrex, centrey, pkeys):
             r = 1.5
             c = (float(centre[0]), float(centre[1]))
-            ax1.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
+            ax2.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
+            #    if labelsx:
+            # for k, v in color_dict.items():
+            #    plt.scatter([], [], c=v, label=k)
+            # plt.legend(frameon=False, prop={"size": 29.5})
+        return fig2
 
-        def last_fig(
-            color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=False
-        ):
-            fig2, ax2 = plt.subplots(1, 1, figsize=(20, 20))
+    fig2 = last_fig(
+        color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=False
+    )
+    # plt.axis('off')
+    # fig1.tight_layout()
+    col1, col2 = st.beta_columns(2)
 
-            node_color = [color_code[n] for n in temp]
-            srcs = []
-            for e in temp.edges:
-                src = color_code[e[0]]
-                srcs.append(src)
+    col1.pyplot(fig1, use_column_width=True)
+    col2.pyplot(fig2, use_column_width=True)
+    fig2 = last_fig(
+        color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=True
+    )
 
-            nx.draw_networkx_nodes(
-                temp,
-                pos=pos,
-                node_color=node_color,
-                node_size=550,
-                alpha=0.5,
-                linewidths=1,
-            )
-            label_pos = copy.deepcopy(pos)
-            for k, v in label_pos.items():
-                label_pos[k][0] = v[0] + 0.5
-
-            if labelsx:
-                labels = {}
-                for node in temp.nodes():
-                    # set the node name as the key and the label as its value
-                    labels[node] = node
-                nx.draw_networkx_labels(
-                    temp, label_pos, labels, font_size=29.5, font_color="b"
-                )
-
-            # axx = ax2.gca()  # to get the current axis
-            # axx.collections[0].set_edgecolor("#FF0000")
-            nx.draw_networkx_edges(
-                temp, pos=pos, edge_color="grey", alpha=0.15, width=widths
-            )
-            for centre in zip(centrex, centrey, pkeys):
-                r = 1.5
-                c = (float(centre[0]), float(centre[1]))
-                ax2.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
-                #    if labelsx:
-                # for k, v in color_dict.items():
-                #    plt.scatter([], [], c=v, label=k)
-                # plt.legend(frameon=False, prop={"size": 29.5})
-            return fig2
-
-        fig2 = last_fig(
-            color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=False
-        )
-        # plt.axis('off')
-        # fig1.tight_layout()
-        col1, col2 = st.beta_columns(2)
-
-        col1.pyplot(fig1, use_column_width=True)
-        col2.pyplot(fig2, use_column_width=True)
-        fig2 = last_fig(
-            color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=True
-        )
-
-        st.pyplot(fig2, use_column_width=True)
+    st.pyplot(fig2, use_column_width=True)
 
     # try:
     #    st.pyplot(fig1, use_column_width=True)
@@ -2319,10 +2319,10 @@ def main():
 			 apart as to economize wiring material. Conservation of wire material is also seen in the nervous system.
              In the corpus callosum and spinal column convergent paths are constricted into relatively narrower bundles."""
         )
-        with _lock:
+        #with _lock:
 
-            fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
-            st.pyplot(fig4, use_column_width=True)
+        fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
+        st.pyplot(fig4, use_column_width=True)
     if genre == "cyto":
         # from ipycytoscape import CytoscapeWidget
         # cyto = CytoscapeWidget()
@@ -2487,70 +2487,70 @@ def main():
         # compute community structure
         lpc = nx.community.label_propagation_communities(H)
         community_index = {n: i for i, com in enumerate(lpc) for n in com}
-        with _lock:
+        #with _lock:
 
-            #### draw graph ####
-            fig, ax = plt.subplots(figsize=(20, 15))
-            # fig, ax = plt.subplots(figsize=(15,15))
+        #### draw graph ####
+        fig, ax = plt.subplots(figsize=(20, 15))
+        # fig, ax = plt.subplots(figsize=(15,15))
 
-            pos = nx.spring_layout(H, k=0.05, seed=4572321, scale=1)
+        pos = nx.spring_layout(H, k=0.05, seed=4572321, scale=1)
 
-            node_color = [color_code[n] for n in H]
-            srcs = list(adj_mat["src"].values)
+        node_color = [color_code[n] for n in H]
+        srcs = list(adj_mat["src"].values)
 
-            srcs = []
-            for e in H.edges:
-                src = color_code[e[0]]
-                srcs.append(src)
-            nx.draw_networkx_nodes(
-                H,
-                pos=pos,
-                node_color=node_color,
-                node_size=node_size,
-                alpha=0.5,
-                linewidths=2,
-            )
+        srcs = []
+        for e in H.edges:
+            src = color_code[e[0]]
+            srcs.append(src)
+        nx.draw_networkx_nodes(
+            H,
+            pos=pos,
+            node_color=node_color,
+            node_size=node_size,
+            alpha=0.5,
+            linewidths=2,
+        )
 
-            labels = {}
-            for node in H.nodes():
-                # set the node name as the key and the label as its value
-                labels[node] = node
-            if labels_:
-                nx.draw_networkx_labels(H, pos, labels, font_size=16, font_color="r")
+        labels = {}
+        for node in H.nodes():
+            # set the node name as the key and the label as its value
+            labels[node] = node
+        if labels_:
+            nx.draw_networkx_labels(H, pos, labels, font_size=16, font_color="r")
 
-            axx = fig.gca()  # to get the current axis
-            axx.collections[0].set_edgecolor("#FF0000")
-            nx.draw_networkx_edges(
-                H, pos=pos, edge_color=srcs, alpha=0.5, width=list(adj_mat["weight"].values)
-            )
+        axx = fig.gca()  # to get the current axis
+        axx.collections[0].set_edgecolor("#FF0000")
+        nx.draw_networkx_edges(
+            H, pos=pos, edge_color=srcs, alpha=0.5, width=list(adj_mat["weight"].values)
+        )
 
-            # Title/legend
-            font = {"color": "k", "fontweight": "bold", "fontsize": 20}
-            ax.set_title("network", font)
-            # Change font color for legend
-            font["color"] = "b"
+        # Title/legend
+        font = {"color": "k", "fontweight": "bold", "fontsize": 20}
+        ax.set_title("network", font)
+        # Change font color for legend
+        font["color"] = "b"
 
-            ax.text(
-                0.80,
-                0.06,
-                "node size = betweeness centrality",
-                horizontalalignment="center",
-                transform=ax.transAxes,
-                fontdict=font,
-            )
+        ax.text(
+            0.80,
+            0.06,
+            "node size = betweeness centrality",
+            horizontalalignment="center",
+            transform=ax.transAxes,
+            fontdict=font,
+        )
 
-            # Resize figure for label readibility
-            ax.margins(0.1, 0.05)
-            fig.tight_layout()
-            plt.axis("off")
+        # Resize figure for label readibility
+        ax.margins(0.1, 0.05)
+        fig.tight_layout()
+        plt.axis("off")
 
-            for k, v in color_dict.items():
-                plt.scatter([], [], c=v, label=k)
+        for k, v in color_dict.items():
+            plt.scatter([], [], c=v, label=k)
 
-            plt.legend(frameon=False, prop={"size": 24})
-            # leg = ax.legend()
-            # leg.set_title()
-            st.pyplot(fig, use_column_width=True)
+        plt.legend(frameon=False, prop={"size": 24})
+        # leg = ax.legend()
+        # leg.set_title()
+        st.pyplot(fig, use_column_width=True)
 
     adj_mat = pd.DataFrame(adj_mat_dicts)
     narr = nx.to_pandas_adjacency(first)
@@ -2580,10 +2580,10 @@ def main():
             axis labels. If you look closely at the pixels, pixels vary at double the frequency of the node labels.
 			"""
         )
-        with _lock:
+        #with _lock:
 
-            g = sns.clustermap(df2)
-            st.pyplot(g)
+        g = sns.clustermap(df2)
+        st.pyplot(g)
 
         st.markdown(
             "un sorted interactive adjacency matrix (data not organized to emphasise clusters)"

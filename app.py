@@ -2054,8 +2054,8 @@ def main():
         )
 
         community(first, color_code, color_dict)
-    '''
-    if genre == "3D":
+    def dontdo():
+    #if genre == "3D":
         st.markdown("""This visualization is a work in progress, the results are not yet fully reliable""")
         my_expander = st.beta_expander("Explanation of different Node sizes for 3D")
         my_expander.markdown(
@@ -2266,7 +2266,6 @@ def main():
         # st.markdown("To ultimately be replaced with something in centre of page and networkx derived like below:")
         # fig1 = go.Figure(data=data, layout=layout)
         # st.write(fig1, use_column_width=True)
-    '''
     if genre == "Physics":
         # if threshold == 5 and transpose == False:
         #    HtmlFile = open("test2.html", "r", encoding="utf-8")

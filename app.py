@@ -2,8 +2,8 @@
 Author: [Russell Jarvis](https://github.com/russelljjarvis)
 
 """
-import matplotlib
-matplotlib.use("Agg")
+#import matplotlib
+#matplotlib.use("Agg")
 #from matplotlib.backends.backend_agg import RendererAgg
 #_lock = RendererAgg.lock
 

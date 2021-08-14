@@ -46,6 +46,10 @@ import numpy as np
 import pickle
 
 import plotly.graph_objects as go
+import tkinter
+#import streamlit as st
+
+#def main():
 
 
 import pandas as pd
@@ -68,8 +72,6 @@ import random
 import base64
 import textwrap
 
-from matplotlib.backends.backend_agg import RendererAgg
-_lock = RendererAgg.lock
 
 
 
@@ -927,7 +929,7 @@ def community(first, color_code, color_dict):
         "#999999",
     ]
 
-    my_expander = st.beta_expander("Toggle node labels")
+    my_expander = st.expander("Toggle node labels")
     labels_ = my_expander.radio("Would you like to label nodes?", ("No", "Yes"))
     if labels_ == "Yes":
         labelsx = True
@@ -1168,15 +1170,15 @@ def replaceAll(file,searchExp,replaceExp):
 
 def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
-    #my_expander = st.beta_expander("physical parameters")
+    #my_expander = st.expander("physical parameters")
 
     #phys_ = my_expander.radio(
     #    "Would you like to change physical parameters?", ("No", "Yes")
     #)
 
-    # my_expander = st.sidebar.beta_expander("Explanation of Threshold")
-    my_expander2 = st.beta_expander("Explanation")
-    #physics_layouts = st.beta_expander("Layouts")
+    # my_expander = st.sidebar.expander("Explanation of Threshold")
+    my_expander2 = st.expander("Explanation")
+    #physics_layouts = st.expander("Layouts")
     #physics_layouts.radio(
     #    label="layout_options", options=("force_atlas_2based", "hierarchical")
     #)
@@ -1217,7 +1219,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     """
     )
-    #my_expander = st.beta_expander("Mouse over node info?")
+    #my_expander = st.expander("Mouse over node info?")
 
     #mo_ = my_expander.radio("Toggle Mouse overs?", ("Yes", "No"))
     #if mo_ == "Yes":
@@ -1226,7 +1228,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     #    mo = False
     mo = True
 
-    #my_expander = st.beta_expander("Directed Visualization (include arrow directions)?")
+    #my_expander = st.expander("Directed Visualization (include arrow directions)?")
 
     #dir_ = my_expander.radio("Toggle Directed Visualization?", ("No","Yes"))
     #if dir_ == "Yes":
@@ -1826,6 +1828,12 @@ def disparity_filter_alpha_cut(G, weight="weight", alpha_t=0.4, cut_mode="or"):
 
 
 def main():
+
+    st.write(tkinter.TkVersion)
+    root = tkinter.Tk()
+    #from matplotlib.backends.backend_agg import RendererAgg
+    #_lock = RendererAgg.lock
+
     # full range.
     #"Physics",
     # "3D",
@@ -1861,7 +1869,7 @@ def main():
         ),
     )
 
-    my_expander = st.sidebar.beta_expander("Explanation of Threshold")
+    my_expander = st.sidebar.expander("Explanation of Threshold")
 
     my_expander.markdown(
         """
@@ -1871,10 +1879,10 @@ def main():
 		setting a minimum meaningful level of \n communication collaboration, \
 		The higher the threshold the more you \n reduce connections"""
     )
-    #my_expander = st.beta_expander("Toggle Transpose collaboration sources/targets")
+    #my_expander = st.expander("Toggle Transpose collaboration sources/targets")
     #transpose = my_expander.radio("source/target", (False, True))
     transpose = False
-    my_expander = st.beta_expander("Set threshold")
+    my_expander = st.expander("Set threshold")
     threshold = my_expander.slider("Select a threshold value", 0.0, 8.0, 5.0, 1.0)
     (
         df2,
@@ -1969,7 +1977,7 @@ def main():
         )
     if genre == "Visualize Centrality":
 
-        my_expander = st.beta_expander("Explanation of Centrality Hive")
+        my_expander = st.expander("Explanation of Centrality Hive")
 
         my_expander.markdown(
             """Using pythons networkx module Nodes are layed out from ascending to descending contributions of centrality. This plot depicts betweeness centrality from densely inter-connected (hub) to sparsely inter-connected leaf.
@@ -1996,12 +2004,12 @@ def main():
         st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
         st.markdown("Anonymized raw survey data")
         st.markdown(get_table_download_link_csv(sheet), unsafe_allow_html=True)
-        my_expander = st.beta_expander("Numeric mapping of survery question answers")
+        my_expander = st.expander("Numeric mapping of survery question answers")
         my_expander.write(legend)
-        my_expander = st.beta_expander("Collapsed/Expand Numeric Spread sheet")
+        my_expander = st.expander("Collapsed/Expand Numeric Spread sheet")
         my_expander.table(df2)
 
-        my_expander = st.beta_expander("Collapsed/Expand Raw Spread sheet")
+        my_expander = st.expander("Collapsed/Expand Raw Spread sheet")
         my_expander.markdown(
             """Row elements represent, outward facing projections, how often a person recognizes contact with others."""
         )
@@ -2010,7 +2018,7 @@ def main():
         )
 
         my_expander.table(sheet)
-        my_expander = st.beta_expander("Verify Person By Code")
+        my_expander = st.expander("Verify Person By Code")
         user_input = my_expander.text_input("enter anonymos code", "02P1")
         try:
             my_expander.markdown("The column is how others rated them")
@@ -2032,7 +2040,7 @@ def main():
 
             # my_expander.write(df2.loc[:,user_input])
     if genre == "Community Mixing":
-        my_expander = st.beta_expander("Explanation of Community Partitions")
+        my_expander = st.expander("Explanation of Community Partitions")
         my_expander.markdown(
             """Communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the four inferred communities. \
         For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes (dots) are color coded IRG-1-3 \n \
@@ -2046,7 +2054,7 @@ def main():
     '''
     if genre == "3D":
         st.markdown("""This visualization is a work in progress, the results are not yet fully reliable""")
-        my_expander = st.beta_expander("Explanation of different Node sizes for 3D")
+        my_expander = st.expander("Explanation of different Node sizes for 3D")
         my_expander.markdown(
             """Note this visualization uses a different library (I-Graph, however normally networkx is used) to determine the betweeness centrality
         with the interesting consequence that a DCMT node is now second most central"""
@@ -2268,7 +2276,7 @@ def main():
         physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
 
     if genre == "Interactive Population":
-        my_expander = st.beta_expander("Explanation of population")
+        my_expander = st.expander("Explanation of population")
         my_expander.markdown(
             """Here node size does not reflect centrality or connectivity. Node size reflects number of participants in group, therefore DCMT is small because it consists of just two members. Likewise ribbon width is the total sum of weighted connections between groups."""
         )
@@ -2276,7 +2284,7 @@ def main():
         interactive_population(cc, popg, color_dict)
 
     if genre == "Population":
-        my_expander = st.beta_expander("Explanation of population")
+        my_expander = st.expander("Explanation of population")
         my_expander.markdown(
             """Here node size does not reflect centrality or connectivity. Node size reflects number of participants in group, therefore DCMT is small because it consists of just two members. Likewise ribbon width is the total sum of weighted connections between groups."""
         )
@@ -2284,7 +2292,7 @@ def main():
         population(cc, popg, color_dict)
     if genre == "Hive":
 
-        my_expander = st.beta_expander("Explanation of Hive")
+        my_expander = st.expander("Explanation of Hive")
 
         my_expander.markdown(
             """This predominantly shows between group connectivity. The total node number in each category is reduced compared to other graphs. Unlike other hive implementations nodes are shown that don't connect outside of their assigned group (eg IRG-1), but they are visualized with no prominent interconnection.
@@ -2294,13 +2302,13 @@ def main():
         hive_two(first, color_code, color_code_0, reverse)
 
     if genre == "Bundle":
-        my_expander = st.beta_expander("show labels?")
+        my_expander = st.expander("show labels?")
         labels_ = my_expander.radio("Would you like to label nodes?", ("No", "Yes"))
         if labels_ == "Yes":
             labels = True
         if labels_ == "No":
             labels = False
-        my_expander = st.beta_expander("Bundling explanation")
+        my_expander = st.expander("Bundling explanation")
 
         my_expander.markdown(
             """The graph type below is called edge bundling. "Bundling" connecting cables simplifies the visualization.\n \
@@ -2437,7 +2445,7 @@ def main():
 
     if genre == "Basic":
         #'plt.rcParams['legend.title_fontsize'] = 'xx-large'
-        # my_expander = st.beta_expander("Toggle Backbone")
+        # my_expander = st.expander("Toggle Backbone")
 
         # backbone = my_expander.radio("Would you like to see the back-bone?", ("No", "Yes"))
         # if backbone:
@@ -2445,14 +2453,14 @@ def main():
         #    G = disparity_filter(first)
         #    first = nx.Graph([(u, v, d) for u, v, d in G.edges(data=True) if d['alpha'] < alpha])
 
-        my_expander = st.beta_expander("show labels?")
+        my_expander = st.expander("show labels?")
 
         labels_ = my_expander.radio("Would you like to label nodes?", ("No", "Yes"))
         if labels_ == "Yes":
             labels_ = True
         if labels_ == "No":
             labels_ = False
-        exp = st.beta_expander("Information about Force Directed Layout")
+        exp = st.expander("Information about Force Directed Layout")
         exp.markdown(
             """This is probably not the most informative layout option. Contrast this force directed layout network layout with bundling (wire cost is not economized here).
             The basic force directed layout is very similar to the physics engine layout, but without interactivity.
@@ -2559,7 +2567,7 @@ def main():
 
     if genre == "AdjacencyMatrix":
 
-        my_expander = st.beta_expander("Explanation of Adjacency Clustergrams")
+        my_expander = st.expander("Explanation of Adjacency Clustergrams")
 
         my_expander.markdown(
             """Clustergrams are re-sorted adjacency matrices, thats why their diaganols do not appear to be zero. \n

@@ -2,6 +2,11 @@
 Author: [Russell Jarvis](https://github.com/russelljjarvis)
 
 """
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib.backends.backend_agg import RendererAgg
+_lock = RendererAgg.lock
+
 import seaborn as sns
 
 from community import community_louvain
@@ -1829,10 +1834,8 @@ def disparity_filter_alpha_cut(G, weight="weight", alpha_t=0.4, cut_mode="or"):
 
 def main():
 
-    st.write(tkinter.TkVersion)
-    root = tkinter.Tk()
-    #from matplotlib.backends.backend_agg import RendererAgg
-    #_lock = RendererAgg.lock
+    #st.write(tkinter.TkVersion)
+    #root = tkinter.Tk()
 
     # full range.
     #"Physics",

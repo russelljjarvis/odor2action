@@ -17,13 +17,13 @@ python -m pip install plotly tabulate # hiveplotlib hiveplot pygraphviz#==2.0.0#
 #python -m pip install streamlit --upgrade --ignore-installed
 #python -m pip install pygraphviz
 # streamlit-agraph
-python -m pip install python-igraph
+#python -m pip install python-igraph
 
 #$(which python) -m pip install git+https://github.com/taynaud/python-louvain.git@networkx2
 #python -m pip install git+https://github.com/taynaud/python-louvain.git@networkx2
 
 
-python -m pip install git+https://github.com/taynaud/python-louvain.git@networkx2
+python -m pip install python-louvain #git+https://github.com/taynaud/python-louvain.git@networkx2
 #git clone https://github.com/taynaud/python-louvain.git@networkx2; cd networkx2; python setup.py install; cd -
 #python make_serial_plots0.py
 #python make_serial_plots1.py

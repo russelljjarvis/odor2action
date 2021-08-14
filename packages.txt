@@ -1,0 +1,5 @@
+python3-tk
+#graphviz-dev
+#graphviz
+#python-pydot
+#python-pydot-ng

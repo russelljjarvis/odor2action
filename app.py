@@ -348,22 +348,28 @@ import copy
 # @st.cache(persist=True)
 # @st.cache(allow_output_mutation=True)
 def get_frame(transpose=False, threshold=6):
+    try:
+        with open("worksheets.p","rb") as f:
+            [worksheet0,worksheet1] = pickle.load(f)
+    except:
+        hard_codes = Path("code_by_IRG.xlsx")
+        hard_codes = openpyxl.load_workbook(hard_codes)
 
-    hard_codes = Path("code_by_IRG.xlsx")
-    hard_codes = openpyxl.load_workbook(hard_codes)
+        hard_codes = hard_codes.active
 
-    hard_codes = hard_codes.active
+        hard_codes = pd.DataFrame(hard_codes.values)
 
-    hard_codes = pd.DataFrame(hard_codes.values)
+        xlsx_file0 = Path("o2anetmap2021.xlsx")
+        xlsx_file1 = Path("o2anetmap.xlsx")
+        wb_obj0 = openpyxl.load_workbook(xlsx_file0)
+        wb_obj1 = openpyxl.load_workbook(xlsx_file1)
 
-    xlsx_file0 = Path("o2anetmap2021.xlsx")
-    xlsx_file1 = Path("o2anetmap.xlsx")
-    wb_obj0 = openpyxl.load_workbook(xlsx_file0)
-    wb_obj1 = openpyxl.load_workbook(xlsx_file1)
+        # Read the active sheet:
+        worksheet0 = wb_obj0.active
+        worksheet1 = wb_obj1.active
+        with open("worksheets.p","wb") as f:
 
-    # Read the active sheet:
-    worksheet0 = wb_obj0.active
-    worksheet1 = wb_obj1.active
+            pickle.dump([worksheet0,worksheet1],f)
 
     df3 = pd.DataFrame(worksheet0.values)
     df3.replace("", "Barely or never", regex=True, inplace=True)
@@ -1947,6 +1953,9 @@ def main():
 
     first.remove_nodes_from(list(nx.isolates(first)))
     adj_mat = pd.DataFrame(adj_mat_dicts)
+
+    st.write(adj_mat)
+    st.text(adj_mat_dicts)
     try:
         encoded = {v: k for k, v in enumerate(first.nodes())}
     except:

@@ -998,57 +998,21 @@ def community(first, color_code, color_dict):
         srcs.append(src)
         ee = temp.get_edge_data(e[0], e[1])
         widths.append(1.85 * ee["weight"])
-    #with _lock:
+    with _lock:
 
-    fig1, ax1 = plt.subplots(1, 1, figsize=(20, 20))
-    recolored = [colors[i] for i in diffcc]
-
-    nx.draw_networkx_nodes(
-        temp,
-        pos=pos,
-        node_color=recolored,
-        node_size=550,
-        alpha=0.5,
-        linewidths=1,
-    )
-    # axx = ax1.gca()  # to get the current axis
-    # axx.collections[0].set_edgecolor("#FF0000")
-    label_pos = copy.deepcopy(pos)
-    for k, v in label_pos.items():
-        label_pos[k][0] = v[0] + 0.5
-
-    if labelsx:
-        labels = {}
-        for node in temp.nodes():
-            # set the node name as the key and the label as its value
-            labels[node] = node
-        nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
-
-    nx.draw_networkx_edges(temp, pos=pos, edge_color="grey", alpha=0.15, width=widths)
-    for centre in zip(centrex, centrey, pkeys):
-        r = 1.5
-        c = (float(centre[0]), float(centre[1]))
-        ax1.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
-
-    def last_fig(
-        color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=False
-    ):
-        fig2, ax2 = plt.subplots(1, 1, figsize=(20, 20))
-
-        node_color = [color_code[n] for n in temp]
-        srcs = []
-        for e in temp.edges:
-            src = color_code[e[0]]
-            srcs.append(src)
+        fig1, ax1 = plt.subplots(1, 1, figsize=(20, 20))
+        recolored = [colors[i] for i in diffcc]
 
         nx.draw_networkx_nodes(
             temp,
             pos=pos,
-            node_color=node_color,
+            node_color=recolored,
             node_size=550,
             alpha=0.5,
             linewidths=1,
         )
+        # axx = ax1.gca()  # to get the current axis
+        # axx.collections[0].set_edgecolor("#FF0000")
         label_pos = copy.deepcopy(pos)
         for k, v in label_pos.items():
             label_pos[k][0] = v[0] + 0.5
@@ -1058,39 +1022,75 @@ def community(first, color_code, color_dict):
             for node in temp.nodes():
                 # set the node name as the key and the label as its value
                 labels[node] = node
-            nx.draw_networkx_labels(
-                temp, label_pos, labels, font_size=29.5, font_color="b"
-            )
+            nx.draw_networkx_labels(temp, label_pos, labels, font_size=29.5, font_color="b")
 
-        # axx = ax2.gca()  # to get the current axis
-        # axx.collections[0].set_edgecolor("#FF0000")
-        nx.draw_networkx_edges(
-            temp, pos=pos, edge_color="grey", alpha=0.15, width=widths
-        )
+        nx.draw_networkx_edges(temp, pos=pos, edge_color="grey", alpha=0.15, width=widths)
         for centre in zip(centrex, centrey, pkeys):
             r = 1.5
             c = (float(centre[0]), float(centre[1]))
-            ax2.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
-            #    if labelsx:
-            # for k, v in color_dict.items():
-            #    plt.scatter([], [], c=v, label=k)
-            # plt.legend(frameon=False, prop={"size": 29.5})
-        return fig2
+            ax1.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
 
-    fig2 = last_fig(
-        color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=False
-    )
-    # plt.axis('off')
-    # fig1.tight_layout()
-    col1, col2 = st.beta_columns(2)
+        def last_fig(
+            color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=False
+        ):
+            fig2, ax2 = plt.subplots(1, 1, figsize=(20, 20))
 
-    col1.pyplot(fig1, use_column_width=True)
-    col2.pyplot(fig2, use_column_width=True)
-    fig2 = last_fig(
-        color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=True
-    )
+            node_color = [color_code[n] for n in temp]
+            srcs = []
+            for e in temp.edges:
+                src = color_code[e[0]]
+                srcs.append(src)
 
-    st.pyplot(fig2, use_column_width=True)
+            nx.draw_networkx_nodes(
+                temp,
+                pos=pos,
+                node_color=node_color,
+                node_size=550,
+                alpha=0.5,
+                linewidths=1,
+            )
+            label_pos = copy.deepcopy(pos)
+            for k, v in label_pos.items():
+                label_pos[k][0] = v[0] + 0.5
+
+            if labelsx:
+                labels = {}
+                for node in temp.nodes():
+                    # set the node name as the key and the label as its value
+                    labels[node] = node
+                nx.draw_networkx_labels(
+                    temp, label_pos, labels, font_size=29.5, font_color="b"
+                )
+
+            # axx = ax2.gca()  # to get the current axis
+            # axx.collections[0].set_edgecolor("#FF0000")
+            nx.draw_networkx_edges(
+                temp, pos=pos, edge_color="grey", alpha=0.15, width=widths
+            )
+            for centre in zip(centrex, centrey, pkeys):
+                r = 1.5
+                c = (float(centre[0]), float(centre[1]))
+                ax2.add_patch(plt.Circle(c, r, color=colors[centre[2]], alpha=0.15))
+                #    if labelsx:
+                # for k, v in color_dict.items():
+                #    plt.scatter([], [], c=v, label=k)
+                # plt.legend(frameon=False, prop={"size": 29.5})
+            return fig2
+
+        fig2 = last_fig(
+            color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=False
+        )
+        # plt.axis('off')
+        # fig1.tight_layout()
+        col1, col2 = st.beta_columns(2)
+
+        col1.pyplot(fig1, use_column_width=True)
+        col2.pyplot(fig2, use_column_width=True)
+        fig2 = last_fig(
+            color_code, first, temp, pos, pkeys, centrex, centrey, color_dict, labelsx=True
+        )
+
+        st.pyplot(fig2, use_column_width=True)
 
     # try:
     #    st.pyplot(fig1, use_column_width=True)
@@ -2600,10 +2600,10 @@ def main():
             axis labels. If you look closely at the pixels, pixels vary at double the frequency of the node labels.
 			"""
         )
-        #with _lock:
+        with _lock:
 
-        g = sns.clustermap(df2)
-        st.pyplot(g)
+            g = sns.clustermap(df2)
+            st.pyplot(g)
 
         st.markdown(
             "un sorted interactive adjacency matrix (data not organized to emphasise clusters)"

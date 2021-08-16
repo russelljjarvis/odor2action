@@ -1930,7 +1930,6 @@ def main():
     notinboth = set(names) - set(ratercodes)
     allcodes = set(names) or set(ratercodes)
     first = nx.DiGraph()
-    st.text(allcodes)
     for i, row in enumerate(allcodes):
         if i != 0:
             #if row[0] != 1 and row[0] != 0:
@@ -2508,70 +2507,70 @@ def main():
         # compute community structure
         lpc = nx.community.label_propagation_communities(H)
         community_index = {n: i for i, com in enumerate(lpc) for n in com}
-        #with _lock:
+        with _lock:
 
-        #### draw graph ####
-        fig, ax = plt.subplots(figsize=(20, 15))
-        # fig, ax = plt.subplots(figsize=(15,15))
+            #### draw graph ####
+            fig, ax = plt.subplots(figsize=(20, 15))
+            # fig, ax = plt.subplots(figsize=(15,15))
 
-        pos = nx.spring_layout(H, k=0.05, seed=4572321, scale=1)
+            pos = nx.spring_layout(H, k=0.05, seed=4572321, scale=1)
 
-        node_color = [color_code[n] for n in H]
-        srcs = list(adj_mat["src"].values)
+            node_color = [color_code[n] for n in H]
+            srcs = list(adj_mat["src"].values)
 
-        srcs = []
-        for e in H.edges:
-            src = color_code[e[0]]
-            srcs.append(src)
-        nx.draw_networkx_nodes(
-            H,
-            pos=pos,
-            node_color=node_color,
-            node_size=node_size,
-            alpha=0.5,
-            linewidths=2,
-        )
+            srcs = []
+            for e in H.edges:
+                src = color_code[e[0]]
+                srcs.append(src)
+            nx.draw_networkx_nodes(
+                H,
+                pos=pos,
+                node_color=node_color,
+                node_size=node_size,
+                alpha=0.5,
+                linewidths=2,
+            )
 
-        labels = {}
-        for node in H.nodes():
-            # set the node name as the key and the label as its value
-            labels[node] = node
-        if labels_:
-            nx.draw_networkx_labels(H, pos, labels, font_size=16, font_color="r")
+            labels = {}
+            for node in H.nodes():
+                # set the node name as the key and the label as its value
+                labels[node] = node
+            if labels_:
+                nx.draw_networkx_labels(H, pos, labels, font_size=16, font_color="r")
 
-        axx = fig.gca()  # to get the current axis
-        axx.collections[0].set_edgecolor("#FF0000")
-        nx.draw_networkx_edges(
-            H, pos=pos, edge_color=srcs, alpha=0.5, width=list(adj_mat["weight"].values)
-        )
+            axx = fig.gca()  # to get the current axis
+            axx.collections[0].set_edgecolor("#FF0000")
+            nx.draw_networkx_edges(
+                H, pos=pos, edge_color=srcs, alpha=0.5, width=list(adj_mat["weight"].values)
+            )
 
-        # Title/legend
-        font = {"color": "k", "fontweight": "bold", "fontsize": 20}
-        ax.set_title("network", font)
-        # Change font color for legend
-        font["color"] = "b"
+            # Title/legend
+            font = {"color": "k", "fontweight": "bold", "fontsize": 20}
+            ax.set_title("network", font)
+            # Change font color for legend
+            font["color"] = "b"
 
-        ax.text(
-            0.80,
-            0.06,
-            "node size = betweeness centrality",
-            horizontalalignment="center",
-            transform=ax.transAxes,
-            fontdict=font,
-        )
+            ax.text(
+                0.80,
+                0.06,
+                "node size = betweeness centrality",
+                horizontalalignment="center",
+                transform=ax.transAxes,
+                fontdict=font,
+            )
 
-        # Resize figure for label readibility
-        ax.margins(0.1, 0.05)
-        fig.tight_layout()
-        plt.axis("off")
+            # Resize figure for label readibility
+            ax.margins(0.1, 0.05)
+            fig.tight_layout()
+            plt.axis("off")
 
-        for k, v in color_dict.items():
-            plt.scatter([], [], c=v, label=k)
+            for k, v in color_dict.items():
+                plt.scatter([], [], c=v, label=k)
 
-        plt.legend(frameon=False, prop={"size": 24})
-        # leg = ax.legend()
-        # leg.set_title()
-        st.pyplot(fig, use_column_width=True)
+            plt.legend(frameon=False, prop={"size": 24})
+            # leg = ax.legend()
+            # leg.set_title()
+            st.pyplot(fig, use_column_width=True)
 
     adj_mat = pd.DataFrame(adj_mat_dicts)
     narr = nx.to_pandas_adjacency(first)

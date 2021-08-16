@@ -53,8 +53,8 @@ import pickle
 import plotly.graph_objects as go
 import tkinter
 #import streamlit as st
-
-#def main():
+from matplotlib.lines import Line2D
+import matplotlib.pyplot as plt
 
 
 import pandas as pd
@@ -300,34 +300,33 @@ def depricated():
 
 # from hiveplotlib import Axis, Node, HivePlot
 # from hiveplotlib.viz import axes_viz_mpl, node_viz_mpl, edge_viz_mpl
-from matplotlib.lines import Line2D
-import matplotlib.pyplot as plt
-
-
-class renamer:
-    def __init__(self):
-        self.d = dict()
-
-    def __call__(self, x):
-        if x not in self.d:
-            self.d[x] = 0
-            return x
-        else:
-            self.d[x] += 1
-            return "%s_%d" % (x, self.d[x])
-
-
 def dontdo():
-    df2.rename(columns=renamer(), inplace=True)
 
-    df4 = pd.DataFrame()
 
-    for col in df2.columns[0 : int(len(df2.columns) / 2)]:
-        # if
-        if col + str("_1") in df2.columns:
-            df4[col] = df2[col] + df2[col + str("_1")]
-        else:
-            df4[col] = df2[col]
+    class renamer:
+        def __init__(self):
+            self.d = dict()
+
+        def __call__(self, x):
+            if x not in self.d:
+                self.d[x] = 0
+                return x
+            else:
+                self.d[x] += 1
+                return "%s_%d" % (x, self.d[x])
+
+
+    def dontdo():
+        df2.rename(columns=renamer(), inplace=True)
+
+        df4 = pd.DataFrame()
+
+        for col in df2.columns[0 : int(len(df2.columns) / 2)]:
+            # if
+            if col + str("_1") in df2.columns:
+                df4[col] = df2[col] + df2[col + str("_1")]
+            else:
+                df4[col] = df2[col]
 
 
 def dontdo():
@@ -375,8 +374,13 @@ def get_frame(transpose=False, threshold=6):
     hard_codes = pd.DataFrame(hard_codes.values)
 
     df3 = pd.DataFrame(worksheet0.values)
+
     df3.replace("", "Barely or never", regex=True, inplace=True)
     df2 = pd.DataFrame(worksheet1.values)
+    st.write(df2)
+    st.write(df3)
+    st.write(hard_codes)
+
     df2.replace("", "Barely or never", regex=True, inplace=True)
     df3.drop(0, inplace=True)
     #df3.rename

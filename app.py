@@ -78,6 +78,12 @@ import base64
 import textwrap
 
 
+#from scipy.spatial import Delaunay, ConvexHull
+f#rom pyveplot import Hiveplot, Axis, Node
+#import networkx as nx
+#import random
+#import base64
+#import textwrap
 
 
 def disable_logo(plot, element):
@@ -377,9 +383,6 @@ def get_frame(transpose=False, threshold=6):
 
     df3.replace("", "Barely or never", regex=True, inplace=True)
     df2 = pd.DataFrame(worksheet1.values)
-    st.write(df2)
-    st.write(df3)
-    st.write(hard_codes)
 
     df2.replace("", "Barely or never", regex=True, inplace=True)
     df3.drop(0, inplace=True)
@@ -472,8 +475,6 @@ def get_frame(transpose=False, threshold=6):
     legend.update({"Much or all of the time": 8})
     legend.update({"1-2 times a week": 9.0})
 
-    st.write(df2)
-
     df2.replace({"": 0.0}, inplace=True)
     df2.replace({" ": 0.0}, inplace=True)
     df2.replace({"\t": 0.0}, inplace=True)
@@ -507,8 +508,8 @@ def get_frame(transpose=False, threshold=6):
     # store["names"] = names  # save it
     # store["ratercodes"] = ratercodes  # save it
     # store["legend"] = legend  # save it
-    st.text("df becomes empty?")
-    st.write(df2)
+    #st.text("df becomes empty?")
+    #st.write(df2)
 
 
     return (
@@ -1396,13 +1397,6 @@ def dont():
     )
 
 
-from scipy.spatial import Delaunay, ConvexHull
-from pyveplot import Hiveplot, Axis, Node
-import networkx as nx
-import random
-import base64
-import textwrap
-
 
 def render_svg_small(svg):
     """Renders the given svg string."""
@@ -1886,10 +1880,10 @@ def main():
             "Bundle",
             "AdjacencyMatrix",
             "Chord",
-            "3D",
             "View Source Code",
         ),
     )
+    #        "3D",
 
     my_expander = st.sidebar.beta_expander("Explanation of Threshold")
 
@@ -1918,8 +1912,8 @@ def main():
         popg,
         hc,
     ) = get_frame(transpose, threshold)
-    st.text("data frame should not be empty")
-    st.write(df2)
+    #st.text("data frame should not be empty")
+    #st.write(df2)
 
     fig = plt.figure()
     for k, v in color_dict.items():
@@ -1941,9 +1935,9 @@ def main():
         if i != 0:
             #if row[0] != 1 and row[0] != 0:
             first.add_node(row, name=row)  # ,size=20)
-    st.text("di graph")
+    #st.text("di graph")
 
-    st.text(first)
+    #st.text(first)
 
     adj_mat_dicts = []
     conns = {}
@@ -1954,7 +1948,7 @@ def main():
                 cc[col] = hc[col]
             if idx not in color_code_0.keys():
                 cc[col] = hc[col]
-    st.write(df2)
+    #st.write(df2)
 
     for i, idx in enumerate(df2.index):
         for j, col in enumerate(df2.columns):
@@ -1974,8 +1968,8 @@ def main():
     first.remove_nodes_from(list(nx.isolates(first)))
     adj_mat = pd.DataFrame(adj_mat_dicts)
 
-    st.write(adj_mat)
-    st.text(adj_mat_dicts)
+    #st.write(adj_mat)
+    #st.text(adj_mat_dicts)
     try:
         encoded = {v: k for k, v in enumerate(first.nodes())}
     except:
@@ -2459,7 +2453,7 @@ def main():
         node_id = streamlit_bd_cytoscapejs.st_bd_cytoscape(
             elements, layout=layout, key="foo"
         )
-        st.write(node_id)
+        #st.write(node_id)
 
         import dash_cytoscape as cyto
         import dash_html_components as html

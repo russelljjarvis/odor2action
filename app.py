@@ -1912,6 +1912,8 @@ def main():
         popg,
         hc,
     ) = get_frame(transpose, threshold)
+    st.text("data frame should not be empty")
+    st.write(df2)
 
     fig = plt.figure()
     for k, v in color_dict.items():

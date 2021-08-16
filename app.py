@@ -1931,8 +1931,8 @@ def main():
     st.text(allcodes)
     for i, row in enumerate(allcodes):
         if i != 0:
-            if row[0] != 1 and row[0] != 0:
-                first.add_node(row[0], name=row)  # ,size=20)
+            #if row[0] != 1 and row[0] != 0:
+            first.add_node(row[0], name=row)  # ,size=20)
     st.text(first)
 
     adj_mat_dicts = []

@@ -2341,10 +2341,9 @@ def main():
 			 apart as to economize wiring material. Conservation of wire material is also seen in the nervous system.
              In the corpus callosum and spinal column convergent paths are constricted into relatively narrower bundles."""
         )
-        #with _lock:
-
-        fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
-        st.pyplot(fig4, use_column_width=True)
+        with _lock:
+            fig4 = data_shade(first, color_code, adj_mat, color_dict, labels)
+            st.pyplot(fig4, use_column_width=True)
     if genre == "cyto":
         # from ipycytoscape import CytoscapeWidget
         # cyto = CytoscapeWidget()

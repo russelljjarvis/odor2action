@@ -2,10 +2,10 @@
 Author: [Russell Jarvis](https://github.com/russelljjarvis)
 
 """
-#import matplotlib
-#matplotlib.use("Agg")
-#from matplotlib.backends.backend_agg import RendererAgg
-#_lock = RendererAgg.lock
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib.backends.backend_agg import RendererAgg
+_lock = RendererAgg.lock
 
 import seaborn as sns
 
@@ -79,7 +79,7 @@ import textwrap
 
 
 #from scipy.spatial import Delaunay, ConvexHull
-f#rom pyveplot import Hiveplot, Axis, Node
+#from pyveplot import Hiveplot, Axis, Node
 #import networkx as nx
 #import random
 #import base64

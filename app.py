@@ -507,6 +507,9 @@ def get_frame(transpose=False, threshold=6):
     # store["names"] = names  # save it
     # store["ratercodes"] = ratercodes  # save it
     # store["legend"] = legend  # save it
+    st.text("df becomes empty?")
+    st.write(df2)
+
 
     return (
         df2,

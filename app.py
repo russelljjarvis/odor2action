@@ -377,9 +377,9 @@ def get_frame(transpose=False, threshold=6):
 
     df3.replace("", "Barely or never", regex=True, inplace=True)
     df2 = pd.DataFrame(worksheet1.values)
-    #st.write(df2)
-    #st.write(df3)
-    #st.write(hard_codes)
+    st.write(df2)
+    st.write(df3)
+    st.write(hard_codes)
 
     df2.replace("", "Barely or never", regex=True, inplace=True)
     df3.drop(0, inplace=True)
@@ -471,6 +471,9 @@ def get_frame(transpose=False, threshold=6):
     legend.update({"Often": 7})
     legend.update({"Much or all of the time": 8})
     legend.update({"1-2 times a week": 9.0})
+
+    st.write(df2)
+
     df2.replace({"": 0.0}, inplace=True)
     df2.replace({" ": 0.0}, inplace=True)
     df2.replace({"\t": 0.0}, inplace=True)

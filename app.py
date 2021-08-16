@@ -1202,49 +1202,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
     #)
 
     # my_expander = st.sidebar.beta_expander("Explanation of Threshold")
-    my_expander2 = st.beta_expander("Explanation")
-    #physics_layouts = st.beta_expander("Layouts")
-    #physics_layouts.radio(
-    #    label="layout_options", options=("force_atlas_2based", "hierarchical")
-    #)
-    my_expander2.markdown(
-        """
-    The specific interactive visualization libraries are: pyvis, which calls the javascript library: vis-network
-    https://pyvis.readthedocs.io/en/latest/documentation.html
-    https://github.com/visjs/vis-network
-    Barnes Hut is a quadtree based gravity model.
-    The barnesHut physics model (which is enabled by default) is based on an inverted gravity model. By increasing the mass of a node, you increase it’s repulsion. Values lower than 1 are not recommended.
-    Other visualizations use a Fruchterman force directed layout algorithm.
-
-    Almost all physical simulations use different random initial conditions.
-
-
-    [LC Freeman A set of Measures of Betweeness (1977)](https://www.jstor.org/stable/pdf/3033543.pdf?casa_token=TzgYRJHfiYwAAAAA:r_8UKsxHRT7GRzoZ1OXwhJpzBbalTBYbG53me2fyMgZOvHnS9XM5TGB5yusfk5mCzQqXz4exAEFUcKXZ8I5ciIlU2dGpADzDfMu4Zm0rdA65G_ZzzJGo)
-    [Analyzing the Structure of
-    the Centrality-Productivity Literature
-    Created Between 1948 and 1979](https://journals.sagepub.com/doi/pdf/10.1177/107554709001100405?casa_token=49LZA0RLipUAAAAA:nP4ZKyjVjgiuskFOE1540eeixMGwt0mW8-2VNCzfdV0IoRYFWSsrQLXTZAVWulawQqJ9A4XcND--Sw)\n
-    Exploring network structure, dynamics, and function using NetworkX
-    A Hagberg, P Swart, DS Chult - 2008 - osti.gov
-    … NetworkX is a Python package for exploration and analysis of networks and network algorithms …
-    NetworkX Python libraries to extend the avail- able functionality with interfaces to well-tested
-    numerical and statis- tical libraries written in C. C++ and FORTRAN …
-      Cited by 3606 Related articles
-
-
-    The basic force directed layout (used in other visualizations not this one)
-    Qoute from wikipedia:
-    'Force-directed graph drawing algorithms assign forces among the set of edges and the set of nodes of a graph drawing. Typically, spring-like attractive forces based on Hooke's law are used to attract pairs of endpoints of the graph's edges towards each other, while simultaneously repulsive forces like those of electrically charged particles based on Coulomb's law are used to separate all pairs of nodes. In equilibrium states for this system of forces, the edges tend to have uniform length (because of the spring forces), and nodes that are not connected by an edge tend to be drawn further apart (because of the electrical repulsion). Edge attraction and vertex repulsion forces may be defined using functions that are not based on the physical behavior of springs and particles; for instance, some force-directed systems use springs whose attractive force is logarithmic rather than linear.'
-    \n
-    https://en.wikipedia.org/wiki/Force-directed_graph_drawing \n
-    What this means is conflicting forces of attraction, and repulsion determine node position.
-    Possesing a high centrality value does not necessarily mean occupying a central position on the graph.
-    Also nodes can have a high betweeness centrality due to contributions from either inward directed projections, outward facing projections or both.\n
-
-    Fruchterman, Thomas M. J.; Reingold, Edward M. (1991), "Graph Drawing by Force-Directed Placement", Software – Practice & Experience, Wiley, 21 (11): 1129–1164, doi:10.1002/spe.4380211102.
-
-    """
-    )
-    #my_expander = st.beta_expander("Mouse over node info?")
+        #my_expander = st.beta_expander("Mouse over node info?")
 
     #mo_ = my_expander.radio("Toggle Mouse overs?", ("Yes", "No"))
     #if mo_ == "Yes":
@@ -1361,6 +1319,48 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     else:
         display()
+    my_expander2 = st.beta_expander("Explanation")
+    #physics_layouts = st.beta_expander("Layouts")
+    #physics_layouts.radio(
+    #    label="layout_options", options=("force_atlas_2based", "hierarchical")
+    #)
+    my_expander2.markdown(
+        """
+    The specific interactive visualization libraries are: pyvis, which calls the javascript library: vis-network
+    https://pyvis.readthedocs.io/en/latest/documentation.html
+    https://github.com/visjs/vis-network
+    Barnes Hut is a quadtree based gravity model.
+    The barnesHut physics model (which is enabled by default) is based on an inverted gravity model. By increasing the mass of a node, you increase it’s repulsion. Values lower than 1 are not recommended.
+    Other visualizations use a Fruchterman force directed layout algorithm.
+
+    Almost all physical simulations use different random initial conditions.
+
+
+    [LC Freeman A set of Measures of Betweeness (1977)](https://www.jstor.org/stable/pdf/3033543.pdf?casa_token=TzgYRJHfiYwAAAAA:r_8UKsxHRT7GRzoZ1OXwhJpzBbalTBYbG53me2fyMgZOvHnS9XM5TGB5yusfk5mCzQqXz4exAEFUcKXZ8I5ciIlU2dGpADzDfMu4Zm0rdA65G_ZzzJGo)
+    [Analyzing the Structure of
+    the Centrality-Productivity Literature
+    Created Between 1948 and 1979](https://journals.sagepub.com/doi/pdf/10.1177/107554709001100405?casa_token=49LZA0RLipUAAAAA:nP4ZKyjVjgiuskFOE1540eeixMGwt0mW8-2VNCzfdV0IoRYFWSsrQLXTZAVWulawQqJ9A4XcND--Sw)\n
+    Exploring network structure, dynamics, and function using NetworkX
+    A Hagberg, P Swart, DS Chult - 2008 - osti.gov
+    … NetworkX is a Python package for exploration and analysis of networks and network algorithms …
+    NetworkX Python libraries to extend the avail- able functionality with interfaces to well-tested
+    numerical and statis- tical libraries written in C. C++ and FORTRAN …
+      Cited by 3606 Related articles
+
+
+    The basic force directed layout (used in other visualizations not this one)
+    Qoute from wikipedia:
+    'Force-directed graph drawing algorithms assign forces among the set of edges and the set of nodes of a graph drawing. Typically, spring-like attractive forces based on Hooke's law are used to attract pairs of endpoints of the graph's edges towards each other, while simultaneously repulsive forces like those of electrically charged particles based on Coulomb's law are used to separate all pairs of nodes. In equilibrium states for this system of forces, the edges tend to have uniform length (because of the spring forces), and nodes that are not connected by an edge tend to be drawn further apart (because of the electrical repulsion). Edge attraction and vertex repulsion forces may be defined using functions that are not based on the physical behavior of springs and particles; for instance, some force-directed systems use springs whose attractive force is logarithmic rather than linear.'
+    \n
+    https://en.wikipedia.org/wiki/Force-directed_graph_drawing \n
+    What this means is conflicting forces of attraction, and repulsion determine node position.
+    Possesing a high centrality value does not necessarily mean occupying a central position on the graph.
+    Also nodes can have a high betweeness centrality due to contributions from either inward directed projections, outward facing projections or both.\n
+
+    Fruchterman, Thomas M. J.; Reingold, Edward M. (1991), "Graph Drawing by Force-Directed Placement", Software – Practice & Experience, Wiley, 21 (11): 1129–1164, doi:10.1002/spe.4380211102.
+
+    """
+    )
 
     #except:
     #    pass
@@ -1864,6 +1864,22 @@ def main():
     #"AdjacencyMatrix",
     #"Chord",
     #"View Source Code",
+    transpose = False
+    #my_expander = st.beta_expander("Set threshold")
+    threshold = 5 #my_expander.slider("Select a threshold value", 0.0, 8.0, 5.0, 1.0)
+
+    (
+        df2,
+        names,
+        ratercodes,
+        legend,
+        color_code,
+        color_dict,
+        color_code_0,
+        sheet,
+        popg,
+        hc,
+    ) = get_frame(transpose, threshold)
 
     st.sidebar.title("Odor To Action: Collaboration Survey Data")
 
@@ -1884,48 +1900,36 @@ def main():
         ),
     )
     #        "3D",
-
-    my_expander = st.sidebar.beta_expander("Explanation of Threshold")
-
-    my_expander.markdown(
-        """
-		Problem most people politely answer that they talk to someone a little bit, \
-		a bias if which is not corrected \n for hyperconnects everyone to everyone \
-		else in a meaningless way. The solution \n to this problem involves thresholding, \
-		setting a minimum meaningful level of \n communication collaboration, \
-		The higher the threshold the more you \n reduce connections"""
-    )
-    #my_expander = st.beta_expander("Toggle Transpose collaboration sources/targets")
-    #transpose = my_expander.radio("source/target", (False, True))
-    transpose = False
-    my_expander = st.beta_expander("Set threshold")
-    threshold = my_expander.slider("Select a threshold value", 0.0, 8.0, 5.0, 1.0)
-    (
-        df2,
-        names,
-        ratercodes,
-        legend,
-        color_code,
-        color_dict,
-        color_code_0,
-        sheet,
-        popg,
-        hc,
-    ) = get_frame(transpose, threshold)
-    #st.text("data frame should not be empty")
-    #st.write(df2)
-
+    st.sidebar.markdown("Collaboration olor coding")
+    # my_expander.markdown(
+    #    """ Excepting for chord and hive, which are time consuming to code"""
+    # )
     fig = plt.figure()
     for k, v in color_dict.items():
         plt.scatter([], [], c=v, label=k, s=350)
     plt.legend(frameon=False, prop={"size": 35})
     fig.tight_layout()
-    #plt.axis("off")
-    st.sidebar.markdown("Color coding of most plots")
-    # my_expander.markdown(
-    #    """ Excepting for chord and hive, which are time consuming to code"""
-    # )
+
     st.sidebar.pyplot(fig)
+
+    #my_expander = st.sidebar.beta_expander("Explanation of Threshold")
+
+    #my_expander.markdown(
+    #    """
+	#	Problem most people politely answer that they talk to someone a little bit, \
+	#	a bias if which is not corrected \n for hyperconnects everyone to everyone \
+	#	else in a meaningless way. The solution \n to this problem involves thresholding, \
+	#	setting a minimum meaningful level of \n communication collaboration, \
+	#	The higher the threshold the more you \n reduce connections"""
+    #)
+    #my_expander = st.beta_expander("Toggle Transpose collaboration sources/targets")
+    #transpose = my_expander.radio("source/target", (False, True))
+
+    #st.text("data frame should not be empty")
+
+    #st.write(df2)
+
+    #plt.axis("off")
     inboth = set(names) & set(ratercodes)
     notinboth = set(names) - set(ratercodes)
     allcodes = set(names) or set(ratercodes)

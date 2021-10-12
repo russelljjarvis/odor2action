@@ -23,6 +23,8 @@ import argparse
 import numpy as np
 import networkx as nx
 import streamlit as st
+#import streamlit_analytics
+#streamlit_analytics.track(save_to_json="usage_stats.json")
 
 import streamlit.components.v1 as components
 import networkx as nx
@@ -322,17 +324,17 @@ def dontdo():
                 return "%s_%d" % (x, self.d[x])
 
 
-    def dontdo():
-        df2.rename(columns=renamer(), inplace=True)
+def dontdo():
+    df2.rename(columns=renamer(), inplace=True)
 
-        df4 = pd.DataFrame()
+    df4 = pd.DataFrame()
 
-        for col in df2.columns[0 : int(len(df2.columns) / 2)]:
-            # if
-            if col + str("_1") in df2.columns:
-                df4[col] = df2[col] + df2[col + str("_1")]
-            else:
-                df4[col] = df2[col]
+    for col in df2.columns[0 : int(len(df2.columns) / 2)]:
+        # if
+        if col + str("_1") in df2.columns:
+            df4[col] = df2[col] + df2[col + str("_1")]
+        else:
+            df4[col] = df2[col]
 
 
 def dontdo():
@@ -1882,7 +1884,7 @@ def main():
     ) = get_frame(transpose, threshold)
 
     st.sidebar.title("Odor To Action: Collaboration Survey Data")
-
+    #streamlit_analytics.start_tracking()
     genre = st.sidebar.radio(
         "Choose Graph Layout/Option:",
         (
@@ -1894,23 +1896,22 @@ def main():
             "Basic",
             "Spreadsheet",
             "Bundle",
-            "AdjacencyMatrix",
             "Chord",
             "View Source Code",
         ),
     )
     #        "3D",
-    st.sidebar.markdown("Collaboration olor coding")
+    #st.sidebar.markdown("Collaboration color coding")
     # my_expander.markdown(
     #    """ Excepting for chord and hive, which are time consuming to code"""
     # )
-    fig = plt.figure()
-    for k, v in color_dict.items():
-        plt.scatter([], [], c=v, label=k, s=350)
-    plt.legend(frameon=False, prop={"size": 35})
-    fig.tight_layout()
+    #fig = plt.figure()
+    #for k, v in color_dict.items():
+    #        plt.scatter([], [], c=v, label=k, s=350)
+    #plt.legend(frameon=False, prop={"size": 35})
+    #fig.tight_layout()
 
-    st.sidebar.pyplot(fig)
+    #st.sidebar.pyplot(fig)
 
     #my_expander = st.sidebar.beta_expander("Explanation of Threshold")
 
@@ -2028,6 +2029,16 @@ def main():
         #    pass
         hub_sort(first, color_code, reverse)
         list_centrality(first)
+
+    #if genre=="View Usage Statistics":
+    #    with open("usage_stats.json","rt") as f:
+    #        for line in f.readlines():
+    #            st.markdown(line)
+        #streamlit_analytics.track(firebase_key_file="firebase-key.json", firebase_collection_name="counts")
+        # or pass the same args to `start_tracking` AND `stop_tracking`
+        #You can store analytics results as a json file with:
+
+        # or pass the same arg to `stop_tracking`
     if genre == "Spreadsheet":
         st.markdown("Processed anonymized network data that is visualized")
         st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
@@ -2791,6 +2802,9 @@ def main():
         HtmlFile2 = open("chord2.html", "r", encoding="utf-8")
         source_code2 = HtmlFile2.read()
         components.html(source_code2, height=750, width=750)
+    # your streamlit code here
+    #streamlit_analytics.stop_tracking()
+
 
     def dontdo():
 

@@ -656,9 +656,6 @@ def interactive_population(cc, popg, color_dict):
 
     nt.save_graph("population.html")
     # nt.save_graph("saved_html.html")
-    HtmlFile = open("population.html", "r", encoding="utf-8")
-    source_code = HtmlFile.read()
-    components.html(source_code, height=1200, width=1000)
 
 
 def community_layout(g, partition):
@@ -1825,6 +1822,9 @@ def main():
         )
 
         interactive_population(cc, popg, color_dict)
+        HtmlFile = open("population.html", "r", encoding="utf-8")
+        source_code = HtmlFile.read()
+        components.html(source_code, height=1200, width=1000)
 
     if genre == "Population":
         my_expander = st.beta_expander("Explanation of population")

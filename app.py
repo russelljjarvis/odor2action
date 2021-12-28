@@ -746,7 +746,7 @@ def _position_nodes(g, partition, **kwargs):
     return pos
 
 
-@st.cache(allow_output_mutation=True,suppress_st_warning=True)
+#@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def community(first, color_code, color_dict):
     colors = [
         "#e41a1c",

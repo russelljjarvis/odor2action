@@ -69,6 +69,10 @@ import random
 import base64
 import textwrap
 
+import matplotlib.patches as patches
+from community import community_louvain
+import fileinput
+import sys
 
 def disable_logo(plot, element):
     plot.state.toolbar.logo = None
@@ -503,7 +507,7 @@ def learn_embeddings(walks):
     return
 
 
-# @st.cache(persist=True)
+@st.cache(persist=True)
 def get_table_download_link_csv(df):
     import base64
     csv = df.to_csv().encode()
@@ -599,7 +603,7 @@ def population(cc, popg, color_dict):
 
     st.pyplot(fig, use_column_width=True)
 
-
+@st.cache
 def interactive_population(cc, popg, color_dict):
 
     sizes = {}
@@ -742,99 +746,7 @@ def _position_nodes(g, partition, **kwargs):
     return pos
 
 
-def dont():
-    """
-    def colored_hive_axis(first,color_code_0,reverse):
-        c = ['#e41a1c', '#377eb8', '#4daf4a',
-             '#984ea3', '#ff7f00', '#ffff33',
-             '#a65628', '#f781bf', '#999999',]
-
-
-        # create hiveplot object
-        h = Hiveplot()
-
-
-
-        fig = plt.figure()
-        # create three axes, spaced at 120 degrees from each other
-
-        h.axes = [Axis(start=20, angle=0,
-                       stroke=random.choice(c), stroke_width=1.1),
-                  Axis(start=20, angle=90,
-                       stroke=random.choice(c), stroke_width=1.1),
-                  Axis(start=20, angle=90 + 90,
-                       stroke=random.choice(c), stroke_width=1.1)]
-
-
-                  #Axis(start=20, angle=90 + 90 + 90,
-                  #        stroke=random.choice(c), stroke_width=1.1)
-                  #]
-
-        fig = plt.figure()
-        # create three axes, spaced at 120 degrees from each other
-        h.axes = [Axis(start=20, angle=0,
-                       stroke=random.choice(c), stroke_width=1.1),
-                  Axis(start=20, angle=120,
-                       stroke=random.choice(c), stroke_width=1.1),
-                  Axis(start=20, angle=120 + 120,
-                       stroke=random.choice(c), stroke_width=1.1)
-                  ]
-
-        #g = first
-
-        # place these nodes into our three axes
-        for axis, nodes in zip(h.axes,
-                               [IRG1_indices, IRG2_indices, IRG3_indices]):
-            circle_color = random.choice(c)
-            for v in nodes:
-                st.text(v)
-                # create node object
-                node = Node(radius=15,
-                            label="node %s" % v)
-                # add it to axis
-                st.text(node)
-                axis.add_node(v, node)
-                # once it has x, y coordinates, add a circle
-                node.add_circle(fill=circle_color, stroke=circle_color,
-                                stroke_width=0.1, fill_opacity=0.7)
-                if axis.angle < 180:
-                    orientation = -1
-                    scale = 0.6
-                else:
-                    orientation = 1
-                    scale = 0.35
-                # also add a label
-                node.add_label("node %s" % (v),
-                               angle=axis.angle + 90 * orientation,
-                               scale=scale)
-
-        # iterate through axes, from left to right
-        for n in range(-1, len(h.axes) - 1):
-            curve_color = random.choice(c)
-            # draw curves between nodes connected by edges in network
-            h.connect_axes(h.axes[n],
-                           h.axes[n+1],
-                           g.edges,
-                           stroke_width=0.5,
-                           stroke=curve_color)
-        # save output
-        h.save('col_ba_hiveplot1.svg')
-        #from PIL import Image
-        f = open('col_ba_hiveplot1.svg',"r")
-        lines = f.readlines()
-        line_string=''.join(lines)
-
-        render_svg(line_string)
-
-
-        #st.image(Image.open("col_ba_hiveplot.svg"))
-    """
-
-
-import matplotlib.patches as patches
-from community import community_louvain
-
-# @st.cache(allow_output_mutation=True,suppress_st_warning=True)
+@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def community(first, color_code, color_dict):
     colors = [
         "#e41a1c",
@@ -986,21 +898,6 @@ def community(first, color_code, color_dict):
 
         st.pyplot(fig2, use_column_width=True)
 
-    # try:
-    #    st.pyplot(fig1, use_column_width=True)
-    #    st.pyplot(fig2, use_column_width=True)
-
-    # except:
-
-    #    fig2.savefig("img2.png")
-    #    import matplotlib.image as mpimg
-    #    img1 = mpimg.imread('img1.png')
-    #    img2 = mpimg.imread('img2.png')
-
-    #    ax1.imshow(img1)
-    #    ax1.axis('off')
-    #    ax2.imshow(img2)
-    #    ax2.axis('off')
 
 
 def list_centrality(first):
@@ -1051,34 +948,7 @@ def list_centrality(first):
     st.markdown("### Biggest sources (individually acknowledged communication):")
 
     st.write(df.head())
-    # st.text("...")
-    # st.markdown("### Least Talkative:")
-
-    # st.write(df.tail())
-
-    # bc = df
-    # st.table(df)
     return bc
-
-    # Compute the in-degree centrality for nodes.
-    # st.markdown("Out-degree Centrality:")
-    # st.markdown("Top to bottom node id from most central to least:")
-
-    # Compute the out-degree centrality for nodes.
-    # st.markdown("Betweeness Centrality:")
-    # centrality = nx.betweenness_centrality(H, endpoints=True)
-    # df = pd.DataFrame([centrality])
-    # df = df.T
-    # df.sort_values(0, axis=0, ascending=False, inplace=True)
-    # st.table(df)
-    # edge_thickness = {k: v * 200000 for k, v in centrality.items()}
-
-
-# @st.cache
-
-# Or, if you know what you're doing, use
-import fileinput
-import sys
 
 def replaceAll(file,searchExp,replaceExp):
     for line in fileinput.input(file, inplace=1):
@@ -1086,7 +956,7 @@ def replaceAll(file,searchExp,replaceExp):
             line = line.replace(searchExp,replaceExp)
         sys.stdout.write(line)
 
-@st.cache
+
 def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     mo = True
@@ -1190,65 +1060,7 @@ def physics(first, adj_mat_dicts, color_code, color_code_0, color_dict):
 
     else:
         display()
-    my_expander2 = st.beta_expander("Explanation")
-    #physics_layouts = st.beta_expander("Layouts")
-    #physics_layouts.radio(
-    #    label="layout_options", options=("force_atlas_2based", "hierarchical")
-    #)
-    my_expander2.markdown(
-        """
-    The specific interactive visualization libraries are: pyvis, which calls the javascript library: vis-network
-    https://pyvis.readthedocs.io/en/latest/documentation.html
-    https://github.com/visjs/vis-network
-    Barnes Hut is a quadtree based gravity model.
-    The barnesHut physics model (which is enabled by default) is based on an inverted gravity model. By increasing the mass of a node, you increase it’s repulsion. Values lower than 1 are not recommended.
-    Other visualizations use a Fruchterman force directed layout algorithm.
 
-    Almost all physical simulations use different random initial conditions.
-
-
-    [LC Freeman A set of Measures of Betweeness (1977)](https://www.jstor.org/stable/pdf/3033543.pdf?casa_token=TzgYRJHfiYwAAAAA:r_8UKsxHRT7GRzoZ1OXwhJpzBbalTBYbG53me2fyMgZOvHnS9XM5TGB5yusfk5mCzQqXz4exAEFUcKXZ8I5ciIlU2dGpADzDfMu4Zm0rdA65G_ZzzJGo)
-    [Analyzing the Structure of
-    the Centrality-Productivity Literature
-    Created Between 1948 and 1979](https://journals.sagepub.com/doi/pdf/10.1177/107554709001100405?casa_token=49LZA0RLipUAAAAA:nP4ZKyjVjgiuskFOE1540eeixMGwt0mW8-2VNCzfdV0IoRYFWSsrQLXTZAVWulawQqJ9A4XcND--Sw)\n
-    Exploring network structure, dynamics, and function using NetworkX
-    A Hagberg, P Swart, DS Chult - 2008 - osti.gov
-    … NetworkX is a Python package for exploration and analysis of networks and network algorithms …
-    NetworkX Python libraries to extend the avail- able functionality with interfaces to well-tested
-    numerical and statis- tical libraries written in C. C++ and FORTRAN …
-      Cited by 3606 Related articles
-
-
-    The basic force directed layout (used in other visualizations not this one)
-    Qoute from wikipedia:
-    'Force-directed graph drawing algorithms assign forces among the set of edges and the set of nodes of a graph drawing. Typically, spring-like attractive forces based on Hooke's law are used to attract pairs of endpoints of the graph's edges towards each other, while simultaneously repulsive forces like those of electrically charged particles based on Coulomb's law are used to separate all pairs of nodes. In equilibrium states for this system of forces, the edges tend to have uniform length (because of the spring forces), and nodes that are not connected by an edge tend to be drawn further apart (because of the electrical repulsion). Edge attraction and vertex repulsion forces may be defined using functions that are not based on the physical behavior of springs and particles; for instance, some force-directed systems use springs whose attractive force is logarithmic rather than linear.'
-    \n
-    https://en.wikipedia.org/wiki/Force-directed_graph_drawing \n
-    What this means is conflicting forces of attraction, and repulsion determine node position.
-    Possesing a high centrality value does not necessarily mean occupying a central position on the graph.
-    Also nodes can have a high betweeness centrality due to contributions from either inward directed projections, outward facing projections or both.\n
-
-    Fruchterman, Thomas M. J.; Reingold, Edward M. (1991), "Graph Drawing by Force-Directed Placement", Software – Practice & Experience, Wiley, 21 (11): 1129–1164, doi:10.1002/spe.4380211102.
-
-    """
-    )
-
-    #except:
-    #    pass
-    # @st.cache(suppress_st_warning=True)# to suppress the warning.
-
-
-    #    network = drawGraph();
-    #    localStorage.setItem("localnet",network)
-
-    #if phys_ == "Yes":
-    #    from PIL import Image
-
-    #    st.markdown(
-    #        "Some parameter sets can prevent static equilibrium states. For example:"
-    #    )
-        # nt.show_buttons(filter_=["physics"])
-    #    st.image(Image.open("rescreen_shot_just_params.png"))
 
 
 def dont():
@@ -1314,113 +1126,6 @@ def hub_sort(first, color_code_1, reverse):
     del lines
     return None
 
-    """
-    c = ['#e41a1c', '#377eb8', '#4daf4a',
-         '#984ea3', '#ff7f00', '#ffff33',
-         '#a65628', '#f781bf', '#999999',]
-
-    # create hiveplot object
-    import svgwrite
-    dwg = svgwrite.Drawing()
-    del dwg
-    h = None
-    h = Hiveplot()
-    h.__init__()
-    #fig = plt.figure()
-    h.axes = None
-    # create three axes, spaced at 120 degrees from each other
-    h.axes = [Axis(start=20, angle=0,
-                   stroke='black', stroke_width=2.1),
-              Axis(start=20, angle=90,
-                   stroke='black', stroke_width=2.1),
-              Axis(start=20, angle=90 + 90,
-                   stroke='black', stroke_width=2.1),
-              Axis(start=20, angle=90 + 90 + 90,
-                   stroke='black', stroke_width=2.1)
-
-              ]
-
-    # create a random Barabasi-Albert network
-    g = first
-
-    # sort nodes by degree
-    k = list(nx.degree(g))
-    k.sort(key=lambda tup: tup[1])
-
-    maxd = np.max([i[1] for i in k])
-
-    # categorize them as high, medium and low degree
-    hi_deg = [v[0] for v in k if v[1] > 3*maxd/4]
-    md_deg = [v[0] for v in k if v[1] > maxd/4 and v[1] <= 2*maxd/4]
-    md_deg2 = [v[0] for v in k if v[1] > 2*maxd/4 and v[1] <= 3*maxd/4]
-    lo_deg = [v[0] for v in k if v[1] <= maxd/4]
-
-    # place these nodes into our three axes
-    for axis, nodes in zip(h.axes,
-                           [hi_deg, md_deg,md_deg2, lo_deg]):
-        #random.choice(c)
-        for v in nodes:
-            circle_color = color_code_1[v]
-            # create node object
-            node = Node(radius=22.5*g.degree(v),
-                        label="%s" % (v))
-            # add it to axis
-            axis.add_node(v, node)
-            # once it has x, y coordinates, add a circle
-            node.add_circle(fill=circle_color, stroke=circle_color,
-                            stroke_width=0.1, fill_opacity=0.65)
-            if axis.angle < 180:
-                orientation = -1 #1#-1
-                scale = 8.5
-            else:
-                orientation = 1
-                scale = 1.5
-
-                if axis.angle <5 or axis.angle>355:
-                    orientation = 1
-                    scale = 7.5
-            # also add a label
-            node.add_label("{0}".format(v),
-                           angle=axis.angle + 90 * orientation,
-                           scale=scale)
-            #st.text("node {0}".format(v))
-
-    # iterate through axes, from left to right
-    for n in range(-1, len(h.axes) - 1):
-
-        curve_color = 'black'#random.choice(c)
-        # draw curves between nodes connected by edges in network
-        h.connect_axes(h.axes[n],
-                       h.axes[n+1],
-                       g.edges,
-                       stroke_width=4.5,
-                       stroke=curve_color)
-
-    # save output
-    import svgwrite
-    dwg = svgwrite.Drawing()
-    del dwg
-
-    import os
-    os.system('rm ba_hiveplot.svg')
-    h.save(str(a)+'ba_hiveplot.svg')
-    del h
-    h = None
-    #h = None
-    h = Hiveplot()
-    h.__init__()
-    fig = plt.figure()
-    """
-
-    # line_string = ''
-    # os.system('rm ba_hiveplot.svg')
-    # from streamlit import caching
-
-    # caching.clear_cache()
-
-
-# a = 0
-
 
 def hive_two(first, color_code, color_code_0, reverse):
 
@@ -1432,10 +1137,6 @@ def hive_two(first, color_code, color_code_0, reverse):
     render_svg_small(line_string)
     line_string = None
     del line_string
-    # os.system("rm ba1_hiveplot.svg")
-    # from streamlit import caching
-
-    # caching.clear_cache()
     return None
 
 
@@ -1834,32 +1535,9 @@ def main():
             """Using pythons networkx module Nodes are layed out from ascending to descending contributions of centrality. This plot depicts betweeness centrality from densely inter-connected (hub) to sparsely inter-connected leaf.
             Hive visualizations are designed to show between group connectivity. Nodes on the same axis have implied connectivity through the axis, these connections are not shown to remove clutter."""
         )
-        # Unlike other hive implementations nodes are shown that don't connect outside of their assigned group (eg IRG-1), but they are visualized with no prominent interconnection.
-        # Connection within their class (eg IRG-1 is implied by being positioned on a vertical or horizontal axis, the axis connects all nodes.
-        # """
-
-        #try:
-        #    import os
-
-            #if transpose:
-            #    os.system("python make_serial_transpose.py")
-
-            #else:
-            #    os.system("python make_serial_plots1.py")
-        #except:
-        #    pass
         hub_sort(first, color_code, reverse)
         list_centrality(first)
 
-    #if genre=="View Usage Statistics":
-    #    with open("usage_stats.json","rt") as f:
-    #        for line in f.readlines():
-    #            st.markdown(line)
-        #streamlit_analytics.track(firebase_key_file="firebase-key.json", firebase_collection_name="counts")
-        # or pass the same args to `start_tracking` AND `stop_tracking`
-        #You can store analytics results as a json file with:
-
-        # or pass the same arg to `stop_tracking`
     if genre == "Spreadsheet":
         st.markdown("Processed anonymized network data that is visualized")
         st.markdown(get_table_download_link_csv(df2), unsafe_allow_html=True)
@@ -1920,32 +1598,10 @@ def main():
             """Note this visualization uses a different library (I-Graph, however normally networkx is used) to determine the betweeness centrality
         with the interesting consequence that a DCMT node is now second most central"""
         )
-        # g = first
-
-        # links = copy.copy(adj_mat)
-        # links.rename(
-        #    columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
-        # )
-        # links = links[links["value"] != 0]
-        # Edges = [
-        #    (encoded[src], encoded[tgt])
-        #    for src, tgt in zip(links["source"], links["target"])
-        # ]
-        # G = ig.Graph(Edges, directed=True)
-        #G = ig.Graph.from_networkx(first)  # , directed=True)
-        # local_reverse = {k:v for k,v in zip(G.vs(),first.nodes)}
-        # spring_3D = nx.spring_layout(G, dim = 3, k = 0.5) # k regulates the distance between nodes
         edges = first.edges()
-
-        # ## update to 3d dimension
         spring_3D = nx.spring_layout(
             first, dim=3, scale=2.5, k=0.0005
         )  # k regulates the distance between nodes
-        # weights = [G[u][v]['weight'] for u,v in edges]
-        # nx.draw(G, with_labels=True, node_color='skyblue', font_weight='bold',  width=weights, pos=pos)
-
-        # we need to seperate the X,Y,Z coordinates for Plotly
-        # NOTE: spring_3D is a dictionary where the keys are 1,...,6
         x_nodes = [
             spring_3D[key][0] for key in spring_3D.keys()
         ]  # x-coordinates of nodes
@@ -2123,6 +1779,44 @@ def main():
         st.write(fig0, use_column_width=True)
     if genre == "Physics":
         physics(first, adj_mat_dicts, color_code, color_code_0, color_dict)
+        my_expander2 = st.beta_expander("Explanation")
+        my_expander2.markdown(
+            """
+        The specific interactive visualization libraries are: pyvis, which calls the javascript library: vis-network
+        https://pyvis.readthedocs.io/en/latest/documentation.html
+        https://github.com/visjs/vis-network
+        Barnes Hut is a quadtree based gravity model.
+        The barnesHut physics model (which is enabled by default) is based on an inverted gravity model. By increasing the mass of a node, you increase it’s repulsion. Values lower than 1 are not recommended.
+        Other visualizations use a Fruchterman force directed layout algorithm.
+
+        Almost all physical simulations use different random initial conditions.
+
+
+        [LC Freeman A set of Measures of Betweeness (1977)](https://www.jstor.org/stable/pdf/3033543.pdf?casa_token=TzgYRJHfiYwAAAAA:r_8UKsxHRT7GRzoZ1OXwhJpzBbalTBYbG53me2fyMgZOvHnS9XM5TGB5yusfk5mCzQqXz4exAEFUcKXZ8I5ciIlU2dGpADzDfMu4Zm0rdA65G_ZzzJGo)
+        [Analyzing the Structure of
+        the Centrality-Productivity Literature
+        Created Between 1948 and 1979](https://journals.sagepub.com/doi/pdf/10.1177/107554709001100405?casa_token=49LZA0RLipUAAAAA:nP4ZKyjVjgiuskFOE1540eeixMGwt0mW8-2VNCzfdV0IoRYFWSsrQLXTZAVWulawQqJ9A4XcND--Sw)\n
+        Exploring network structure, dynamics, and function using NetworkX
+        A Hagberg, P Swart, DS Chult - 2008 - osti.gov
+        … NetworkX is a Python package for exploration and analysis of networks and network algorithms …
+        NetworkX Python libraries to extend the avail- able functionality with interfaces to well-tested
+        numerical and statis- tical libraries written in C. C++ and FORTRAN …
+          Cited by 3606 Related articles
+
+
+        The basic force directed layout (used in other visualizations not this one)
+        Qoute from wikipedia:
+        'Force-directed graph drawing algorithms assign forces among the set of edges and the set of nodes of a graph drawing. Typically, spring-like attractive forces based on Hooke's law are used to attract pairs of endpoints of the graph's edges towards each other, while simultaneously repulsive forces like those of electrically charged particles based on Coulomb's law are used to separate all pairs of nodes. In equilibrium states for this system of forces, the edges tend to have uniform length (because of the spring forces), and nodes that are not connected by an edge tend to be drawn further apart (because of the electrical repulsion). Edge attraction and vertex repulsion forces may be defined using functions that are not based on the physical behavior of springs and particles; for instance, some force-directed systems use springs whose attractive force is logarithmic rather than linear.'
+        \n
+        https://en.wikipedia.org/wiki/Force-directed_graph_drawing \n
+        What this means is conflicting forces of attraction, and repulsion determine node position.
+        Possesing a high centrality value does not necessarily mean occupying a central position on the graph.
+        Also nodes can have a high betweeness centrality due to contributions from either inward directed projections, outward facing projections or both.\n
+
+        Fruchterman, Thomas M. J.; Reingold, Edward M. (1991), "Graph Drawing by Force-Directed Placement", Software – Practice & Experience, Wiley, 21 (11): 1129–1164, doi:10.1002/spe.4380211102.
+
+        """
+        )
 
     if genre == "Interactive Population":
         my_expander = st.beta_expander("Explanation of population")
@@ -2298,78 +1992,79 @@ def main():
             [LC Freeman A set of Measures of Betweeness (1977)](https://www.jstor.org/stable/pdf/3033543.pdf?casa_token=TzgYRJHfiYwAAAAA:r_8UKsxHRT7GRzoZ1OXwhJpzBbalTBYbG53me2fyMgZOvHnS9XM5TGB5yusfk5mCzQqXz4exAEFUcKXZ8I5ciIlU2dGpADzDfMu4Zm0rdA65G_ZzzJGo)
             """
         )
-        H = first.to_undirected()
+        @st.cache
+        def basic(first):
+            H = first.to_undirected()
 
-        centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
-        edge_thickness = [v * 20000 for v in centrality.values()]
-        node_size = [v * 20000 for v in centrality.values()]
+            centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
+            edge_thickness = [v * 20000 for v in centrality.values()]
+            node_size = [v * 20000 for v in centrality.values()]
 
-        # compute community structure
-        lpc = nx.community.label_propagation_communities(H)
-        community_index = {n: i for i, com in enumerate(lpc) for n in com}
-        with _lock:
+            # compute community structure
+            lpc = nx.community.label_propagation_communities(H)
+            community_index = {n: i for i, com in enumerate(lpc) for n in com}
+            with _lock:
 
-            #### draw graph ####
-            fig, ax = plt.subplots(figsize=(20, 15))
-            # fig, ax = plt.subplots(figsize=(15,15))
+                #### draw graph ####
+                fig, ax = plt.subplots(figsize=(20, 15))
+                # fig, ax = plt.subplots(figsize=(15,15))
 
-            pos = nx.spring_layout(H, k=0.05, seed=4572321, scale=1)
+                pos = nx.spring_layout(H, k=0.05, seed=4572321, scale=1)
 
-            node_color = [color_code[n] for n in H]
-            srcs = list(adj_mat["src"].values)
+                node_color = [color_code[n] for n in H]
+                srcs = list(adj_mat["src"].values)
 
-            srcs = []
-            for e in H.edges:
-                src = color_code[e[0]]
-                srcs.append(src)
-            nx.draw_networkx_nodes(
-                H,
-                pos=pos,
-                node_color=node_color,
-                node_size=node_size,
-                alpha=0.5,
-                linewidths=2,
-            )
+                srcs = []
+                for e in H.edges:
+                    src = color_code[e[0]]
+                    srcs.append(src)
+                nx.draw_networkx_nodes(
+                    H,
+                    pos=pos,
+                    node_color=node_color,
+                    node_size=node_size,
+                    alpha=0.5,
+                    linewidths=2,
+                )
 
-            labels = {}
-            for node in H.nodes():
-                # set the node name as the key and the label as its value
-                labels[node] = node
-            if labels_:
-                nx.draw_networkx_labels(H, pos, labels, font_size=16, font_color="r")
+                labels = {}
+                for node in H.nodes():
+                    # set the node name as the key and the label as its value
+                    labels[node] = node
+                if labels_:
+                    nx.draw_networkx_labels(H, pos, labels, font_size=16, font_color="r")
 
-            axx = fig.gca()  # to get the current axis
-            axx.collections[0].set_edgecolor("#FF0000")
-            nx.draw_networkx_edges(
-                H, pos=pos, edge_color=srcs, alpha=0.5, width=list(adj_mat["weight"].values)
-            )
+                axx = fig.gca()  # to get the current axis
+                axx.collections[0].set_edgecolor("#FF0000")
+                nx.draw_networkx_edges(
+                    H, pos=pos, edge_color=srcs, alpha=0.5, width=list(adj_mat["weight"].values)
+                )
 
-            # Title/legend
-            font = {"color": "k", "fontweight": "bold", "fontsize": 20}
-            ax.set_title("network", font)
-            # Change font color for legend
-            font["color"] = "b"
+                # Title/legend
+                font = {"color": "k", "fontweight": "bold", "fontsize": 20}
+                ax.set_title("network", font)
+                # Change font color for legend
+                font["color"] = "b"
 
-            ax.text(
-                0.80,
-                0.06,
-                "node size = betweeness centrality",
-                horizontalalignment="center",
-                transform=ax.transAxes,
-                fontdict=font,
-            )
+                ax.text(
+                    0.80,
+                    0.06,
+                    "node size = betweeness centrality",
+                    horizontalalignment="center",
+                    transform=ax.transAxes,
+                    fontdict=font,
+                )
 
-            # Resize figure for label readibility
-            ax.margins(0.1, 0.05)
-            fig.tight_layout()
-            plt.axis("off")
+                # Resize figure for label readibility
+                ax.margins(0.1, 0.05)
+                fig.tight_layout()
+                plt.axis("off")
 
-            for k, v in color_dict.items():
-                plt.scatter([], [], c=v, label=k)
+                for k, v in color_dict.items():
+                    plt.scatter([], [], c=v, label=k)
 
-            plt.legend(frameon=False, prop={"size": 24})
-            # leg = ax.legend()
-            # leg.set_title()
+                plt.legend(frameon=False, prop={"size": 24})
+            fig=basic(first)
             st.pyplot(fig, use_column_width=True)
 
     adj_mat = pd.DataFrame(adj_mat_dicts)
@@ -2435,152 +2130,98 @@ def main():
             pass
 
     if genre == "Chord":
-        H = first.to_undirected()
         st.markdown("Betweeness Centrality:")
         st.markdown("Top to bottom node id from most central to least:")
-        centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
 
-        # centrality = nx.betweenness_centrality(H)#, endpoints=True)
-        df = pd.DataFrame([centrality])
-        df = df.T
-        df.sort_values(0, axis=0, ascending=False, inplace=True)
-        bc = df
-        bc.rename(columns={0: "centrality value"}, inplace=True)
-        # st.write(bc.head())
-        # st.markdown("In degree Centrality:")
-        # st.markdown("Top to bottom node id from most central to least:")
+        def cached_chord(first):
+            H = first.to_undirected()
+            centrality = nx.betweenness_centrality(H, k=10, endpoints=True)
 
-        temp = pd.DataFrame(first.nodes)
-        nodes = hv.Dataset(temp[0])
+            # centrality = nx.betweenness_centrality(H)#, endpoints=True)
+            df = pd.DataFrame([centrality])
+            df = df.T
+            df.sort_values(0, axis=0, ascending=False, inplace=True)
+            bc = df
+            bc.rename(columns={0: "centrality value"}, inplace=True)
 
-        links = copy.copy(adj_mat)
-        links.rename(
-            columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
-        )
-        links = links[links["value"] != 0]
+            temp = pd.DataFrame(first.nodes)
+            nodes = hv.Dataset(temp[0])
 
-        Nodes_ = set(
-            links["source"].unique().tolist() + links["target"].unique().tolist()
-        )
-        Nodes = {node: i for i, node in enumerate(Nodes_)}
-
-        df_links = links.replace({"source": Nodes, "target": Nodes})
-        for k in Nodes.keys():
-            if k not in color_code_0.keys():
-                color_code_0[k] = "Unknown"
-
-        df_nodes = pd.DataFrame(
-            {
-                "index": [idx for idx in Nodes.values()],
-                "name": [name for name in Nodes.keys()],
-                "colors": [color_code_0[k] for k in Nodes.keys()],
-            }
-        )
-        dic_to_sort = {}
-        for i, kk in enumerate(df_nodes["name"]):
-            dic_to_sort[i] = color_code_0[k]
-
-        t = pd.Series(dic_to_sort)
-        df_nodes["sort"] = t  # pd.Series(df_links.source)
-        df_nodes.sort_values(by=["sort"], inplace=True)
-
-        dic_to_sort = {}
-        for i, kk in enumerate(df_links["source"]):
-            k = df_nodes.loc[kk, "name"]
-            # st.text(k)
-            if k not in color_code_0.keys():
-                color_code_0[k] = "Unknown"
-            df_nodes.loc[kk, "colors"] = color_code_0[k]
-            dic_to_sort[i] = color_code_0[k]
-
-        pd.set_option("display.max_columns", 11)
-        hv.extension("bokeh")
-        hv.output(size=200)
-        t = pd.Series(dic_to_sort)
-        df_links["sort"] = t  # pd.Series(df_links.source)
-        df_links.sort_values(by=["sort"], inplace=True)
-        # df_links['colors'] = None
-        categories = np.unique(df_links["sort"])
-        colors = np.linspace(0, 1, len(categories))
-        colordicth = dict(zip(categories, colors))
-
-        df_links["Color"] = df_links["sort"].apply(lambda x: float(colordicth[x]))
-        colors = df_links["Color"].values
-        nodes = hv.Dataset(df_nodes, "index")
-        df_links["index"] = df_links["Color"]
-        chord = hv.Chord(
-            (df_links, nodes)
-        )  # .opts.Chord(cmap='Category20', edge_color=dim('source').astype(str), node_color=dim('index').astype(str))
-        chord.opts(
-            opts.Chord(
-                cmap="Category20",
-                edge_cmap="Category20",
-                edge_color=dim("sort").str(),
-                width=350,
-                height=350,
-                labels="Color",
+            links = copy.copy(adj_mat)
+            links.rename(
+                columns={"weight": "value", "src": "source", "tgt": "target"}, inplace=True
             )
-        )
+            links = links[links["value"] != 0]
 
-        hv.save(chord, "chord2.html", backend="bokeh")
+            Nodes_ = set(
+                links["source"].unique().tolist() + links["target"].unique().tolist()
+            )
+            Nodes = {node: i for i, node in enumerate(Nodes_)}
+
+            df_links = links.replace({"source": Nodes, "target": Nodes})
+            for k in Nodes.keys():
+                if k not in color_code_0.keys():
+                    color_code_0[k] = "Unknown"
+
+            df_nodes = pd.DataFrame(
+                {
+                    "index": [idx for idx in Nodes.values()],
+                    "name": [name for name in Nodes.keys()],
+                    "colors": [color_code_0[k] for k in Nodes.keys()],
+                }
+            )
+            dic_to_sort = {}
+            for i, kk in enumerate(df_nodes["name"]):
+                dic_to_sort[i] = color_code_0[k]
+
+            t = pd.Series(dic_to_sort)
+            df_nodes["sort"] = t  # pd.Series(df_links.source)
+            df_nodes.sort_values(by=["sort"], inplace=True)
+
+            dic_to_sort = {}
+            for i, kk in enumerate(df_links["source"]):
+                k = df_nodes.loc[kk, "name"]
+                # st.text(k)
+                if k not in color_code_0.keys():
+                    color_code_0[k] = "Unknown"
+                df_nodes.loc[kk, "colors"] = color_code_0[k]
+                dic_to_sort[i] = color_code_0[k]
+
+            pd.set_option("display.max_columns", 11)
+            hv.extension("bokeh")
+            hv.output(size=200)
+            t = pd.Series(dic_to_sort)
+            df_links["sort"] = t  # pd.Series(df_links.source)
+            df_links.sort_values(by=["sort"], inplace=True)
+            # df_links['colors'] = None
+            categories = np.unique(df_links["sort"])
+            colors = np.linspace(0, 1, len(categories))
+            colordicth = dict(zip(categories, colors))
+
+            df_links["Color"] = df_links["sort"].apply(lambda x: float(colordicth[x]))
+            colors = df_links["Color"].values
+            nodes = hv.Dataset(df_nodes, "index")
+            df_links["index"] = df_links["Color"]
+            chord = hv.Chord(
+                (df_links, nodes)
+            )  # .opts.Chord(cmap='Category20', edge_color=dim('source').astype(str), node_color=dim('index').astype(str))
+            chord.opts(
+                opts.Chord(
+                    cmap="Category20",
+                    edge_cmap="Category20",
+                    edge_color=dim("sort").str(),
+                    width=350,
+                    height=350,
+                    labels="Color",
+                )
+            )
+
+            hv.save(chord, "chord2.html", backend="bokeh")
+        cached_chord(first)
         HtmlFile2 = open("chord2.html", "r", encoding="utf-8")
         source_code2 = HtmlFile2.read()
         components.html(source_code2, height=750, width=750)
 
 
 if __name__ == "__main__":
-    # import os
-    # os.system("python make_serial_plots0.py")
-    # os.system("python make_serial_plots1.py")
-
     main()
-
-
-def dontdo():
-
-    link = dict(source=adj_mat["src"], target=adj_mat["tgt"], value=adj_mat["weight"])
-
-    # generate_sankey_figure(list(first.nodes), adj_mat,title = 'Sankey Diagram')
-
-    fig = go.Figure(
-        data=[
-            go.Sankey(
-                node=dict(
-                    pad=15,
-                    thickness=20,
-                    line=dict(color="black", width=0.5),
-                    label=list(first.nodes()),  # ["A1", "A2", "B1", "B2", "C1", "C2"],
-                    color="blue",
-                ),
-                link=dict(
-                    source=adj_mat["src"],
-                    target=adj_mat["tgt"],
-                    value=[i * 10 for i in adj_mat["weight"]],
-                ),
-            )
-        ]
-    )
-
-    fig.update_layout(title_text="Basic Sankey Diagram", font_size=10)
-
-    st.write(fig)
-    link = dict(
-        source=adj_mat["src"],
-        target=adj_mat["tgt"],
-        value=[i * 10 for i in adj_mat["weight"]],
-    )
-
-    data = go.Sankey(link=link)
-
-    # fig3 = go.Figure(data)
-    layout = go.Layout(
-        paper_bgcolor="rgba(0,0,0,0)",  # transparent background
-        plot_bgcolor="rgba(0,0,0,0)",  # transparent 2nd background
-        xaxis={"showgrid": False, "zeroline": False},  # no gridlines
-        yaxis={"showgrid": False, "zeroline": False},  # no gridlines
-    )  # Create figure
-    layout["width"] = 925
-    layout["height"] = 925
-
-    fig3 = go.Figure(data, layout=layout)  # Add all edge traces
-    st.write(fig3)

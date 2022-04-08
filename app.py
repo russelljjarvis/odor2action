@@ -7,7 +7,7 @@ matplotlib.use("Agg")
 from matplotlib.backends.backend_agg import RendererAgg
 _lock = RendererAgg.lock
 import seaborn as sns
-from community import community_louvain
+#from community import community_louvain
 import plotly.graph_objs as go
 from matplotlib.patches import FancyArrowPatch, Circle
 import numpy as np
@@ -57,7 +57,6 @@ import networkx as nx
 
 import xlrd
 import matplotlib.pyplot as plt
-from community import community_louvain
 
 
 import numpy as np
@@ -70,7 +69,6 @@ import base64
 import textwrap
 
 import matplotlib.patches as patches
-from community import community_louvain
 import fileinput
 import sys
 
@@ -744,6 +742,7 @@ def _position_nodes(g, partition, **kwargs):
 
 
 #@st.cache(allow_output_mutation=True,suppress_st_warning=True)
+'''
 def community(first, color_code, color_dict):
     colors = [
         "#e41a1c",
@@ -894,7 +893,7 @@ def community(first, color_code, color_dict):
         )
 
         st.pyplot(fig2, use_column_width=True)
-
+'''
 
 
 def list_centrality(first):
@@ -1441,7 +1440,6 @@ def main():
             "Interactive Population",
             "Visualize Centrality",
             "Hive",
-            "Community Mixing",
             "Basic",
             "Spreadsheet",
             "Bundle",
@@ -1575,6 +1573,7 @@ def main():
             my_expander.write(df2.loc[df2.index.isin([user_input])])
 
             # my_expander.write(df2.loc[:,user_input])
+    '''
     if genre == "Community Mixing":
         my_expander = st.beta_expander("Explanation of Community Partitions")
         my_expander.markdown(
@@ -1587,6 +1586,7 @@ def main():
         )
 
         community(first, color_code, color_dict)
+    '''
     def dontdo():
     #if genre == "3D":
         st.markdown("""This visualization is a work in progress, the results are not yet fully reliable""")

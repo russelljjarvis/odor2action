@@ -7,28 +7,9 @@ holoviews
 pyvis==0.1.9
 matplotlib==2.2.5
 scikit-image
-python-louvain
 networkx==2.5.1
 pandas==1.1.0
 pyveplot
 seaborn==0.9.1
 openpyxl==3.0.0
-
-#tkinter
-
-#colorlover==0.3.0
-
-#-e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=python-louvain
-#python-igraph
-
-#dash_bio==0.7.0
-#agraph-python
-
-#egg=community
-
-#bokeh
-#streamlit_agraph
-#==2.2.2
-#-e git+https://github.com/taynaud/python-louvain.git@networkx2#egg=networkx==2.5.1
-#hiveplot
-#hiveplotlib
+click==8

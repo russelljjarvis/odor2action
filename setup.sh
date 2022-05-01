@@ -1,21 +1,43 @@
 
-sudo apt-get update
-#sudo apt-get install graphviz graphviz-dev
-sudo python3 -m pip install -r requirements.txt
-sudo python3 -m pip install seaborn
-sudo python3 -m pip install bs4 pyvis dash_bio
-sudo python3 -m pip install natsort dask plotly tabulate streamlit-agraph
-#git clone https://github.com/pygraphviz/pygraphviz; cd pygraphviz; sudo python3 setup.py install; cd -
-sudo python3 -m conda install -c pyvis holoviews bokeh seaborn dash_bio
-sudo conda install -c pyviz holoviews# bokeh graphviz_layout
-sudo python3 -m pip install git+https://github.com/pyviz/holoviews.git
-git clone https://github.com/pyviz/holoviews.git
-cd holoviews; sudo pip install -e .; cd ..;
-#sudo python3 -m pip install pygraphviz
+apt-get update
+#apt-get upgrade
+
+#python -m pip install -U pip
+#apt-get install graphviz graphviz-dev
+#conda install -c cython# bokeh graphviz_layout
+python -m pip install numpy --upgrade --ignore-installed
+python -m pip install cython --upgrade --ignore-installed
+
+python -m pip install -r requirements.txt
+#conda install -c pyviz scikit-image# bokeh graphviz_layout
+#python -m conda install -c pyvis bokeh seaborn scikit-image # dash_bio
+#python -m pip install bokeh# holoviews==1.14.1 seaborn
+python -m pip install pyvis cython scikit-image #dash_bio dask
+python -m pip install plotly tabulate # hiveplotlib hiveplot pygraphviz#==2.0.0#2.2
+#python -m pip install streamlit --upgrade --ignore-installed
+#python -m pip install pygraphviz
+# streamlit-agraph
+#python -m pip install python-igraph
+
+#$(which python) -m pip install git+https://github.com/taynaud/python-louvain.git@networkx2
+#python -m pip install git+https://github.com/taynaud/python-louvain.git@networkx2
+
+
+python -m pip install python-louvain #git+https://github.com/taynaud/python-louvain.git@networkx2
+#git clone https://github.com/taynaud/python-louvain.git@networkx2; cd networkx2; python setup.py install; cd -
+#python make_serial_plots0.py
+#python make_serial_plots1.py
+#python -c "from holoviews.operation.datashader import datashade"
+#python -m pip install git+https://github.com/pyviz/holoviews.git
+#git clone https://github.com/pyviz/holoviews.git
+#cd holoviews; pip install -e .; cd ..;
+#python -m pip install pygraphviz
+
+
 mkdir -p ~/.streamlit/
 echo "\
 [general]\n\
-email = \"russelljarvis@protonmail.com\"\n\
+email = \"rjjarvis@asu.edu\"\n\
 " > ~/.streamlit/credentials.toml
 echo "\
 [server]\n\

@@ -1,0 +1,2 @@
+python3-tk
+ghostscript python3-tk

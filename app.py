@@ -1418,20 +1418,7 @@ def main():
             my_expander.write(df2.loc[df2.index.isin([user_input])])
 
             # my_expander.write(df2.loc[:,user_input])
-    '''
-    if genre == "Community Mixing":
-        my_expander = st.beta_expander("Explanation of Community Partitions")
-        my_expander.markdown(
-            """Communities in the graph on the left are not IRG 1-3, but instead communities found by blind network analysis. It's appropritate to use a different color code for the four inferred communities. \
-        For contrast in the graph on the right, machine driven community detection clusters persist, but now nodes (dots) are color coded IRG-1-3 \n \
-        This suggests that the formal memberships eg. \"IRG 1\" does not determine the machine generated communities. In otherwords spontaneuosly emerging community groups may be significantly different to formal group assignments.
-        The stochastic community detection algorithm uses a differently seeded random number generator every time so the graph appears differently each time the function is called.
-        The algorithm is called Louvain community detection. The Louvain Community algorithm detects 5 communities, but only 2 communities with membership >=3. A grey filled convex hull is drawn around each of the two larger communities.
-        """
-        )
 
-        community(first, color_code, color_dict)
-    '''
     def dontdo():
     #if genre == "3D":
         st.markdown("""This visualization is a work in progress, the results are not yet fully reliable""")
